@@ -1,58 +1,53 @@
-# ⚠️ LEE ESTE ARCHIVO PRIMERO ANTES DE BUSCAR BUGS
+# ⚠️ ERRORES CONOCIDOS — FruteriaPro
 
-# Errores Conocidos — FruteriaPro
+## v2.0 — Módulos nuevos
 
-## Stack tecnológico
-- HTML5 puro + CSS3 + JavaScript vanilla
-- Sin frameworks, sin dependencias externas
-- Sin Firebase — funciona 100% offline
-- localStorage para persistencia
+### Dashboard
+| Problema | Solución |
+|----------|---------|
+| KPIs muestran $0.00 al abrir | Es normal si no hay ventas del día; los datos se cargan de `fp_ventas` |
+| Gráfico de barras no aparece | Verificar que el div `#dash-barchart` esté en el DOM (page-dashboard activo) |
+| Top 5 vacío con ventas del día | Las ventas deben tener `fecha` que inicie con la fecha de hoy en ISO |
 
-## Cómo abrir la app
-- Doble clic en ABRIR-FRUTERIA.bat
-- O abrir fruteria-pro.html directo en el navegador
-- No necesita servidor local (no hay Firebase Auth)
+### Módulo de Caja
+| Problema | Solución |
+|----------|---------|
+| Botón "Abrir Caja" no responde | Verifica que no haya ya una caja abierta en localStorage `fp_caja_apertura` |
+| Declaración de cierre no imprime | `window.print()` puede estar bloqueado; revisar permisos del navegador |
+| Resumen del turno no incluye ventas recientes | El filtro usa `new Date(venta.fecha) >= new Date(apertura.fecha)`; revisar zonas horarias |
+| "Caja cerrada" aparece aunque esté abierta | Refrescar la página; `renderCaja()` lee de localStorage directamente |
 
-## Errores comunes y soluciones
+### Métodos de pago (10 métodos)
+| Problema | Solución |
+|----------|---------|
+| Pago Mixto no muestra panel | Verificar que `selPago('mixto', el)` active `#mixto-panel` con `display:block` |
+| Historial muestra ID en vez de nombre | `venta.metodo` guarda el label con emoji; `venta.metodoId` guarda el ID interno |
+| Filtro de historial no filtra Mixto | Usar opción "🔀 Pago Mixto" — busca `venta.metodo.startsWith('🔀')` |
 
-### ❌ La app no carga / pantalla en blanco
-- Causa: Error JavaScript al arrancar
-- Diagnóstico: F12 → Console → buscar error en rojo
-- Solución más común: localStorage corrupto → F12 → localStorage.clear(); location.reload();
+### Generador de Licencias
+| Problema | Solución |
+|----------|---------|
+| Licencia PRO generada no funciona al login | `validarLicencia()` busca en `fp_licencias_generadas`; verificar que se guardó correctamente |
+| DEMO generada no bloquea al vencer | Verificar clave `fp_demo_activated_[btoa(code)]` en localStorage |
+| Timer DEMO incorrecto tras cambiar fecha del sistema | `worldtimeapi.org` detecta manipulación de fecha local si hay internet |
+| Modal PRO no muestra resultado | `gel('lic-pro-form').style.display='none'` debe ejecutarse en `generarLicPro()` |
 
-### ❌ Los productos no se guardan
-- Causa: localStorage lleno o bloqueado por el navegador
-- Verificar: F12 → Application → Local Storage → buscar fp_productos
-- Solución: Exportar datos, limpiar caché, reimportar
+### Protección DEMO
+| Problema | Solución |
+|----------|---------|
+| Overlay `#demoBlock` no aparece al vencer | `checkDemoExpiry()` debe llamarse en `DOMContentLoaded` + cada 60 segundos |
+| Badge de countdown no se ve | `#demo-badge` inicia con `display:none`; solo aparece si el usuario tiene DEMO activa |
+| ESC cierra el overlay | El listener de ESC en `showDemoBlock()` usa `e.preventDefault()` + `capture:true` |
+| DEMO estática `FP-DEMO-2026` no bloquea antes de diciembre | Solo se bloquea si `new Date(lic.vence) < new Date()`; antes de esa fecha es válida |
 
-### ❌ El carrito no calcula bien en Bs
-- Causa: La tasa de cambio no está configurada
-- Solución: Ir a Configuración → actualizar tasa Bs/$
+## v1.0 — Problemas base
 
-### ❌ Búsqueda no encuentra productos
-- Causa: El producto está desactivado o con stock 0
-- Solución: Ir a Inventario → verificar estado del producto
-
-### ❌ No imprime el recibo correctamente
-- Causa: Bloqueador de popups del navegador
-- Solución: Permitir popups para este sitio
-
-### ❌ Los emojis no se ven correctamente
-- Causa: Fuente del sistema no soporta emojis
-- Solución: Usar Chrome o Edge (mejor soporte de emojis)
-
-## Archivos del proyecto
-| Archivo | Función |
-|---------|---------|
-| fruteria-pro.html | APP COMPLETA — todo en un solo archivo |
-| ABRIR-FRUTERIA.bat | Abre la app con doble clic |
-| _CLAUDE-CONTEXT/ | Contexto para Claude — leer siempre primero |
-
-## Estructura del código en fruteria-pro.html
-- Líneas 1-XXX: HTML estructura y estilos CSS
-- Líneas XXX-XXX: Datos de productos (PRODUCTS array)
-- Líneas XXX-XXX: Lógica del carrito y POS
-- Líneas XXX-XXX: Lógica de inventario
-- Líneas XXX-XXX: Historial y reportes
-- Líneas XXX-XXX: Configuración y backup
-- Para encontrar una función: Ctrl+F y buscar "function nombreFuncion"
+| Error | Solución |
+|-------|---------|
+| "No se encontraron productos" | Verifica el filtro de categoría o borra la búsqueda |
+| Productos sin precio | Editar el producto desde Inventario |
+| Datos perdidos al cambiar navegador | Los datos se guardan POR navegador en localStorage |
+| App en blanco al abrir | Usa Chrome, Edge o Firefox (no IE) |
+| Stock no baja al vender | Confirmar la venta completa con el botón verde del modal |
+| La tasa no actualiza el carrito | Abrir/cerrar el modal de cobro para refrescar |
+| Datos borrados al limpiar caché | Exportar backup JSON regularmente desde Configuración |
