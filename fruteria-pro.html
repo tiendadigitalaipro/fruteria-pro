@@ -245,9 +245,45 @@ tbody tr:last-child td{border-bottom:none;}
   #receipt-content{position:fixed;inset:0;font-family:monospace;font-size:13px;padding:20px;}
 }
 .receipt{font-family:'Courier New',monospace;font-size:13px;line-height:1.8;white-space:pre-wrap;}
+
+/* ===== LOGIN SCREEN ===== */
+#loginScreen{position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#0d2b1d 0%,#1b4332 55%,#2d6a4f 100%);display:flex;align-items:center;justify-content:center;}
+.login-card{background:#fff;border-radius:18px;padding:40px 38px;width:92%;max-width:420px;box-shadow:0 24px 80px rgba(0,0,0,0.45);text-align:center;}
+.login-logo{font-size:58px;margin-bottom:6px;line-height:1;}
+.login-title{font-size:27px;font-weight:800;color:#1b4332;margin-bottom:4px;}
+.login-sub{font-size:13px;color:#6b8f71;margin-bottom:28px;font-weight:500;}
+.login-field{text-align:left;margin-bottom:15px;}
+.login-field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#4a7c59;margin-bottom:5px;}
+.login-field input{width:100%;padding:11px 14px;border:1.5px solid #c8e6c9;border-radius:9px;font-size:14px;color:#1a2e1a;outline:none;transition:border-color .2s;background:#f9fbe7;}
+.login-field input:focus{border-color:#2d6a4f;background:#fff;}
+.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#2d6a4f,#52b788);border:none;border-radius:10px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;margin-top:10px;transition:all .2s;letter-spacing:.3px;}
+.login-btn:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 6px 20px rgba(45,106,79,0.4);}
+.login-error{background:#fee2e2;color:#991b1b;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;margin-top:14px;display:none;text-align:left;}
+.login-error.show{display:block;}
+.login-footer{margin-top:22px;font-size:11px;color:#9ca3af;letter-spacing:.5px;}
 </style>
 </head>
 <body>
+<!-- ===== LOGIN / LICENCIA ===== -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">🍎</div>
+    <div class="login-title">FruteriaPro</div>
+    <div class="login-sub">Sistema POS para Fruterías</div>
+    <div class="login-field">
+      <label for="shopName">Nombre de tu frutería</label>
+      <input type="text" id="shopName" placeholder="Ej: Frutería La Esperanza" autocomplete="off">
+    </div>
+    <div class="login-field">
+      <label for="licenseCode">Código de licencia</label>
+      <input type="text" id="licenseCode" placeholder="Ej: FP-ADMIN-2026" autocomplete="off" spellcheck="false">
+    </div>
+    <button class="login-btn" onclick="validarLicencia()">🚀 Ingresar al Sistema</button>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-footer">ZYNC Electronics © 2026</div>
+  </div>
+</div>
+
 <div id="app">
   <!-- SIDEBAR -->
   <div class="sidebar" id="sidebar">
@@ -264,6 +300,7 @@ tbody tr:last-child td{border-bottom:none;}
       <div class="nav-item" onclick="showPage('historial',this)" data-page="historial"><span class="nav-icon">📋</span><span class="nav-label">Historial</span></div>
       <div class="nav-item" onclick="showPage('reportes',this)" data-page="reportes"><span class="nav-icon">📊</span><span class="nav-label">Reportes</span></div>
       <div class="nav-item" onclick="showPage('configuracion',this)" data-page="configuracion"><span class="nav-icon">⚙️</span><span class="nav-label">Configuración</span></div>
+      <div class="nav-item" onclick="cerrarSesion()" style="color:rgba(255,120,120,0.85);margin-top:8px;" title="Cerrar sesión"><span class="nav-icon">🚪</span><span class="nav-label">Cerrar sesión</span></div>
     </nav>
     <div class="sidebar-footer">
       <button class="btn-collapse" onclick="toggleSidebar()" title="Colapsar">☰</button>
@@ -459,6 +496,7 @@ tbody tr:last-child td{border-bottom:none;}
               <button class="btn btn-ghost btn-sm" onclick="exportarDatos()">📤 Exportar Datos</button>
               <button class="btn btn-danger btn-sm" onclick="borrarVentas()">🗑 Borrar Ventas</button>
               <button class="btn btn-danger btn-sm" onclick="resetearApp()">⚠️ Reset Total</button>
+              <button class="btn btn-ghost btn-sm" onclick="cerrarSesion()" style="border-color:#f77f00;color:#d96b00;">🚪 Cerrar sesión</button>
             </div>
           </div>
         </div>
@@ -1359,9 +1397,67 @@ document.querySelectorAll('.modal-overlay').forEach(overlay=>{
 });
 
 // ============================================================
+// LOGIN / LICENCIA
+// ============================================================
+const LICENCIAS_VALIDAS=[
+  {code:'FP-ADMIN-2026',tipo:'ADMIN',negocio:null,vence:'2027-12-31'},
+  {code:'FP-PRO-ZYNC',  tipo:'PRO',  negocio:null,vence:'2027-12-31'},
+  {code:'FP-DEMO-2026', tipo:'DEMO', negocio:null,vence:'2026-12-31'},
+];
+
+var _loginVisible=true;
+
+function _hideLogin(shop){
+  var ls=document.getElementById('loginScreen');
+  ls.style.setProperty('display','none','important');
+  ls.style.visibility='hidden';
+  _loginVisible=false;
+  if(shop){
+    var bn=document.querySelector('.brand-name');
+    if(bn)bn.textContent=shop;
+  }
+}
+
+function mostrarError(msg){
+  var el=document.getElementById('login-error');
+  el.textContent=msg;
+  el.classList.add('show');
+}
+
+function validarLicencia(){
+  var shop=document.getElementById('shopName').value.trim();
+  var code=document.getElementById('licenseCode').value.trim().toUpperCase();
+  if(!shop){mostrarError('Ingresa el nombre de tu frutería');return;}
+  if(!code){mostrarError('Ingresa tu código de licencia');return;}
+  var lic=LICENCIAS_VALIDAS.find(function(l){return l.code===code;});
+  if(!lic){mostrarError('❌ Código inválido. Contacta a ZYNC Electronics');return;}
+  if(new Date(lic.vence)<new Date()){mostrarError('❌ Licencia vencida');return;}
+  localStorage.setItem('fp_session',JSON.stringify({shop:shop,code:code,tipo:lic.tipo,loginAt:new Date().toISOString()}));
+  _hideLogin(shop);
+}
+
+function cerrarSesion(){
+  localStorage.removeItem('fp_session');
+  location.reload();
+}
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&_loginVisible)validarLicencia();
+});
+
+// ============================================================
 // START
 // ============================================================
-window.addEventListener('DOMContentLoaded',init);
+window.addEventListener('DOMContentLoaded',function(){
+  var session=localStorage.getItem('fp_session');
+  if(session){
+    try{
+      var s=JSON.parse(session);
+      _hideLogin(s.shop||null);
+    }catch(e){localStorage.removeItem('fp_session');}
+  }
+  init();
+});
 </script>
 </body>
 </html>
