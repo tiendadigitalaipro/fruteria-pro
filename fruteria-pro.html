@@ -261,6 +261,61 @@ tbody tr:last-child td{border-bottom:none;}
 .login-error{background:#fee2e2;color:#991b1b;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;margin-top:14px;display:none;text-align:left;}
 .login-error.show{display:block;}
 .login-footer{margin-top:22px;font-size:11px;color:#9ca3af;letter-spacing:.5px;}
+
+/* ===== DEMO BADGE & BLOCK ===== */
+.demo-badge{background:#e63946;color:#fff;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;white-space:nowrap;cursor:default;animation:demoPulse 2s infinite;}
+@keyframes demoPulse{0%,100%{opacity:1;}50%{opacity:.7;}}
+#demoBlock{position:fixed;inset:0;background:linear-gradient(135deg,#0d2b1d 0%,#1b4332 60%,#2d6a4f 100%);z-index:999999;display:flex;align-items:center;justify-content:center;pointer-events:all;overflow:hidden;}
+#demoBlock.hidden{display:none;}
+.demo-block-card{background:#fff;border-radius:18px;padding:46px 38px;width:92%;max-width:460px;box-shadow:0 24px 80px rgba(0,0,0,.5);text-align:center;}
+.btn-whatsapp{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:linear-gradient(135deg,#25d366,#128c7e);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;text-decoration:none;}
+.btn-whatsapp:hover{filter:brightness(1.08);}
+
+/* ===== LICENSE GENERATOR ===== */
+.lic-code-box{background:#1b4332;color:#4ade80;font-family:'Courier New',monospace;font-size:20px;font-weight:800;letter-spacing:4px;padding:18px;border-radius:10px;text-align:center;margin:14px 0;word-break:break-all;}
+.lic-list{max-height:180px;overflow-y:auto;margin-top:10px;}
+.lic-list-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-radius:8px;background:var(--bg2);margin-bottom:5px;font-size:12px;gap:8px;flex-wrap:wrap;}
+.lic-tag{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+.lic-tag-pro{background:#d4edda;color:#155724;}
+.lic-tag-demo{background:#fff3cd;color:#856404;}
+
+/* ===== CAJA ===== */
+.caja-status-bar{padding:14px 18px;border-radius:var(--radius);margin-bottom:18px;border:1.5px solid;display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px;}
+.caja-open-bar{background:#d4edda;border-color:#c3e6cb;color:#155724;}
+.caja-closed-bar{background:#f8d7da;border-color:#f5c6cb;color:#721c24;}
+.metodo-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--bg3);font-size:13px;}
+.metodo-row:last-child{border-bottom:none;}
+.diff-pos{color:#2d6a4f;font-weight:700;}
+.diff-neg{color:#e63946;font-weight:700;}
+
+/* ===== DASHBOARD ===== */
+.dash-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+.dash-kpi{background:var(--card);border-radius:var(--radius);padding:18px;border:1px solid var(--border);border-left:5px solid var(--c1,#52b788);box-shadow:0 2px 8px var(--shadow);}
+.dash-kpi-icon{font-size:24px;margin-bottom:6px;}
+.dash-kpi-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+.dash-kpi-val{font-size:19px;font-weight:800;color:var(--text);}
+.dash-kpi-sub{font-size:11px;color:var(--text3);margin-top:3px;}
+.bar-chart-wrap{display:flex;align-items:flex-end;gap:5px;height:100px;}
+.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;height:100%;justify-content:flex-end;}
+.bar-fill{width:100%;border-radius:4px 4px 0 0;min-height:3px;transition:height .4s;}
+.bar-fill.has-data{background:var(--accent2);}
+.bar-fill.no-data{background:var(--border);}
+.bar-day{font-size:9px;color:var(--text3);margin-top:4px;text-align:center;}
+.bar-amt{font-size:8px;font-weight:700;color:var(--text2);margin-bottom:2px;text-align:center;}
+.top5-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bg3);font-size:13px;}
+.top5-row:last-child{border-bottom:none;}
+.alert-item{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;margin-bottom:6px;font-size:13px;}
+.alert-red{background:#fee2e2;color:#991b1b;}
+.alert-yellow{background:#fef9c3;color:#854d0e;}
+.alert-green{background:#d4edda;color:#155724;}
+.mixto-panel{background:var(--bg2);border-radius:var(--radius2);padding:14px;margin-top:10px;border:1.5px solid var(--border);}
+@media(max-width:900px){.dash-kpi-grid{grid-template-columns:repeat(2,1fr);}}
+/* Print caja */
+@media print{
+  body *{display:none!important;}
+  #caja-declaracion,#caja-declaracion *,#receipt-content,#receipt-content *{display:block!important;}
+  #caja-declaracion{position:fixed;inset:0;padding:24px;font-family:monospace;font-size:13px;}
+}
 </style>
 </head>
 <body>
@@ -284,6 +339,17 @@ tbody tr:last-child td{border-bottom:none;}
   </div>
 </div>
 
+<!-- ===== DEMO BLOCK OVERLAY (no cierra con ESC, no tiene X) ===== -->
+<div id="demoBlock" class="hidden">
+  <div class="demo-block-card">
+    <div style="font-size:64px;line-height:1;margin-bottom:12px;">⏰</div>
+    <div style="font-size:24px;font-weight:800;color:#1b4332;margin-bottom:10px;">Tu período de prueba de 5 días ha finalizado</div>
+    <div style="font-size:14px;color:#6b8f71;line-height:1.6;margin-bottom:16px;">Para continuar usando FruteriaPro,<br>adquiere la versión PRO.</div>
+    <div style="font-size:13px;color:#4a7c59;font-weight:600;margin-bottom:22px;">📱 Contacta a ZYNC Electronics: @zyncelectronics</div>
+    <button class="btn-whatsapp" onclick="contactarZync()">💬 Contactar para adquirir PRO</button>
+  </div>
+</div>
+
 <div id="app">
   <!-- SIDEBAR -->
   <div class="sidebar" id="sidebar">
@@ -295,10 +361,12 @@ tbody tr:last-child td{border-bottom:none;}
       </div>
     </div>
     <nav class="sidebar-nav">
+      <div class="nav-item" onclick="showPage('dashboard',this)" data-page="dashboard"><span class="nav-icon">📊</span><span class="nav-label">Dashboard</span></div>
       <div class="nav-item active" onclick="showPage('pos',this)" data-page="pos"><span class="nav-icon">🛒</span><span class="nav-label">Punto de Venta</span></div>
       <div class="nav-item" onclick="showPage('inventario',this)" data-page="inventario"><span class="nav-icon">📦</span><span class="nav-label">Inventario</span></div>
       <div class="nav-item" onclick="showPage('historial',this)" data-page="historial"><span class="nav-icon">📋</span><span class="nav-label">Historial</span></div>
       <div class="nav-item" onclick="showPage('reportes',this)" data-page="reportes"><span class="nav-icon">📊</span><span class="nav-label">Reportes</span></div>
+      <div class="nav-item" onclick="showPage('caja',this)" data-page="caja"><span class="nav-icon">🏧</span><span class="nav-label">Caja</span></div>
       <div class="nav-item" onclick="showPage('configuracion',this)" data-page="configuracion"><span class="nav-icon">⚙️</span><span class="nav-label">Configuración</span></div>
       <div class="nav-item" onclick="cerrarSesion()" style="color:rgba(255,120,120,0.85);margin-top:8px;" title="Cerrar sesión"><span class="nav-icon">🚪</span><span class="nav-label">Cerrar sesión</span></div>
     </nav>
@@ -312,12 +380,36 @@ tbody tr:last-child td{border-bottom:none;}
     <div class="topbar">
       <div class="page-title" id="topbar-title">🛒 Punto de Venta</div>
       <div class="topbar-right">
+        <span id="demo-badge" class="demo-badge" style="display:none;"></span>
         <span class="tasa-badge" onclick="openModal('modalTasa')" title="Cambiar tasa">💱 Tasa: <span id="tasa-display">40.00</span> Bs/$</span>
         <span style="font-size:13px;color:var(--text2);" id="fecha-display"></span>
       </div>
     </div>
 
     <div class="page-body">
+
+      <!-- ===== DASHBOARD PAGE ===== -->
+      <div class="page" id="page-dashboard">
+        <div style="margin-bottom:16px;"><h2 style="font-size:18px;font-weight:800;">📊 Dashboard</h2></div>
+        <!-- KPIs -->
+        <div class="dash-kpi-grid" id="dash-kpis"></div>
+        <!-- Gráfico semana + Top 5 -->
+        <div class="grid-2" style="margin-bottom:20px;">
+          <div class="card">
+            <div class="card-title" style="margin-bottom:14px;">📈 Ventas de la semana</div>
+            <div class="bar-chart-wrap" id="dash-barchart"></div>
+          </div>
+          <div class="card">
+            <div class="card-title" style="margin-bottom:14px;">🏆 Top 5 productos hoy</div>
+            <div id="dash-top5"></div>
+          </div>
+        </div>
+        <!-- Alertas -->
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px;">🔔 Alertas activas</div>
+          <div id="dash-alertas"></div>
+        </div>
+      </div>
 
       <!-- ===== POS PAGE ===== -->
       <div class="page active" id="page-pos">
@@ -427,13 +519,16 @@ tbody tr:last-child td{border-bottom:none;}
           <input type="date" id="hist-fecha-hasta" onchange="renderHistorial()">
           <select id="hist-metodo-filter" onchange="renderHistorial()">
             <option value="">Todos los métodos</option>
-            <option>Efectivo $</option>
-            <option>Efectivo Bs</option>
-            <option>Pago Móvil</option>
-            <option>Zelle</option>
-            <option>Transferencia</option>
-            <option>Punto Débito/Crédito</option>
-            <option>Mixto</option>
+            <option>💵 Efectivo USD</option>
+            <option>💴 Efectivo Bs</option>
+            <option>📱 Pago Móvil</option>
+            <option>💙 Zelle</option>
+            <option>🟡 Binance Pay</option>
+            <option>🏦 Transferencia</option>
+            <option>💳 Débito</option>
+            <option>💳 Crédito</option>
+            <option>💶 Otras Divisas</option>
+            <option value="mixto-filter">🔀 Pago Mixto</option>
           </select>
           <button class="btn btn-ghost btn-sm" onclick="limpiarFiltrosHistorial()">✕ Limpiar</button>
         </div>
@@ -474,6 +569,19 @@ tbody tr:last-child td{border-bottom:none;}
         </div>
       </div>
 
+      <!-- ===== CAJA PAGE ===== -->
+      <div class="page" id="page-caja">
+        <div class="card-header" style="margin-bottom:16px;">
+          <h2 style="font-size:18px;font-weight:800;">🏧 Módulo de Caja</h2>
+        </div>
+        <div id="caja-status-container"></div>
+        <div class="grid-2" id="caja-content">
+          <!-- Apertura / Cierre se renderiza aquí -->
+        </div>
+        <!-- Declaración para imprimir -->
+        <div id="caja-declaracion" style="display:none;"></div>
+      </div>
+
       <!-- ===== CONFIGURACION PAGE ===== -->
       <div class="page" id="page-configuracion">
         <div style="margin-bottom:16px;"><h2 style="font-size:18px;font-weight:800;">⚙️ Configuración</h2></div>
@@ -498,6 +606,19 @@ tbody tr:last-child td{border-bottom:none;}
               <button class="btn btn-danger btn-sm" onclick="resetearApp()">⚠️ Reset Total</button>
               <button class="btn btn-ghost btn-sm" onclick="cerrarSesion()" style="border-color:#f77f00;color:#d96b00;">🚪 Cerrar sesión</button>
             </div>
+          </div>
+        </div>
+
+        <!-- PANEL LICENCIAS -->
+        <div class="card" style="margin-top:20px;">
+          <div class="card-title" style="margin-bottom:14px;">🔑 Gestión de Licencias</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;">
+            <button class="btn btn-primary" onclick="openModal('modalGenLicPro')">➕ Generar Licencia PRO</button>
+            <button class="btn btn-orange" onclick="generarLicDemo()">🕐 Generar Licencia DEMO (5 días)</button>
+          </div>
+          <div class="card-title" style="margin-bottom:10px;font-size:11px;">Licencias generadas</div>
+          <div id="lic-list-wrap">
+            <div class="lic-list" id="lic-list"></div>
           </div>
         </div>
       </div>
@@ -558,6 +679,44 @@ tbody tr:last-child td{border-bottom:none;}
       </div>
       <div class="form-group"><label class="form-label">Método de Pago</label>
         <div class="pay-methods" id="pay-methods-grid"></div>
+      </div>
+      <!-- PAGO MIXTO -->
+      <div class="mixto-panel" id="mixto-panel" style="display:none;">
+        <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px;">🔀 Dividir pago en dos métodos</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Método 1</label>
+            <select class="form-select" id="mixto-m1">
+              <option value="">-- Método --</option>
+              <option value="💵 Efectivo USD">💵 Efectivo USD</option>
+              <option value="💴 Efectivo Bs">💴 Efectivo Bs</option>
+              <option value="📱 Pago Móvil">📱 Pago Móvil</option>
+              <option value="💙 Zelle">💙 Zelle</option>
+              <option value="🟡 Binance Pay">🟡 Binance Pay</option>
+              <option value="🏦 Transferencia">🏦 Transferencia</option>
+              <option value="💳 Débito">💳 Débito</option>
+              <option value="💳 Crédito">💳 Crédito</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Monto ($)</label><input type="number" class="form-input" id="mixto-a1" step="0.01" min="0" placeholder="0.00"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Método 2</label>
+            <select class="form-select" id="mixto-m2">
+              <option value="">-- Método --</option>
+              <option value="💵 Efectivo USD">💵 Efectivo USD</option>
+              <option value="💴 Efectivo Bs">💴 Efectivo Bs</option>
+              <option value="📱 Pago Móvil">📱 Pago Móvil</option>
+              <option value="💙 Zelle">💙 Zelle</option>
+              <option value="🟡 Binance Pay">🟡 Binance Pay</option>
+              <option value="🏦 Transferencia">🏦 Transferencia</option>
+              <option value="💳 Débito">💳 Débito</option>
+              <option value="💳 Crédito">💳 Crédito</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Monto ($)</label><input type="number" class="form-input" id="mixto-a2" step="0.01" min="0" placeholder="0.00"></div>
+        </div>
       </div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Monto Recibido ($)</label><input type="number" class="form-input" id="cobro-recibido" step="0.01" min="0" placeholder="0.00" oninput="calcVuelto()"></div>
@@ -621,6 +780,64 @@ tbody tr:last-child td{border-bottom:none;}
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modalStock')">Cancelar</button>
       <button class="btn btn-primary" onclick="aplicarAjusteStock()">✅ Aplicar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL GENERAR LICENCIA PRO -->
+<div class="modal-overlay" id="modalGenLicPro">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <span class="modal-title">➕ Generar Licencia PRO</span>
+      <button class="btn-close-modal" onclick="closeModal('modalGenLicPro')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="lic-pro-form">
+        <div class="form-group"><label class="form-label">Nombre del Negocio Cliente *</label><input type="text" class="form-input" id="lic-pro-nombre" placeholder="Ej: Frutería Los Andes"></div>
+        <div class="form-group"><label class="form-label">Duración</label>
+          <select class="form-select" id="lic-pro-dur">
+            <option value="30">1 mes</option>
+            <option value="90">3 meses</option>
+            <option value="180">6 meses</option>
+            <option value="365" selected>1 año</option>
+          </select>
+        </div>
+      </div>
+      <div id="lic-pro-resultado" style="display:none;">
+        <div style="text-align:center;margin-bottom:8px;font-size:13px;color:var(--text3);">Código generado para</div>
+        <div id="lic-pro-cliente-name" style="text-align:center;font-weight:700;font-size:15px;margin-bottom:6px;"></div>
+        <div class="lic-code-box" id="lic-pro-code"></div>
+        <div style="text-align:center;font-size:12px;color:var(--text3);" id="lic-pro-vence-label"></div>
+        <div style="display:flex;gap:8px;margin-top:14px;justify-content:center;">
+          <button class="btn btn-primary" onclick="copiarLicPro()">📋 Copiar código</button>
+          <button class="btn btn-ghost" onclick="resetModalLicPro()">➕ Generar otro</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" id="lic-pro-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalGenLicPro')">Cancelar</button>
+      <button class="btn btn-primary" onclick="generarLicPro()">🔑 Generar Licencia</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RESULTADO LICENCIA DEMO -->
+<div class="modal-overlay" id="modalLicDemoResult">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <span class="modal-title">🕐 Licencia DEMO generada</span>
+      <button class="btn-close-modal" onclick="closeModal('modalLicDemoResult')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="text-align:center;font-size:13px;color:var(--text3);margin-bottom:4px;">Válida por <strong>5 días</strong> desde su activación</div>
+      <div class="lic-code-box" id="lic-demo-code"></div>
+      <div style="text-align:center;font-size:12px;color:var(--text3);">⚠️ La licencia vence 5 días después del primer uso</div>
+      <div style="display:flex;justify-content:center;margin-top:14px;">
+        <button class="btn btn-primary" onclick="copiarLicDemo()">📋 Copiar código</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalLicDemoResult')">Cerrar</button>
     </div>
   </div>
 </div>
@@ -721,14 +938,16 @@ const PRODUCTOS_DEFAULT = [
 ];
 
 const METODOS_PAGO = [
-  {icon:'💵',label:'Efectivo $'},
-  {icon:'💴',label:'Efectivo Bs'},
-  {icon:'📱',label:'Pago Móvil'},
-  {icon:'🏦',label:'Zelle'},
-  {icon:'🟡',label:'Binance Pay'},
-  {icon:'🔄',label:'Transferencia'},
-  {icon:'💳',label:'Punto Débito/Crédito'},
-  {icon:'🔀',label:'Mixto'},
+  {id:'efectivo_usd', nombre:'💵 Efectivo USD',  moneda:'USD'},
+  {id:'efectivo_bs',  nombre:'💴 Efectivo Bs',   moneda:'BS'},
+  {id:'pago_movil',   nombre:'📱 Pago Móvil',    moneda:'BS'},
+  {id:'zelle',        nombre:'💙 Zelle',          moneda:'USD'},
+  {id:'binance',      nombre:'🟡 Binance Pay',   moneda:'USDT'},
+  {id:'transferencia',nombre:'🏦 Transferencia', moneda:'BS'},
+  {id:'debito',       nombre:'💳 Débito',         moneda:'BS'},
+  {id:'credito',      nombre:'💳 Crédito',        moneda:'BS'},
+  {id:'divisas',      nombre:'💶 Otras Divisas',  moneda:'USD'},
+  {id:'mixto',        nombre:'🔀 Pago Mixto',     moneda:'MIXTO'},
 ];
 
 // ============================================================
@@ -789,14 +1008,18 @@ function init(){
   // Build category selects
   buildCatSelects();
   // Render
+  renderDashboard();
   renderPOS();
   renderInventario();
   renderHistorial();
   renderReportes();
+  renderCaja();
   loadConfig();
   // Set default hist dates
   sval('hist-fecha-desde',today());
   sval('hist-fecha-hasta',today());
+  // Render lic list if in config
+  renderLicList();
 }
 
 function buildCatSelects(){
@@ -818,7 +1041,7 @@ function buildCatSelects(){
 // ============================================================
 // NAVIGATION
 // ============================================================
-const PAGE_TITLES={pos:'🛒 Punto de Venta',inventario:'📦 Inventario',historial:'📋 Historial de Ventas',reportes:'📊 Reportes',configuracion:'⚙️ Configuración'};
+const PAGE_TITLES={pos:'🛒 Punto de Venta',inventario:'📦 Inventario',historial:'📋 Historial de Ventas',reportes:'📊 Reportes',caja:'🏧 Módulo de Caja',dashboard:'📊 Dashboard',configuracion:'⚙️ Configuración'};
 function showPage(page,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -830,6 +1053,9 @@ function showPage(page,el){
   if(page==='historial'){renderHistorial();renderHistStats();}
   if(page==='reportes'){renderReportes();}
   if(page==='inventario'){renderInventario();}
+  if(page==='caja'){renderCaja();}
+  if(page==='dashboard'){renderDashboard();}
+  if(page==='configuracion'){renderLicList();}
 }
 
 function toggleSidebar(){
@@ -981,15 +1207,20 @@ function abrirCobro(){
 
 function renderPayMethods(){
   shtml('pay-methods-grid',METODOS_PAGO.map(m=>`
-    <button class="pay-btn${STATE.payMethod===m.label?' active':''}" onclick="selPago('${m.label}',this)">
-      ${m.icon} ${m.label}
+    <button class="pay-btn${STATE.payMethod===m.id?' active':''}" onclick="selPago('${m.id}',this)">
+      ${m.nombre}
     </button>`).join(''));
+  // Show/hide mixto panel
+  const mixtoPanel=gel('mixto-panel');
+  if(mixtoPanel)mixtoPanel.style.display=STATE.payMethod==='mixto'?'block':'none';
 }
 
-function selPago(label,el){
-  STATE.payMethod=label;
+function selPago(id,el){
+  STATE.payMethod=id;
   document.querySelectorAll('.pay-btn').forEach(b=>b.classList.remove('active'));
   if(el)el.classList.add('active');
+  const mixtoPanel=gel('mixto-panel');
+  if(mixtoPanel)mixtoPanel.style.display=id==='mixto'?'block':'none';
 }
 
 function calcVuelto(){
@@ -1008,6 +1239,19 @@ function confirmarVenta(){
   const vuelto=Math.max(0,recibido-total);
   const notas=gval('cobro-notas');
 
+  // Método display name
+  const metObj=METODOS_PAGO.find(m=>m.id===STATE.payMethod);
+  let metodoLabel=metObj?metObj.nombre:STATE.payMethod;
+  let metodoMixto=null;
+  if(STATE.payMethod==='mixto'){
+    const m1=gval('mixto-m1'),a1=parseFloat(gel('mixto-a1')?.value)||0;
+    const m2=gval('mixto-m2'),a2=parseFloat(gel('mixto-a2')?.value)||0;
+    if(m1&&m2&&(a1+a2)>0){
+      metodoMixto={m1,a1,m2,a2};
+      metodoLabel=`🔀 Mixto: ${m1} $${a1.toFixed(2)} + ${m2} $${a2.toFixed(2)}`;
+    }
+  }
+
   const venta={
     id:Date.now(),
     fecha:new Date().toISOString(),
@@ -1016,7 +1260,9 @@ function confirmarVenta(){
     descuentoUSD:descuento,
     totalUSD:total,
     totalBs:total*STATE.tasa,
-    metodo:STATE.payMethod,
+    metodo:metodoLabel,
+    metodoId:STATE.payMethod,
+    metodoMixto,
     recibidoUSD:recibido,
     vueltoUSD:vuelto,
     tasa:STATE.tasa,
@@ -1213,7 +1459,7 @@ function renderHistorial(){
     const fd=v.fecha.slice(0,10);
     const mD=!desde||fd>=desde;
     const mH=!hasta||fd<=hasta;
-    const mM=!metodo||v.metodo===metodo;
+    const mM=!metodo||(metodo==='mixto-filter'?v.metodo.startsWith('🔀'):v.metodo===metodo);
     return mD&&mH&&mM;
   });
   const tbody=gel('hist-tbody');
@@ -1388,6 +1634,432 @@ function resetearApp(){
 }
 
 // ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard(){
+  const ventas=DB.get('ventas')||[];
+  const prods=DB.get('productos')||[];
+  const apertura=DB.get('caja_apertura');
+  const todayStr=today();
+
+  const hoy=ventas.filter(v=>v.fecha.startsWith(todayStr));
+  const totalHoyUSD=hoy.reduce((s,v)=>s+v.totalUSD,0);
+  const totalHoyBs=totalHoyUSD*STATE.tasa;
+  const stockBajo=prods.filter(p=>p.stock>0&&p.stock<=p.stockMin);
+  const sinStock=prods.filter(p=>p.stock===0);
+
+  // Método más usado hoy
+  const metCount={};
+  hoy.forEach(v=>{metCount[v.metodo]=(metCount[v.metodo]||0)+1;});
+  const topMet=Object.entries(metCount).sort((a,b)=>b[1]-a[1])[0];
+
+  // Producto más vendido hoy
+  const prodCount={};
+  hoy.forEach(v=>v.items.forEach(i=>{prodCount[i.nombre]=(prodCount[i.nombre]||0)+i.qty;}));
+  const topProd=Object.entries(prodCount).sort((a,b)=>b[1]-a[1])[0];
+
+  // KPIs
+  const cajaSt=apertura?`🟢 Abierta (${fmtDate(apertura.fecha).split(' ')[1]||''})`:' 🔴 Cerrada';
+  shtml('dash-kpis',`
+    <div class="dash-kpi" style="--c1:#2d6a4f;">
+      <div class="dash-kpi-icon">💰</div>
+      <div class="dash-kpi-label">Ventas hoy</div>
+      <div class="dash-kpi-val">${fmt$(totalHoyUSD)}</div>
+      <div class="dash-kpi-sub">${STATE.simbolo} ${totalHoyBs.toFixed(2)}</div>
+    </div>
+    <div class="dash-kpi" style="--c1:#e63946;">
+      <div class="dash-kpi-icon">📦</div>
+      <div class="dash-kpi-label">Stock bajo/agotado</div>
+      <div class="dash-kpi-val" style="color:${sinStock.length?'#e63946':stockBajo.length?'#856404':'inherit'}">${sinStock.length+stockBajo.length}</div>
+      <div class="dash-kpi-sub">${sinStock.length} agotados · ${stockBajo.length} bajos</div>
+    </div>
+    <div class="dash-kpi" style="--c1:#f77f00;">
+      <div class="dash-kpi-icon">🛒</div>
+      <div class="dash-kpi-label">Transacciones hoy</div>
+      <div class="dash-kpi-val">${hoy.length}</div>
+      <div class="dash-kpi-sub">ventas registradas</div>
+    </div>
+    <div class="dash-kpi" style="--c1:#52b788;">
+      <div class="dash-kpi-icon">💳</div>
+      <div class="dash-kpi-label">Método más usado hoy</div>
+      <div class="dash-kpi-val" style="font-size:13px;">${topMet?topMet[0]:'—'}</div>
+      <div class="dash-kpi-sub">${topMet?topMet[1]+' transacciones':''}</div>
+    </div>
+    <div class="dash-kpi" style="--c1:#9b5de5;">
+      <div class="dash-kpi-icon">📈</div>
+      <div class="dash-kpi-label">Producto más vendido hoy</div>
+      <div class="dash-kpi-val" style="font-size:13px;">${topProd?topProd[0]:'—'}</div>
+      <div class="dash-kpi-sub">${topProd?topProd[1]+' unidades':''}</div>
+    </div>
+    <div class="dash-kpi" style="--c1:#0096c7;">
+      <div class="dash-kpi-icon">🏧</div>
+      <div class="dash-kpi-label">Estado de caja</div>
+      <div class="dash-kpi-val" style="font-size:14px;">${cajaSt}</div>
+      <div class="dash-kpi-sub">${apertura?'Resp: '+apertura.responsable:''}</div>
+    </div>`);
+
+  // Gráfico de barras semana (últimos 7 días)
+  const dias=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const semana=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const ds=d.toISOString().slice(0,10);
+    const total=ventas.filter(v=>v.fecha.startsWith(ds)).reduce((s,v)=>s+v.totalUSD,0);
+    semana.push({dia:dias[d.getDay()],total,ds});
+  }
+  const maxVal=Math.max(...semana.map(d=>d.total),1);
+  shtml('dash-barchart',semana.map(d=>`
+    <div class="bar-col">
+      <div class="bar-amt">${d.total>0?'$'+d.total.toFixed(0):''}</div>
+      <div class="bar-fill ${d.total>0?'has-data':'no-data'}" style="height:${Math.max(3,(d.total/maxVal)*90)}px;"></div>
+      <div class="bar-day">${d.dia}</div>
+    </div>`).join(''));
+
+  // Top 5 productos hoy
+  const top5=Object.entries(prodCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  if(!top5.length){
+    shtml('dash-top5','<div style="color:var(--text3);font-size:13px;padding:20px 0;text-align:center;">Sin ventas hoy</div>');
+  } else {
+    const prodMap={};prods.forEach(p=>prodMap[p.nombre]=p);
+    shtml('dash-top5',top5.map(([n,q],i)=>{
+      const p=prodMap[n];
+      const totalP=hoy.flatMap(v=>v.items).filter(x=>x.nombre===n).reduce((s,x)=>s+x.subtotal,0);
+      return`<div class="top5-row">
+        <span style="font-size:12px;font-weight:700;color:var(--text3);min-width:18px;">${i+1}</span>
+        <span style="font-size:20px;">${p?p.emoji:'🌿'}</span>
+        <span style="flex:1;font-size:13px;">${n}</span>
+        <span class="badge badge-green">${q} uds</span>
+        <span style="font-weight:700;color:var(--orange);font-size:13px;">${fmt$(totalP)}</span>
+      </div>`;}).join(''));
+  }
+
+  // Alertas
+  const alertas=[];
+  sinStock.forEach(p=>alertas.push(`<div class="alert-item alert-red">🔴 <strong>Sin stock:</strong> ${p.emoji} ${p.nombre}</div>`));
+  stockBajo.forEach(p=>alertas.push(`<div class="alert-item alert-yellow">🟡 <strong>Stock bajo:</strong> ${p.emoji} ${p.nombre} — ${p.stock} ${p.unidad} (mín. ${p.stockMin})</div>`));
+  // DEMO countdown
+  const sessionRaw=localStorage.getItem('fp_session');
+  if(sessionRaw){try{const s=JSON.parse(sessionRaw);if(s.tipo==='DEMO'){alertas.push(`<div class="alert-item alert-yellow">⏳ <strong>Licencia DEMO activa</strong> — Revisa el contador en la barra superior</div>`);}}catch{}}
+  if(!alertas.length)alertas.push(`<div class="alert-item alert-green">✅ Sin alertas — Todo funciona correctamente</div>`);
+  shtml('dash-alertas',alertas.join(''));
+}
+
+// ============================================================
+// MÓDULO DE CAJA
+// ============================================================
+function renderCaja(){
+  const apertura=DB.get('caja_apertura');
+  const statusEl=gel('caja-status-container');
+  const contentEl=gel('caja-content');
+  if(!statusEl||!contentEl)return;
+
+  if(!apertura){
+    // CAJA CERRADA
+    statusEl.innerHTML=`<div class="caja-status-bar caja-closed-bar">🔴 Caja cerrada — No hay turno activo</div>`;
+    contentEl.innerHTML=`
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px;">🔓 Apertura de Caja</div>
+        <div class="form-group"><label class="form-label">Responsable / Cajero</label><input type="text" class="form-input" id="caja-responsable" placeholder="Nombre del cajero"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Monto inicial ($)</label><input type="number" class="form-input" id="caja-ini-usd" step="0.01" min="0" placeholder="0.00"></div>
+          <div class="form-group"><label class="form-label">Monto inicial (Bs)</label><input type="number" class="form-input" id="caja-ini-bs" step="0.01" min="0" placeholder="0.00"></div>
+        </div>
+        <div class="card-title" style="margin-bottom:10px;margin-top:10px;font-size:11px;">Billetes (opcional)</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          ${[100,50,20,10,5,1].map(d=>`<div class="form-group"><label class="form-label">$${d}</label><input type="number" class="form-input" id="caja-bill-${d}" min="0" placeholder="0" style="font-size:12px;"></div>`).join('')}
+        </div>
+        <button class="btn btn-primary btn-lg" style="margin-top:12px;" onclick="abrirCaja()">🔓 Abrir Caja</button>
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px;">📋 Instrucciones</div>
+        <div style="font-size:13px;color:var(--text3);line-height:1.8;">
+          <p>1. Ingresa el nombre del cajero responsable</p>
+          <p>2. Registra el monto inicial en efectivo</p>
+          <p>3. Opcionalmente detalla los billetes</p>
+          <p>4. Haz clic en <strong>Abrir Caja</strong> para iniciar el turno</p>
+        </div>
+      </div>`;
+  } else {
+    // CAJA ABIERTA
+    const ventas=DB.get('ventas')||[];
+    const aperturaDt=new Date(apertura.fecha);
+    const ventasTurno=ventas.filter(v=>new Date(v.fecha)>=aperturaDt);
+    const totalVentas=ventasTurno.reduce((s,v)=>s+v.totalUSD,0);
+
+    // Resumen por método
+    const porMetodo={};
+    ventasTurno.forEach(v=>{
+      const k=v.metodo||'Otro';
+      porMetodo[k]=(porMetodo[k]||0)+v.totalUSD;
+    });
+
+    statusEl.innerHTML=`<div class="caja-status-bar caja-open-bar">🟢 Caja abierta — Responsable: <strong>${apertura.responsable}</strong> | Desde: ${fmtDate(apertura.fecha)}</div>`;
+    contentEl.innerHTML=`
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px;">📊 Resumen del Turno</div>
+        <div class="metodo-row"><span style="font-weight:700;">Transacciones</span><span>${ventasTurno.length}</span></div>
+        <div class="metodo-row"><span style="font-weight:700;">Total Ventas</span><span style="font-weight:800;color:var(--orange);">${fmt$(totalVentas)}</span></div>
+        <div style="margin-top:12px;margin-bottom:6px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;">Por método de pago</div>
+        ${Object.entries(porMetodo).map(([m,t])=>`<div class="metodo-row"><span>${m}</span><span style="font-weight:700;">${fmt$(t)}</span></div>`).join('')||'<div style="color:var(--text3);font-size:13px;">Sin ventas en este turno</div>'}
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px;">🔒 Cierre de Caja</div>
+        <div class="form-group"><label class="form-label">Total esperado en caja ($)</label>
+          <input type="text" class="form-input" value="${fmt$(apertura.montoInicialUSD+totalVentas)}" readonly style="background:var(--bg2);font-weight:700;">
+        </div>
+        <div class="form-group"><label class="form-label">Monto contado físicamente ($)</label>
+          <input type="number" class="form-input" id="caja-contado" step="0.01" min="0" placeholder="0.00" oninput="calcDiferenciaCaja(${apertura.montoInicialUSD+totalVentas})">
+        </div>
+        <div id="caja-diferencia-display" style="padding:10px;border-radius:8px;background:var(--bg2);margin-bottom:14px;font-size:13px;text-align:center;">
+          Ingresa el monto contado para ver la diferencia
+        </div>
+        <button class="btn btn-danger btn-lg" onclick="cerrarCaja()">🔒 Cerrar Caja</button>
+      </div>`;
+  }
+}
+
+function calcDiferenciaCaja(esperado){
+  const contado=parseFloat(gel('caja-contado')?.value)||0;
+  const diff=contado-esperado;
+  const el=gel('caja-diferencia-display');
+  if(!el)return;
+  const cls=diff>=0?'diff-pos':'diff-neg';
+  const label=diff>=0?'✅ Sobrante':'⚠️ Faltante';
+  el.innerHTML=`Diferencia: <span class="${cls}">${label} ${fmt$(Math.abs(diff))}</span>`;
+}
+
+function abrirCaja(){
+  const responsable=gval('caja-responsable').trim();
+  if(!responsable){showToast('⚠️ Ingresa el nombre del responsable');return;}
+  const montoInicialUSD=gnum('caja-ini-usd');
+  const montoInicialBs=gnum('caja-ini-bs');
+  const billetes={};
+  [100,50,20,10,5,1].forEach(d=>{const v=gnum('caja-bill-'+d);if(v)billetes['$'+d]=v;});
+  DB.set('caja_apertura',{fecha:new Date().toISOString(),responsable,montoInicialUSD,montoInicialBs,billetes});
+  showToast('✅ Caja abierta — Turno iniciado');
+  renderCaja();
+}
+
+function cerrarCaja(){
+  const apertura=DB.get('caja_apertura');
+  if(!apertura){showToast('⚠️ No hay caja abierta');return;}
+  if(!confirm('¿Cerrar la caja y generar la declaración de cierre?'))return;
+  const ventas=DB.get('ventas')||[];
+  const aperturaDt=new Date(apertura.fecha);
+  const ventasTurno=ventas.filter(v=>new Date(v.fecha)>=aperturaDt);
+  const totalVentas=ventasTurno.reduce((s,v)=>s+v.totalUSD,0);
+  const esperado=apertura.montoInicialUSD+totalVentas;
+  const contado=parseFloat(gel('caja-contado')?.value)||0;
+  const diff=contado-esperado;
+  const cfg=DB.get('config')||{};
+  const cierre={fecha:new Date().toISOString(),responsable:apertura.responsable,montoInicialUSD:apertura.montoInicialUSD,totalVentas,esperado,contado,diferencia:diff,ventasTurno:ventasTurno.length};
+
+  // Generar declaración imprimible
+  const porMetodo={};
+  ventasTurno.forEach(v=>{const k=v.metodo||'Otro';porMetodo[k]=(porMetodo[k]||0)+v.totalUSD;});
+  const tablaMetodos=Object.entries(porMetodo).map(([m,t])=>`<tr><td>${m}</td><td style="text-align:right;">${fmt$(t)}</td></tr>`).join('');
+  gel('caja-declaracion').innerHTML=`
+    <div style="max-width:600px;margin:0 auto;font-family:monospace;">
+      <h2 style="text-align:center;">🍎 FruteriaPro — Declaración de Cierre</h2>
+      <p><strong>Negocio:</strong> ${cfg.nombre||'FruteriaPro'}</p>
+      <p><strong>Responsable:</strong> ${apertura.responsable}</p>
+      <p><strong>Apertura:</strong> ${fmtDate(apertura.fecha)}</p>
+      <p><strong>Cierre:</strong> ${fmtDate(cierre.fecha)}</p>
+      <hr>
+      <table style="width:100%;border-collapse:collapse;margin:12px 0;">
+        <thead><tr><th style="text-align:left;border-bottom:1px solid #ccc;">Método</th><th style="text-align:right;border-bottom:1px solid #ccc;">Total</th></tr></thead>
+        <tbody>${tablaMetodos||'<tr><td colspan="2">Sin ventas</td></tr>'}</tbody>
+      </table>
+      <hr>
+      <p><strong>Monto Inicial:</strong> ${fmt$(apertura.montoInicialUSD)}</p>
+      <p><strong>Total Ventas:</strong> ${fmt$(totalVentas)}</p>
+      <p><strong>Total Esperado:</strong> ${fmt$(esperado)}</p>
+      <p><strong>Contado:</strong> ${fmt$(contado)}</p>
+      <p><strong>Diferencia:</strong> <span style="font-weight:bold;color:${diff>=0?'green':'red'}">${diff>=0?'Sobrante':'Faltante'} ${fmt$(Math.abs(diff))}</span></p>
+      <hr>
+      <div style="margin-top:40px;display:flex;justify-content:space-between;">
+        <div style="text-align:center;width:200px;border-top:1px solid #333;padding-top:6px;">Firma del Cajero</div>
+        <div style="text-align:center;width:200px;border-top:1px solid #333;padding-top:6px;">Firma del Supervisor</div>
+      </div>
+    </div>`;
+
+  // Guardar historial de cierres y eliminar apertura
+  const cierres=DB.get('caja_cierres')||[];
+  cierres.unshift(cierre);
+  DB.set('caja_cierres',cierres);
+  DB.del('caja_apertura');
+
+  showToast('✅ Caja cerrada');
+  // Imprimir
+  gel('caja-declaracion').style.display='block';
+  setTimeout(()=>{window.print();gel('caja-declaracion').style.display='none';renderCaja();},400);
+}
+
+// ============================================================
+// GENERADOR DE LICENCIAS
+// ============================================================
+function randCode(n){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let r='';for(let i=0;i<n;i++)r+=c[Math.floor(Math.random()*c.length)];return r;}
+
+let _licProCode='',_licDemoCode='';
+
+function generarLicPro(){
+  const nombre=gel('lic-pro-nombre')?.value.trim();
+  if(!nombre){showToast('⚠️ Ingresa el nombre del negocio');return;}
+  const dur=parseInt(gval('lic-pro-dur'));
+  const code='FP-PRO-'+randCode(6);
+  const vence=new Date();vence.setDate(vence.getDate()+dur);
+  const venceStr=vence.toISOString().slice(0,10);
+  _licProCode=code;
+  // Save
+  const lista=DB.get('licencias_generadas')||[];
+  lista.unshift({code,tipo:'PRO',negocio:nombre,vence:venceStr,creada:new Date().toISOString()});
+  DB.set('licencias_generadas',lista);
+  // Mostrar resultado
+  stext('lic-pro-code',code);
+  stext('lic-pro-cliente-name',nombre);
+  const meses=dur===30?'1 mes':dur===90?'3 meses':dur===180?'6 meses':'1 año';
+  stext('lic-pro-vence-label','Vence: '+venceStr+' ('+meses+')');
+  gel('lic-pro-form').style.display='none';
+  gel('lic-pro-resultado').style.display='block';
+  gel('lic-pro-footer').style.display='none';
+  renderLicList();
+}
+
+function copiarLicPro(){
+  navigator.clipboard?.writeText(_licProCode).then(()=>showToast('📋 Código copiado: '+_licProCode));
+  if(!navigator.clipboard){showToast('📋 '+_licProCode);}
+}
+
+function resetModalLicPro(){
+  gel('lic-pro-form').style.display='block';
+  gel('lic-pro-resultado').style.display='none';
+  gel('lic-pro-footer').style.display='flex';
+  sval('lic-pro-nombre','');
+}
+
+function generarLicDemo(){
+  const code='FP-DEMO-'+randCode(6);
+  _licDemoCode=code;
+  const vence=new Date();vence.setDate(vence.getDate()+5);
+  const lista=DB.get('licencias_generadas')||[];
+  lista.unshift({code,tipo:'DEMO',negocio:'',vence:vence.toISOString().slice(0,10),creada:new Date().toISOString(),diasDemo:5});
+  DB.set('licencias_generadas',lista);
+  stext('lic-demo-code',code);
+  openModal('modalLicDemoResult');
+  renderLicList();
+}
+
+function copiarLicDemo(){
+  navigator.clipboard?.writeText(_licDemoCode).then(()=>showToast('📋 Código copiado: '+_licDemoCode));
+  if(!navigator.clipboard){showToast('📋 '+_licDemoCode);}
+}
+
+function renderLicList(){
+  const lista=DB.get('licencias_generadas')||[];
+  const el=gel('lic-list');
+  if(!el)return;
+  if(!lista.length){el.innerHTML='<div style="color:var(--text3);font-size:12px;padding:10px 0;">Sin licencias generadas aún</div>';return;}
+  el.innerHTML=lista.map(l=>`
+    <div class="lic-list-item">
+      <span class="lic-tag ${l.tipo==='PRO'?'lic-tag-pro':'lic-tag-demo'}">${l.tipo}</span>
+      <span style="font-weight:700;font-family:monospace;">${l.code}</span>
+      ${l.negocio?`<span style="color:var(--text3);">${l.negocio}</span>`:''}
+      <span style="color:var(--text3);">Vence: ${l.vence}</span>
+    </div>`).join('');
+}
+
+// ============================================================
+// DEMO PROTECTION
+// ============================================================
+function _simpleHash(n){return((n*1234567891)%999983).toString(36);}
+
+function checkDemoExpiry(){
+  const sessionRaw=localStorage.getItem('fp_session');
+  if(!sessionRaw)return;
+  let sess;try{sess=JSON.parse(sessionRaw);}catch{return;}
+  if(!sess||sess.tipo!=='DEMO')return;
+
+  // Check if it's a generated DEMO (5-day timer from activation)
+  const generadas=DB.get('licencias_generadas')||[];
+  const licGen=generadas.find(l=>l.code===sess.code&&l.tipo==='DEMO');
+
+  if(licGen){
+    // Generated DEMO: 5-day from activation
+    const activatedRaw=localStorage.getItem('fp_demo_activated_'+btoa(sess.code));
+    if(!activatedRaw){
+      // First time: register activation
+      const ts=Date.now();
+      localStorage.setItem('fp_demo_activated_'+btoa(sess.code),btoa(JSON.stringify({ts,h:_simpleHash(ts)})));
+      startDemoCountdown(ts,432000000);
+      return;
+    }
+    try{
+      const data=JSON.parse(atob(activatedRaw));
+      // Integrity check
+      if(data.h!==_simpleHash(data.ts)){showDemoBlock();return;}
+      const elapsed=Date.now()-data.ts;
+      if(elapsed>=432000000){showDemoBlock();return;}
+      startDemoCountdown(data.ts,432000000);
+      // Also try server time
+      _verifyWithServer(data.ts);
+    }catch{showDemoBlock();}
+    return;
+  }
+
+  // Static DEMO (FP-DEMO-2026): check against static vence date
+  const LICENCIAS_ESTATICAS=LICENCIAS_VALIDAS;
+  const licEst=LICENCIAS_ESTATICAS.find(l=>l.code===sess.code&&l.tipo==='DEMO');
+  if(licEst&&new Date(licEst.vence)<new Date()){showDemoBlock();return;}
+  // Show countdown for static demo too if still valid
+  if(licEst){
+    const venceMs=new Date(licEst.vence).getTime();
+    const tsStart=venceMs-5*24*60*60*1000;
+    startDemoCountdown(tsStart,5*24*60*60*1000);
+  }
+}
+
+function _verifyWithServer(tsLocal){
+  fetch('https://worldtimeapi.org/api/timezone/America/Caracas',{signal:AbortSignal.timeout?AbortSignal.timeout(5000):undefined})
+    .then(r=>r.json())
+    .then(d=>{
+      const serverMs=new Date(d.datetime).getTime();
+      if(serverMs-tsLocal>=432000000){showDemoBlock();}
+    }).catch(()=>{/* no internet — usar local time */});
+}
+
+function showDemoBlock(){
+  const el=gel('demoBlock');
+  if(el){el.classList.remove('hidden');}
+  // Bloquear scroll y ESC
+  document.body.style.overflow='hidden';
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'||e.key==='F5'){e.preventDefault();e.stopPropagation();}
+  },true);
+}
+
+function contactarZync(){
+  window.open('https://wa.me/58000000000?text=Hola!%20Quiero%20adquirir%20FruteriaPro%20PRO','_blank');
+}
+
+function startDemoCountdown(tsActivated,durMs){
+  const badge=gel('demo-badge');
+  if(!badge)return;
+  function update(){
+    const remaining=Math.max(0,(tsActivated+durMs)-Date.now());
+    if(remaining<=0){showDemoBlock();return;}
+    const d=Math.floor(remaining/86400000);
+    const h=Math.floor((remaining%86400000)/3600000);
+    const m=Math.floor((remaining%3600000)/60000);
+    badge.style.display='inline-block';
+    badge.textContent='⏳ Demo: '+d+'d '+h+'h '+m+'m restantes';
+  }
+  update();
+  setInterval(update,60000);
+  // Also re-check expiry every minute
+  setInterval(()=>{checkDemoExpiry();},60000);
+}
+
+// ============================================================
 // MODAL BACKDROP CLOSE
 // ============================================================
 document.querySelectorAll('.modal-overlay').forEach(overlay=>{
@@ -1429,7 +2101,14 @@ function validarLicencia(){
   var code=document.getElementById('licenseCode').value.trim().toUpperCase();
   if(!shop){mostrarError('Ingresa el nombre de tu frutería');return;}
   if(!code){mostrarError('Ingresa tu código de licencia');return;}
+  // Buscar en licencias hardcodeadas
   var lic=LICENCIAS_VALIDAS.find(function(l){return l.code===code;});
+  // También buscar en licencias generadas dinámicamente
+  if(!lic){
+    var generadas=DB.get('licencias_generadas')||[];
+    var g=generadas.find(function(l){return l.code===code;});
+    if(g)lic={code:g.code,tipo:g.tipo,negocio:g.negocio,vence:g.vence};
+  }
   if(!lic){mostrarError('❌ Código inválido. Contacta a ZYNC Electronics');return;}
   if(new Date(lic.vence)<new Date()){mostrarError('❌ Licencia vencida');return;}
   localStorage.setItem('fp_session',JSON.stringify({shop:shop,code:code,tipo:lic.tipo,loginAt:new Date().toISOString()}));
@@ -1457,6 +2136,8 @@ window.addEventListener('DOMContentLoaded',function(){
     }catch(e){localStorage.removeItem('fp_session');}
   }
   init();
+  // DEMO protection: check on every load
+  checkDemoExpiry();
 });
 </script>
 </body>
