@@ -316,6 +316,27 @@ tbody tr:last-child td{border-bottom:none;}
   #caja-declaracion,#caja-declaracion *,#receipt-content,#receipt-content *{display:block!important;}
   #caja-declaracion{position:fixed;inset:0;padding:24px;font-family:monospace;font-size:13px;}
 }
+
+/* ===== MÓDULOS NUEVOS: Devoluciones, Clientes, Proveedores ===== */
+.btn-close-modal{background:none;border:none;font-size:18px;cursor:pointer;color:var(--text3);padding:4px 8px;border-radius:6px;transition:all .2s;}
+.btn-close-modal:hover{background:var(--bg2);color:var(--danger);}
+.neon-text{color:var(--accent2);}
+.text-danger{color:var(--danger);}
+.text-muted{color:var(--text3);}
+.fw-bold{font-weight:700;}
+
+/* Devoluciones */
+.dev-row-devuelta{opacity:.55;text-decoration:line-through;}
+
+/* Clientes */
+.cli-deuda-alta{color:var(--danger);font-weight:700;}
+.cli-deuda-media{color:var(--warn);font-weight:700;}
+.cli-al-dia{color:var(--accent2);font-weight:700;}
+
+/* Proveedores */
+.prov-deuda-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.prov-deuda-alta{background:#fee2e2;color:#991b1b;}
+.prov-al-dia{background:#d4edda;color:#155724;}
 </style>
 </head>
 <body>
@@ -365,6 +386,9 @@ tbody tr:last-child td{border-bottom:none;}
       <div class="nav-item active" onclick="showPage('pos',this)" data-page="pos"><span class="nav-icon">🛒</span><span class="nav-label">Punto de Venta</span></div>
       <div class="nav-item" onclick="showPage('inventario',this)" data-page="inventario"><span class="nav-icon">📦</span><span class="nav-label">Inventario</span></div>
       <div class="nav-item" onclick="showPage('historial',this)" data-page="historial"><span class="nav-icon">📋</span><span class="nav-label">Historial</span></div>
+      <div class="nav-item" onclick="showPage('devoluciones',this)" data-page="devoluciones"><span class="nav-icon">↩️</span><span class="nav-label">Devoluciones</span></div>
+      <div class="nav-item" onclick="showPage('clientes',this)" data-page="clientes"><span class="nav-icon">👥</span><span class="nav-label">Clientes / Fiados</span></div>
+      <div class="nav-item" onclick="showPage('proveedores',this)" data-page="proveedores"><span class="nav-icon">🚛</span><span class="nav-label">Proveedores</span></div>
       <div class="nav-item" onclick="showPage('reportes',this)" data-page="reportes"><span class="nav-icon">📊</span><span class="nav-label">Reportes</span></div>
       <div class="nav-item" onclick="showPage('caja',this)" data-page="caja"><span class="nav-icon">🏧</span><span class="nav-label">Caja</span></div>
       <div class="nav-item" onclick="showPage('configuracion',this)" data-page="configuracion"><span class="nav-icon">⚙️</span><span class="nav-label">Configuración</span></div>
@@ -421,6 +445,7 @@ tbody tr:last-child td{border-bottom:none;}
                 <input type="text" id="pos-search" placeholder="Buscar producto..." oninput="filterProducts()">
               </div>
               <button class="btn btn-primary" onclick="openModal('modalProducto')">+ Producto</button>
+              <button class="btn btn-sm" style="background:var(--warn,#f59e0b);color:#000;font-weight:700;border:none;border-radius:8px;padding:4px 10px;font-size:13px;cursor:pointer" onclick="abrirCobroRapido()" title="Cobrar producto sin registrar">⚡ Cobro Rápido</button>
             </div>
             <div class="cat-scroll" id="cat-filter"></div>
             <div class="products-grid" id="products-grid"></div>
@@ -541,6 +566,86 @@ tbody tr:last-child td{border-bottom:none;}
               <tbody id="hist-tbody"></tbody>
             </table>
           </div>
+        </div>
+      </div>
+
+      <!-- ===== DEVOLUCIONES PAGE ===== -->
+      <div class="page" id="page-devoluciones">
+        <div class="card-header" style="margin-bottom:16px;">
+          <h2 style="font-size:18px;font-weight:800;">↩️ Devoluciones y Anulaciones</h2>
+        </div>
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px;">
+          <div class="stat-card" style="--c1:#e63946;"><div class="stat-icon">↩️</div><div class="stat-label">Total Devoluciones</div><div class="stat-val" id="dev-total-count">0</div></div>
+          <div class="stat-card" style="--c1:#f77f00;"><div class="stat-icon">💵</div><div class="stat-label">Monto Devuelto</div><div class="stat-val" id="dev-total-monto">$0.00</div></div>
+          <div class="stat-card" style="--c1:#2d6a4f;"><div class="stat-icon">📅</div><div class="stat-label">Devoluciones Hoy</div><div class="stat-val" id="dev-hoy-count">0</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header" style="margin-bottom:14px;">
+            <div class="card-title">Historial de Devoluciones</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Venta Original</th><th>Fecha Dev.</th><th>Motivo</th><th>Tipo</th><th>Monto</th><th>Estado</th></tr></thead>
+              <tbody id="dev-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px;">
+          <div class="card-title" style="margin-bottom:12px;">Iniciar Devolución desde Historial</div>
+          <div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Para procesar una devolución, ve al Historial de Ventas y usa el botón ↩️ en la venta correspondiente.</div>
+          <button class="btn btn-primary" onclick="showPage('historial',document.querySelector('[data-page=historial]'))">📋 Ir a Historial de Ventas</button>
+        </div>
+      </div>
+
+      <!-- ===== CLIENTES PAGE ===== -->
+      <div class="page" id="page-clientes">
+        <div class="card-header" style="margin-bottom:16px;">
+          <h2 style="font-size:18px;font-weight:800;">👥 Clientes / Fiados</h2>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-ghost btn-sm" onclick="exportarClientesCSV()">📥 Exportar CSV</button>
+            <button class="btn btn-primary" onclick="abrirNuevoCliente()">+ Nuevo Cliente</button>
+          </div>
+        </div>
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px;" id="cli-stats"></div>
+        <div class="card">
+          <div class="inv-filters" style="margin-bottom:14px;">
+            <div class="search-bar" style="flex:1;min-width:200px;">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="cli-search" placeholder="Buscar cliente..." oninput="renderClientes()">
+            </div>
+            <select id="cli-filter" class="form-select" style="width:auto;" onchange="renderClientes()">
+              <option value="">Todos</option>
+              <option value="deuda">Con deuda</option>
+              <option value="aldia">Al día</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Cliente</th><th>Teléfono</th><th>Deuda ($)</th><th>Última Compra</th><th>Estado</th><th>Acciones</th></tr></thead>
+              <tbody id="cli-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PROVEEDORES PAGE ===== -->
+      <div class="page" id="page-proveedores">
+        <div class="card-header" style="margin-bottom:16px;">
+          <h2 style="font-size:18px;font-weight:800;">🚛 Proveedores</h2>
+          <button class="btn btn-primary" onclick="abrirNuevoProveedor()">+ Nuevo Proveedor</button>
+        </div>
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px;" id="prov-stats"></div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Proveedor</th><th>Producto</th><th>Deuda Pendiente</th><th>Último Pago</th><th>Acciones</th></tr></thead>
+              <tbody id="prov-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px;">
+          <div class="card-title" style="margin-bottom:14px;">📋 Historial de Pagos Recientes</div>
+          <div id="prov-historial"></div>
         </div>
       </div>
 
@@ -842,6 +947,60 @@ tbody tr:last-child td{border-bottom:none;}
   </div>
 </div>
 
+<!-- MODAL: NUEVO/EDITAR CLIENTE -->
+<div class="modal-overlay" id="modalCliente">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <span class="modal-title" id="modalClienteTitle">👤 Nuevo Cliente</span>
+      <button class="btn-close-modal" onclick="closeModal('modalCliente')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="cli-id">
+      <div class="form-group"><label class="form-label">Nombre *</label><input type="text" class="form-input" id="cli-nombre" placeholder="Nombre completo"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Teléfono</label><input type="text" class="form-input" id="cli-telefono" placeholder="0414-0000000"></div>
+        <div class="form-group"><label class="form-label">Cédula / RIF</label><input type="text" class="form-input" id="cli-cedula" placeholder="V-12345678"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Límite de Fiado ($)</label><input type="number" class="form-input" id="cli-limite" step="0.01" placeholder="50.00" value="50"></div>
+      <div class="form-group"><label class="form-label">Notas</label><textarea class="form-input" id="cli-notas" rows="2" placeholder="Observaciones..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalCliente')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarCliente()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: FIADO (detalle y abono) -->
+<div class="modal-overlay" id="modalFiado">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <span class="modal-title" id="modalFiadoTitle">💳 Fiado</span>
+      <button class="btn-close-modal" onclick="closeModal('modalFiado')">✕</button>
+    </div>
+    <div class="modal-body" id="modalFiadoBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalFiado')">Cancelar</button>
+      <button class="btn btn-primary" onclick="registrarAbono()">💰 Registrar Abono</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: DEVOLUCION -->
+<div class="modal-overlay" id="modalDevolucion">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <span class="modal-title">↩️ Procesar Devolución</span>
+      <button class="btn-close-modal" onclick="closeModal('modalDevolucion')">✕</button>
+    </div>
+    <div class="modal-body" id="modalDevBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalDevolucion')">Cancelar</button>
+      <button class="btn btn-danger" onclick="confirmarDevolucion()">↩️ Confirmar Devolución</button>
+    </div>
+  </div>
+</div>
+
 <!-- RECEIPT AREA (hidden, used for print) -->
 <div id="receipt-content" style="display:none;">
   <div class="receipt" id="receipt-text"></div>
@@ -1020,6 +1179,10 @@ function init(){
   sval('hist-fecha-hasta',today());
   // Render lic list if in config
   renderLicList();
+  // Render new modules (silent, no-op if page not visible)
+  try { renderDevoluciones(); } catch(e) {}
+  try { renderClientes(); } catch(e) {}
+  try { renderProveedores(); } catch(e) {}
 }
 
 function buildCatSelects(){
@@ -1041,13 +1204,13 @@ function buildCatSelects(){
 // ============================================================
 // NAVIGATION
 // ============================================================
-const PAGE_TITLES={pos:'🛒 Punto de Venta',inventario:'📦 Inventario',historial:'📋 Historial de Ventas',reportes:'📊 Reportes',caja:'🏧 Módulo de Caja',dashboard:'📊 Dashboard',configuracion:'⚙️ Configuración'};
+const PAGE_TITLES={pos:'🛒 Punto de Venta',inventario:'📦 Inventario',historial:'📋 Historial de Ventas',reportes:'📊 Reportes',caja:'🏧 Módulo de Caja',dashboard:'📊 Dashboard',configuracion:'⚙️ Configuración',devoluciones:'↩️ Devoluciones',clientes:'👥 Clientes / Fiados',proveedores:'🚛 Proveedores'};
 function showPage(page,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  gel('page-'+page).classList.add('active');
+  var pg=gel('page-'+page);if(pg)pg.classList.add('active');
   if(el)el.classList.add('active');
-  else{document.querySelector(`[data-page="${page}"]`)?.classList.add('active');}
+  else{document.querySelector('[data-page="'+page+'"]')?.classList.add('active');}
   STATE.currentPage=page;
   stext('topbar-title',PAGE_TITLES[page]||page);
   if(page==='historial'){renderHistorial();renderHistStats();}
@@ -1056,6 +1219,9 @@ function showPage(page,el){
   if(page==='caja'){renderCaja();}
   if(page==='dashboard'){renderDashboard();}
   if(page==='configuracion'){renderLicList();}
+  if(page==='devoluciones'){renderDevoluciones();}
+  if(page==='clientes'){renderClientes();}
+  if(page==='proveedores'){renderProveedores();}
 }
 
 function toggleSidebar(){
@@ -1472,7 +1638,10 @@ function renderHistorial(){
       <td><span class="badge badge-blue">${v.metodo}</span></td>
       <td style="font-weight:700;color:var(--orange);">${fmt$(v.totalUSD)}</td>
       <td>${STATE.simbolo} ${v.totalBs.toFixed(2)}</td>
-      <td><button class="btn btn-ghost btn-sm" onclick="verDetalleVenta(${v.id})">👁️</button></td>
+      <td style="display:flex;gap:4px;">
+        <button class="btn btn-ghost btn-sm" onclick="verDetalleVenta(${v.id})">👁️</button>
+        ${!v.devuelta?`<button class="btn btn-sm btn-danger" onclick="abrirDevolucion(${v.id})" title="Devolver">↩️</button>`:'<span class="badge badge-red" style="font-size:10px;">Dev.</span>'}
+      </td>
     </tr>`).join('');
   if(!filtered.length)tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text3);">No hay ventas en este período</td></tr>';
   renderHistStats();
@@ -2138,6 +2307,629 @@ window.addEventListener('DOMContentLoaded',function(){
   init();
   // DEMO protection: check on every load
   checkDemoExpiry();
+});
+
+function abrirCobroRapido() {
+  var existente = document.getElementById('modalCobroRapido');
+  if (existente) existente.remove();
+  var tasa = (typeof STATE !== 'undefined' ? STATE.tasa : (typeof state !== 'undefined' ? state.tasa : 1)) || 1;
+  var modal = document.createElement('div');
+  modal.id = 'modalCobroRapido';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10001;display:flex;align-items:center;justify-content:center;';
+  modal.innerHTML = `
+    <div style="background:var(--surface,#1e1e2e);border:1px solid var(--border,#333);border-radius:16px;padding:24px;width:360px;max-width:95vw;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <h3 style="margin:0;font-size:18px;color:var(--text,#fff);">⚡ Cobro Rápido</h3>
+        <button onclick="document.getElementById('modalCobroRapido').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;">×</button>
+      </div>
+      <p style="font-size:12px;color:#888;margin:0 0 16px 0;">Artículo sin registro. Tasa del día: <strong>Bs ${tasa}</strong> / $1</p>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;color:#888;display:block;margin-bottom:4px;">Nombre del artículo (opcional)</label>
+        <input id="crNombre" type="text" placeholder="Ej: Frutas, Verduras, Producto..." style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border,#333);background:var(--bg,#111);color:var(--text,#fff);font-size:14px;box-sizing:border-box;">
+      </div>
+      <div style="margin-bottom:6px;">
+        <label style="font-size:12px;color:#888;display:block;margin-bottom:6px;">Precio <span style="color:#ef4444">*</span> — ingresa en la moneda que sabes:</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div>
+            <label style="font-size:11px;color:#4ade80;font-weight:700;display:block;margin-bottom:4px;">💵 USD</label>
+            <input id="crPrecioUSD" type="number" min="0.01" step="0.01" placeholder="0.00"
+              oninput="var v=parseFloat(this.value);var t=(typeof STATE!=='undefined'?STATE.tasa:(typeof state!=='undefined'?state.tasa:1))||1;var bs=document.getElementById('crPrecioBS');if(!isNaN(v)&&v>0){bs.value=(v*t).toFixed(2);}else{bs.value='';}"
+              style="width:100%;padding:10px;border-radius:8px;border:2px solid #4ade80;background:var(--bg,#111);color:var(--text,#fff);font-size:15px;font-weight:700;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-size:11px;color:#f59e0b;font-weight:700;display:block;margin-bottom:4px;">🇻🇪 Bs</label>
+            <input id="crPrecioBS" type="number" min="0.01" step="0.01" placeholder="0.00"
+              oninput="var v=parseFloat(this.value);var t=(typeof STATE!=='undefined'?STATE.tasa:(typeof state!=='undefined'?state.tasa:1))||1;var usd=document.getElementById('crPrecioUSD');if(!isNaN(v)&&v>0){usd.value=(v/t).toFixed(4);}else{usd.value='';}"
+              style="width:100%;padding:10px;border-radius:8px;border:2px solid #f59e0b;background:var(--bg,#111);color:var(--text,#fff);font-size:15px;font-weight:700;box-sizing:border-box;">
+          </div>
+        </div>
+      </div>
+      <div style="margin-bottom:20px;margin-top:14px;">
+        <label style="font-size:12px;color:#888;display:block;margin-bottom:4px;">Cantidad</label>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button onclick="var q=document.getElementById('crCantidad');q.value=Math.max(1,parseInt(q.value||1)-1)" style="width:36px;height:36px;border-radius:8px;border:1px solid #333;background:#222;color:#fff;font-size:20px;cursor:pointer;font-weight:700;">−</button>
+          <input id="crCantidad" type="number" min="1" value="1" style="width:70px;text-align:center;padding:8px;border-radius:8px;border:1px solid #333;background:var(--bg,#111);color:var(--text,#fff);font-size:16px;font-weight:700;">
+          <button onclick="var q=document.getElementById('crCantidad');q.value=parseInt(q.value||1)+1" style="width:36px;height:36px;border-radius:8px;border:1px solid #333;background:#222;color:#fff;font-size:20px;cursor:pointer;font-weight:700;">+</button>
+        </div>
+      </div>
+      <button onclick="confirmarCobroRapido()" style="width:100%;padding:12px;background:#f59e0b;color:#000;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;">✅ Agregar al Carrito</button>
+    </div>`;
+  document.body.appendChild(modal);
+  setTimeout(function(){ var el=document.getElementById('crPrecioUSD'); if(el) el.focus(); }, 100);
+}
+
+function confirmarCobroRapido() {
+  var nombre = (document.getElementById('crNombre').value.trim()) || 'Artículo sin registro';
+  var precioUSD = parseFloat(document.getElementById('crPrecioUSD').value);
+  var qty = parseInt(document.getElementById('crCantidad').value) || 1;
+  if (!precioUSD || precioUSD <= 0) {
+    if(typeof showToast==='function') showToast('⚠️ Ingresa un precio válido','warn');
+    else alert('⚠️ Ingresa un precio válido');
+    return;
+  }
+  if (qty < 1) qty = 1;
+  var idLibre = 'libre_' + Date.now();
+  var cartItem = { productoId: idLibre, nombre: nombre, emoji: '🏷️', precio: precioUSD, qty: qty, subtotal: precioUSD * qty, esLibre: true };
+  if(typeof STATE !== 'undefined' && STATE.cart) {
+    STATE.cart.push(cartItem);
+  } else if(typeof state !== 'undefined' && state.cart) {
+    state.cart.push(cartItem);
+  } else if(typeof cart !== 'undefined' && Array.isArray(cart)) {
+    cart.push(cartItem);
+  }
+  if(typeof renderCart==='function') renderCart();
+  else if(typeof actualizarCarrito==='function') actualizarCarrito();
+  else if(typeof updateCart==='function') updateCart();
+  document.getElementById('modalCobroRapido').remove();
+  if(typeof showToast==='function') showToast('✅ ' + nombre + ' agregado al carrito','success');
+  else alert('✅ ' + nombre + ' agregado al carrito');
+}
+
+// ============================================================
+// MÓDULO: DEVOLUCIONES
+// ============================================================
+function renderDevoluciones() {
+  var ventas = DB.get('ventas') || [];
+  var devueltas = ventas.filter(function(v){ return v.devuelta || v.devueltaParcial; });
+  var hoy = new Date().toISOString().slice(0,10);
+  var devHoy = devueltas.filter(function(v){ return (v.fechaDev||'').startsWith(hoy); });
+  var montoTotal = devueltas.reduce(function(s,v){ return s + (v.montoDevuelto || v.totalUSD || 0); }, 0);
+
+  stext('dev-total-count', devueltas.length);
+  stext('dev-total-monto', fmt$(montoTotal));
+  stext('dev-hoy-count', devHoy.length);
+
+  var tbody = gel('dev-tbody');
+  if (!tbody) return;
+  if (!devueltas.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text3);">Sin devoluciones registradas</td></tr>';
+    return;
+  }
+  tbody.innerHTML = devueltas.slice().reverse().map(function(v) {
+    var tipo = v.devuelta ? 'Total' : 'Parcial';
+    var monto = v.montoDevuelto || v.totalUSD || 0;
+    return '<tr>' +
+      '<td>#' + String(v.id).slice(-6) + '</td>' +
+      '<td>' + fmtDate(v.fechaDev || v.fecha) + '</td>' +
+      '<td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (v.motivoDev || '—') + '</td>' +
+      '<td><span class="badge ' + (v.devuelta ? 'badge-red' : 'badge-yellow') + '">' + tipo + '</span></td>' +
+      '<td style="font-weight:700;color:var(--orange);">' + fmt$(monto) + '</td>' +
+      '<td><span class="badge badge-red">Devuelta</span></td>' +
+    '</tr>';
+  }).join('');
+}
+
+function abrirDevolucion(id) {
+  var v = (DB.get('ventas') || []).find(function(x){ return x.id === id; });
+  if (!v) return;
+  if (v.devuelta) { showToast('Esta venta ya fue devuelta totalmente', 'warn'); return; }
+
+  var body = gel('modalDevBody');
+  if (!body) return;
+  body.innerHTML =
+    '<div style="background:var(--bg2);border-radius:10px;padding:14px;margin-bottom:14px;">' +
+      '<div style="font-size:13px;color:var(--text3);margin-bottom:4px;">Venta #' + String(id).slice(-6) + ' — ' + fmtDate(v.fecha) + '</div>' +
+      '<div style="font-size:13px;color:var(--text2);margin-bottom:4px;">' + v.items.map(function(i){ return i.emoji + ' ' + i.nombre + ' x' + i.qty; }).join(', ') + '</div>' +
+      '<div style="font-weight:800;color:var(--orange);font-size:18px;">' + fmt$(v.totalUSD) + '</div>' +
+    '</div>' +
+    '<div class="form-group">' +
+      '<label class="form-label">Tipo de Devolución</label>' +
+      '<select class="form-select" id="dev-tipo" onchange="calcDevMonto(' + v.totalUSD + ')">' +
+        '<option value="total">Total — Devolver todo (' + fmt$(v.totalUSD) + ')</option>' +
+        '<option value="parcial">Parcial — Devolver monto específico</option>' +
+      '</select>' +
+    '</div>' +
+    '<div class="form-group" id="dev-monto-group" style="display:none;">' +
+      '<label class="form-label">Monto a devolver ($)</label>' +
+      '<input type="number" class="form-input" id="dev-monto" step="0.01" min="0.01" max="' + v.totalUSD + '" placeholder="0.00">' +
+    '</div>' +
+    '<div class="form-group">' +
+      '<label class="form-label">Motivo de la Devolución *</label>' +
+      '<input type="text" class="form-input" id="dev-motivo" placeholder="Producto dañado, equivocación, etc.">' +
+    '</div>' +
+    '<input type="hidden" id="dev-venta-id" value="' + id + '">';
+
+  openModal('modalDevolucion');
+}
+
+function calcDevMonto(totalVenta) {
+  var tipo = gval('dev-tipo');
+  var group = gel('dev-monto-group');
+  if (group) group.style.display = tipo === 'parcial' ? 'block' : 'none';
+}
+
+function confirmarDevolucion() {
+  var id = parseInt(gval('dev-venta-id'));
+  var tipo = gval('dev-tipo');
+  var motivo = gval('dev-motivo').trim();
+  if (!motivo) { showToast('Ingresa el motivo de la devolución', 'warn'); return; }
+
+  var ventas = DB.get('ventas') || [];
+  var v = ventas.find(function(x){ return x.id === id; });
+  if (!v) return;
+
+  var monto;
+  if (tipo === 'total') {
+    monto = v.totalUSD;
+    v.devuelta = true;
+  } else {
+    monto = parseFloat(gval('dev-monto')) || 0;
+    if (monto <= 0 || monto > v.totalUSD) { showToast('Ingresa un monto válido (0.01 – ' + fmt$(v.totalUSD) + ')', 'warn'); return; }
+    v.devueltaParcial = true;
+    v.montoDevuelto = monto;
+  }
+  v.motivoDev = motivo;
+  v.fechaDev = new Date().toISOString();
+
+  // Reponer stock para devolución total
+  if (tipo === 'total') {
+    var prods = DB.get('productos') || [];
+    v.items.forEach(function(item) {
+      var p = prods.find(function(x){ return x.id === item.prodId; });
+      if (p) p.stock += item.qty;
+    });
+    DB.set('productos', prods);
+  }
+
+  DB.set('ventas', ventas);
+  closeModal('modalDevolucion');
+  renderHistorial();
+  renderDevoluciones();
+  showToast('↩️ Devolución procesada — ' + fmt$(monto), 'success');
+}
+
+// ============================================================
+// MÓDULO: CLIENTES / FIADOS
+// ============================================================
+function renderClientes() {
+  var clientes = DB.get('fp_clientes') || [];
+  var q = (gval('cli-search') || '').toLowerCase();
+  var filtro = gval('cli-filter');
+
+  var filtered = clientes.filter(function(c) {
+    var matchQ = !q || c.nombre.toLowerCase().includes(q) || (c.telefono || '').includes(q);
+    var deuda = c.deuda || 0;
+    var matchF = !filtro ||
+      (filtro === 'deuda' && deuda > 0) ||
+      (filtro === 'aldia' && deuda === 0);
+    return matchQ && matchF;
+  });
+
+  var totalDeuda = clientes.reduce(function(s,c){ return s + (c.deuda||0); }, 0);
+  var conDeuda = clientes.filter(function(c){ return (c.deuda||0) > 0; }).length;
+
+  shtml('cli-stats',
+    '<div class="stat-card" style="--c1:#2d6a4f;"><div class="stat-icon">👥</div><div class="stat-label">Total Clientes</div><div class="stat-val">' + clientes.length + '</div></div>' +
+    '<div class="stat-card" style="--c1:#f77f00;"><div class="stat-icon">💳</div><div class="stat-label">Con Fiado</div><div class="stat-val" style="color:var(--warn);">' + conDeuda + '</div></div>' +
+    '<div class="stat-card" style="--c1:#e63946;"><div class="stat-icon">💵</div><div class="stat-label">Deuda Total</div><div class="stat-val" style="color:var(--danger);">' + fmt$(totalDeuda) + '</div></div>'
+  );
+
+  var tbody = gel('cli-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = filtered.map(function(c) {
+    var deuda = c.deuda || 0;
+    var limite = c.limite || 50;
+    var bc = deuda > limite ? 'badge-red' : deuda > 0 ? 'badge-yellow' : 'badge-green';
+    var bt = deuda > limite ? 'Límite excedido' : deuda > 0 ? 'Con fiado' : 'Al día';
+    return '<tr>' +
+      '<td><div style="font-weight:600;">' + c.nombre + '</div><div style="font-size:11px;color:var(--text3);">' + (c.cedula||'') + '</div></td>' +
+      '<td>' + (c.telefono||'—') + '</td>' +
+      '<td><strong style="color:' + (deuda>0?'var(--danger)':'var(--accent2)') + ';">' + fmt$(deuda) + '</strong></td>' +
+      '<td>' + (c.ultimaCompra ? fmtDate(c.ultimaCompra).split(' ')[0] : '—') + '</td>' +
+      '<td><span class="badge ' + bc + '">' + bt + '</span></td>' +
+      '<td><div style="display:flex;gap:4px;">' +
+        '<button class="btn btn-sm btn-ghost" onclick="editarCliente(' + c.id + ')">✏️</button>' +
+        '<button class="btn btn-sm btn-primary" onclick="verFiado(' + c.id + ')">💳 Fiado</button>' +
+        '<button class="btn btn-sm btn-danger" onclick="eliminarCliente(' + c.id + ')">🗑</button>' +
+      '</div></td>' +
+    '</tr>';
+  }).join('') || '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text3);">Sin clientes</td></tr>';
+}
+
+function abrirNuevoCliente() {
+  stext('modalClienteTitle', '👤 Nuevo Cliente');
+  ['cli-id','cli-nombre','cli-telefono','cli-cedula','cli-notas'].forEach(function(id){ sval(id,''); });
+  sval('cli-limite', '50');
+  openModal('modalCliente');
+}
+
+function editarCliente(id) {
+  var c = (DB.get('fp_clientes') || []).find(function(x){ return x.id === id; });
+  if (!c) return;
+  stext('modalClienteTitle', '✏️ Editar Cliente');
+  sval('cli-id', c.id);
+  sval('cli-nombre', c.nombre);
+  sval('cli-telefono', c.telefono || '');
+  sval('cli-cedula', c.cedula || '');
+  sval('cli-limite', c.limite || 50);
+  sval('cli-notas', c.notas || '');
+  openModal('modalCliente');
+}
+
+function guardarCliente() {
+  var nombre = gval('cli-nombre').trim();
+  if (!nombre) { showToast('El nombre es requerido', 'warn'); return; }
+  var clientes = DB.get('fp_clientes') || [];
+  var idExist = parseInt(gval('cli-id')) || 0;
+  var existing = idExist ? clientes.find(function(c){ return c.id === idExist; }) : null;
+  var cli = {
+    id: idExist || Date.now(),
+    nombre: nombre,
+    telefono: gval('cli-telefono'),
+    cedula: gval('cli-cedula'),
+    limite: parseFloat(gval('cli-limite')) || 50,
+    notas: gval('cli-notas'),
+    deuda: existing ? (existing.deuda || 0) : 0,
+    ultimaCompra: existing ? (existing.ultimaCompra || null) : null,
+  };
+  if (idExist) {
+    var idx = clientes.findIndex(function(c){ return c.id === idExist; });
+    if (idx !== -1) clientes[idx] = cli;
+  } else {
+    clientes.push(cli);
+  }
+  DB.set('fp_clientes', clientes);
+  closeModal('modalCliente');
+  renderClientes();
+  showToast('✅ Cliente guardado', 'success');
+}
+
+function eliminarCliente(id) {
+  if (!confirm('¿Eliminar este cliente?')) return;
+  DB.set('fp_clientes', (DB.get('fp_clientes') || []).filter(function(c){ return c.id !== id; }));
+  renderClientes();
+  showToast('🗑️ Cliente eliminado', 'success');
+}
+
+function verFiado(id) {
+  var c = (DB.get('fp_clientes') || []).find(function(x){ return x.id === id; });
+  if (!c) return;
+  var ventas = (DB.get('ventas') || []).filter(function(v){ return v.clienteId === id; });
+  var deuda = c.deuda || 0;
+  var limite = c.limite || 50;
+  var colorDeuda = deuda > limite ? 'var(--danger)' : deuda > 0 ? 'var(--warn)' : 'var(--accent2)';
+
+  stext('modalFiadoTitle', '💳 Fiado — ' + c.nombre);
+  shtml('modalFiadoBody',
+    '<div style="background:var(--bg2);border:2px solid ' + colorDeuda + ';border-radius:12px;padding:14px;margin-bottom:14px;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
+        '<span style="color:var(--text2);font-size:13px;">Deuda actual:</span>' +
+        '<strong style="color:' + colorDeuda + ';font-size:20px;font-family:monospace;">' + fmt$(deuda) + '</strong>' +
+      '</div>' +
+      '<div style="display:flex;justify-content:space-between;">' +
+        '<span style="color:var(--text3);font-size:11px;">Límite de crédito:</span>' +
+        '<span style="font-size:12px;">' + fmt$(limite) + '</span>' +
+      '</div>' +
+      (deuda > limite ? '<div style="color:var(--danger);font-size:11px;margin-top:6px;font-weight:700;">⚠️ Límite de crédito excedido</div>' : '') +
+    '</div>' +
+    '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px;">' +
+      '<div style="color:var(--accent);font-weight:700;font-size:13px;margin-bottom:12px;">💰 Registrar Abono</div>' +
+      '<div class="form-group" style="margin-bottom:10px;">' +
+        '<label class="form-label">Monto del Abono ($)</label>' +
+        '<input type="number" id="fiado-monto" class="form-input" step="0.01" placeholder="0.00" oninput="calcRestoFiado(' + deuda + ')" style="font-size:18px;font-weight:700;">' +
+      '</div>' +
+      '<div class="form-group">' +
+        '<label class="form-label">Método de Pago</label>' +
+        '<select id="fiado-metodo" class="form-select">' +
+          '<option>💵 Efectivo USD</option><option>💴 Efectivo Bs</option>' +
+          '<option>📱 Pago Móvil</option><option>💙 Zelle</option><option>💳 Débito</option>' +
+        '</select>' +
+      '</div>' +
+      '<div style="display:flex;justify-content:space-between;margin-top:8px;">' +
+        '<span style="color:var(--text2);font-size:13px;font-weight:700;">Resto después del abono:</span>' +
+        '<strong id="fiado-resto" style="font-size:18px;font-family:monospace;color:var(--accent2);">' + fmt$(deuda) + '</strong>' +
+      '</div>' +
+    '</div>' +
+    '<div style="font-weight:700;font-size:13px;margin-bottom:8px;color:var(--text2);">📋 Últimas compras fiadas</div>' +
+    (ventas.length
+      ? ventas.slice(-5).reverse().map(function(v){
+          return '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">' +
+            '<div><div style="font-size:12px;color:var(--text2);">' + fmtDate(v.fecha) + '</div>' +
+            '<div style="font-size:11px;color:var(--text3);">' + v.items.map(function(i){ return i.nombre; }).join(', ').substring(0,40) + '</div></div>' +
+            '<span style="color:var(--warn);font-weight:700;">' + fmt$(v.totalUSD) + '</span>' +
+          '</div>';
+        }).join('')
+      : '<p style="color:var(--text3);font-size:13px;text-align:center;padding:10px;">Sin compras fiadas</p>')
+  );
+  gel('modalFiado').dataset.clienteId = id;
+  openModal('modalFiado');
+}
+
+function calcRestoFiado(deudaActual) {
+  var abono = parseFloat(gval('fiado-monto')) || 0;
+  var resto = Math.max(0, deudaActual - abono);
+  var el = gel('fiado-resto');
+  if (el) {
+    el.textContent = fmt$(resto);
+    el.style.color = resto === 0 ? 'var(--accent2)' : resto < deudaActual ? 'var(--warn)' : 'var(--danger)';
+  }
+}
+
+function registrarAbono() {
+  var id = parseInt(gel('modalFiado').dataset.clienteId);
+  var monto = parseFloat(gval('fiado-monto')) || 0;
+  if (!monto) { showToast('Ingresa el monto del abono', 'warn'); return; }
+  var clientes = DB.get('fp_clientes') || [];
+  var c = clientes.find(function(x){ return x.id === id; });
+  if (!c) return;
+  c.deuda = Math.max(0, (c.deuda || 0) - monto);
+  DB.set('fp_clientes', clientes);
+  closeModal('modalFiado');
+  renderClientes();
+  showToast('✅ Abono de ' + fmt$(monto) + ' registrado', 'success');
+}
+
+function exportarClientesCSV() {
+  var clientes = DB.get('fp_clientes') || [];
+  if (!clientes.length) { showToast('No hay clientes para exportar', 'warn'); return; }
+  var csv = 'Nombre,Teléfono,Cédula,Deuda ($),Límite ($),Estado\n' +
+    clientes.map(function(c){
+      var estado = (c.deuda||0) > (c.limite||50) ? 'Límite excedido' : (c.deuda||0) > 0 ? 'Con fiado' : 'Al día';
+      return '"' + c.nombre + '",' + (c.telefono||'') + ',' + (c.cedula||'') + ',' + (c.deuda||0).toFixed(2) + ',' + (c.limite||50) + ',"' + estado + '"';
+    }).join('\n');
+  var blob = new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8;'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'clientes_fruteria_' + today() + '.csv';
+  a.click();
+  showToast('📥 Clientes exportados', 'success');
+}
+
+// ============================================================
+// MÓDULO: PROVEEDORES
+// ============================================================
+function fpGetProveedores() { return DB.get('fp_proveedores') || []; }
+function fpSetProveedores(p) { DB.set('fp_proveedores', p); }
+
+function renderProveedores() {
+  var provs = fpGetProveedores();
+  var totalDeuda = provs.reduce(function(s,p){ return s + (p.deudaPendiente||0); }, 0);
+  var conDeuda = provs.filter(function(p){ return (p.deudaPendiente||0) > 0; }).length;
+
+  shtml('prov-stats',
+    '<div class="stat-card" style="--c1:#f77f00;"><div class="stat-icon">⚠️</div><div class="stat-label">Deuda Total</div><div class="stat-val" style="color:var(--warn);">' + fmt$(totalDeuda) + '</div><div class="stat-sub">' + conDeuda + ' con deuda</div></div>' +
+    '<div class="stat-card" style="--c1:#2d6a4f;"><div class="stat-icon">🚛</div><div class="stat-label">Proveedores</div><div class="stat-val">' + provs.length + '</div></div>' +
+    '<div class="stat-card" style="--c1:#52b788;"><div class="stat-icon">✅</div><div class="stat-label">Al Día</div><div class="stat-val" style="color:var(--accent2);">' + (provs.length - conDeuda) + '</div></div>'
+  );
+
+  var tbody = gel('prov-tbody');
+  if (!tbody) return;
+  if (!provs.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text3);">Sin proveedores registrados</td></tr>';
+  } else {
+    tbody.innerHTML = provs.map(function(p) {
+      var deuda = p.deudaPendiente || 0;
+      return '<tr>' +
+        '<td><div style="font-weight:600;">' + p.nombre + '</div><div style="font-size:11px;color:var(--text3);">' + (p.telefono||'Sin teléfono') + '</div></td>' +
+        '<td style="color:var(--text2);">' + (p.producto||'—') + '</td>' +
+        '<td style="color:' + (deuda>0?'var(--warn)':'var(--accent2)') + ';font-weight:700;">' + (deuda > 0 ? fmt$(deuda) : '✅ Al día') + '</td>' +
+        '<td style="color:var(--text2);">' + (p.ultimoPago ? fmtDate(p.ultimoPago).split(' ')[0] : 'Nunca') + '</td>' +
+        '<td><div style="display:flex;gap:4px;">' +
+          '<button onclick="provRegistrarDeuda(' + p.id + ')" style="background:var(--warn);color:#000;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:700;">📦 Deuda</button>' +
+          '<button onclick="provPagar(' + p.id + ')" style="background:var(--accent);color:#fff;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:700;">💰 Pagar</button>' +
+          '<button onclick="provEliminar(' + p.id + ')" style="background:var(--danger);color:#fff;border:none;border-radius:6px;padding:5px 8px;cursor:pointer;font-size:12px;">🗑</button>' +
+        '</div></td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  // Historial de pagos
+  var pagos = (DB.get('fp_pagos_proveedores') || []).slice().reverse().slice(0,10);
+  var histEl = gel('prov-historial');
+  if (histEl) {
+    if (!pagos.length) {
+      histEl.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text3);">Sin pagos registrados</div>';
+    } else {
+      histEl.innerHTML = pagos.map(function(pg) {
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">' +
+          '<div>' +
+            '<div style="font-weight:600;font-size:13px;">' + pg.proveedor + '</div>' +
+            '<div style="font-size:11px;color:var(--text3);">' + fmtDate(pg.fecha) + ' · ' + pg.metodo + (pg.nota ? ' · ' + pg.nota : '') + '</div>' +
+          '</div>' +
+          '<span style="font-weight:700;color:' + (pg.tipo==='deuda'?'var(--warn)':'var(--danger)') + ';font-size:15px;">' + (pg.tipo==='deuda'?'+':'−') + fmt$(pg.monto) + '</span>' +
+        '</div>';
+      }).join('');
+    }
+  }
+}
+
+function abrirNuevoProveedor() {
+  var existente = gel('modalProveedor');
+  if (existente) existente.remove();
+  var m = document.createElement('div');
+  m.className = 'modal-overlay'; m.id = 'modalProveedor';
+  m.innerHTML = '<div class="modal" style="max-width:420px;">' +
+    '<div class="modal-header"><span class="modal-title">➕ Nuevo Proveedor</span>' +
+    '<button class="btn-close-modal" onclick="closeModal(\'modalProveedor\')">✕</button></div>' +
+    '<div class="modal-body">' +
+      '<input type="hidden" id="prov-id">' +
+      '<div class="form-group"><label class="form-label">Nombre *</label><input type="text" id="prov-nombre" class="form-input" placeholder="Ej: Distribuidora Los Andes"></div>' +
+      '<div class="form-group"><label class="form-label">Teléfono</label><input type="text" id="prov-telefono" class="form-input" placeholder="0412-0000000"></div>' +
+      '<div class="form-group"><label class="form-label">Producto que suministra</label><input type="text" id="prov-producto" class="form-input" placeholder="Ej: Frutas y verduras"></div>' +
+      '<div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px;">' +
+        '<div style="font-size:12px;color:var(--text3);margin-bottom:8px;">¿Ya le debes dinero? Registra la deuda inicial (opcional)</div>' +
+        '<div class="form-group"><label class="form-label">N° Factura</label><input type="text" id="prov-factura-ini" class="form-input" placeholder="FAC-00123 (opcional)"></div>' +
+        '<div class="form-group"><label class="form-label">Monto deuda inicial ($)</label><input type="number" id="prov-deuda-ini" class="form-input" step="0.01" placeholder="0.00" value="0"></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="modal-footer">' +
+      '<button class="btn btn-ghost" onclick="closeModal(\'modalProveedor\')">Cancelar</button>' +
+      '<button class="btn btn-primary" onclick="guardarProveedor()">💾 Guardar</button>' +
+    '</div></div>';
+  document.body.appendChild(m);
+  openModal('modalProveedor');
+}
+
+function guardarProveedor() {
+  var nombre = gval('prov-nombre').trim();
+  if (!nombre) { showToast('El nombre es requerido', 'warn'); return; }
+  var provs = fpGetProveedores();
+  var deudaIni = parseFloat(gval('prov-deuda-ini')) || 0;
+  var facturaIni = gval('prov-factura-ini').trim();
+  var newProv = {
+    id: Date.now(),
+    nombre: nombre,
+    telefono: gval('prov-telefono').trim(),
+    producto: gval('prov-producto').trim(),
+    deudaPendiente: deudaIni,
+    ultimoPago: null,
+    historial: []
+  };
+  if (deudaIni > 0) {
+    newProv.historial.push({ tipo:'deuda', fecha:new Date().toISOString(), monto:deudaIni, factura:facturaIni||'Deuda inicial', nota:'Deuda inicial al registrar proveedor' });
+    var pagos = DB.get('fp_pagos_proveedores') || [];
+    pagos.push({ id:Date.now(), fecha:new Date().toISOString(), proveedorId:newProv.id, proveedor:nombre, monto:deudaIni, metodo:'Deuda inicial', nota:facturaIni||'', tipo:'deuda' });
+    DB.set('fp_pagos_proveedores', pagos);
+  }
+  provs.push(newProv);
+  fpSetProveedores(provs);
+  closeModal('modalProveedor');
+  showToast('✅ Proveedor guardado', 'success');
+  renderProveedores();
+}
+
+function provRegistrarDeuda(id) {
+  var provs = fpGetProveedores();
+  var p = provs.find(function(x){ return x.id === id; });
+  if (!p) return;
+  var monto = parseFloat(prompt('Monto de la deuda ($) para ' + p.nombre + ':'));
+  if (!monto || monto <= 0) return;
+  var nota = prompt('Descripción / Mercancía (opcional):') || 'Mercancía recibida';
+  p.deudaPendiente = (p.deudaPendiente || 0) + monto;
+  fpSetProveedores(provs);
+  var pagos = DB.get('fp_pagos_proveedores') || [];
+  pagos.push({ id:Date.now(), fecha:new Date().toISOString(), proveedorId:id, proveedor:p.nombre, monto:monto, metodo:'Deuda registrada', nota:nota, tipo:'deuda' });
+  DB.set('fp_pagos_proveedores', pagos);
+  showToast('📦 Deuda ' + fmt$(monto) + ' registrada — ' + p.nombre, 'warn');
+  renderProveedores();
+}
+
+function provPagar(id) {
+  var provs = fpGetProveedores();
+  var p = provs.find(function(x){ return x.id === id; });
+  if (!p) return;
+  if ((p.deudaPendiente || 0) <= 0) { showToast('Este proveedor no tiene deuda pendiente', 'warn'); return; }
+  var monto = parseFloat(prompt('Monto a pagar ($) — Deuda actual: ' + fmt$(p.deudaPendiente) + '\n' + p.nombre + ':'));
+  if (!monto || monto <= 0) return;
+  var nota = prompt('Nota / Referencia (opcional):') || '';
+  p.deudaPendiente = Math.max(0, (p.deudaPendiente || 0) - monto);
+  p.ultimoPago = new Date().toISOString();
+  fpSetProveedores(provs);
+  var pagos = DB.get('fp_pagos_proveedores') || [];
+  pagos.push({ id:Date.now(), fecha:new Date().toISOString(), proveedorId:id, proveedor:p.nombre, monto:monto, metodo:'Efectivo', nota:nota, tipo:'pago' });
+  DB.set('fp_pagos_proveedores', pagos);
+  showToast('✅ Pago ' + fmt$(monto) + ' registrado — ' + p.nombre, 'success');
+  renderProveedores();
+}
+
+function provEliminar(id) {
+  var provs = fpGetProveedores();
+  var p = provs.find(function(x){ return x.id === id; });
+  if (!p) return;
+  if ((p.deudaPendiente||0) > 0) {
+    if (!confirm('Proveedor con deuda ' + fmt$(p.deudaPendiente) + '. ¿Eliminar de todas formas?')) return;
+  } else {
+    if (!confirm('¿Eliminar proveedor ' + p.nombre + '?')) return;
+  }
+  fpSetProveedores(provs.filter(function(x){ return x.id !== id; }));
+  showToast('🗑️ Proveedor eliminado', 'success');
+  renderProveedores();
+}
+
+// ============================================================
+// IRON LOCK REFORZADO — FPRO MASTER CODES
+// ============================================================
+(function FPRO_IRON_LOCK_REINFORCE() {
+  // Códigos MASTER de FruteriaPro
+  var FPRO_MASTER = ['FPRO-DEMO-2024', 'FPRO-ABIG-2024', 'FPRO-ZYNC-2024'];
+
+  // Parchar validarLicencia para aceptar códigos FPRO master
+  var _originalValidar = window.validarLicencia;
+  window.validarLicencia = function() {
+    var shop = (document.getElementById('shopName')||{}).value || '';
+    var code = ((document.getElementById('licenseCode')||{}).value || '').trim().toUpperCase();
+    shop = shop.trim();
+    if (!shop) { mostrarError('Ingresa el nombre de tu frutería'); return; }
+    if (!code) { mostrarError('Ingresa tu código de licencia'); return; }
+
+    // Verificar FPRO MASTER codes primero
+    if (FPRO_MASTER.indexOf(code) !== -1) {
+      var esDemo = code.indexOf('-DEMO-') !== -1;
+      var tipo = esDemo ? 'DEMO' : 'PRO';
+      var vence = new Date();
+      if (esDemo) { vence.setDate(vence.getDate() + 5); }
+      else { vence.setFullYear(vence.getFullYear() + 10); }
+      var sess = { shop:shop, code:code, tipo:tipo, loginAt:new Date().toISOString(), vence:vence.toISOString() };
+      localStorage.setItem('fp_session', JSON.stringify(sess));
+      if (esDemo) {
+        // Registrar activación demo
+        var tsNow = Date.now();
+        localStorage.setItem('fp_demo_activated_' + btoa(code), btoa(JSON.stringify({ ts:tsNow, h:_simpleHash(tsNow) })));
+      }
+      _hideLogin(shop);
+      return;
+    }
+
+    // Fallback al sistema original
+    if (typeof _originalValidar === 'function') {
+      _originalValidar();
+    }
+  };
+
+  // Exponer función generarLicencia compatible con panel admin
+  window.generarLicenciaFPRO = function(nombre, durDias) {
+    durDias = durDias || 365;
+    var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    var seg = '';
+    for (var i = 0; i < 8; i++) seg += chars[Math.floor(Math.random() * chars.length)];
+    var code = 'FPRO-' + seg.slice(0,4) + '-' + seg.slice(4,8);
+    var vence = new Date(); vence.setDate(vence.getDate() + durDias);
+    var lista = DB.get('licencias_generadas') || [];
+    lista.unshift({ code:code, tipo:'PRO', negocio:nombre||'', vence:vence.toISOString().slice(0,10), creada:new Date().toISOString() });
+    DB.set('licencias_generadas', lista);
+    return code;
+  };
+
+  window.generarLicenciaDemoFPRO = function() {
+    var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    var seg = '';
+    for (var i = 0; i < 8; i++) seg += chars[Math.floor(Math.random() * chars.length)];
+    var code = 'FP-DEMO-' + seg.slice(0,6);
+    var vence = new Date(); vence.setDate(vence.getDate() + 5);
+    var lista = DB.get('licencias_generadas') || [];
+    lista.unshift({ code:code, tipo:'DEMO', negocio:'', vence:vence.toISOString().slice(0,10), creada:new Date().toISOString(), diasDemo:5 });
+    DB.set('licencias_generadas', lista);
+    return code;
+  };
+})();
+
+// ============================================================
+// INIT EXTENDIDO — inicializar módulos nuevos en DOMContentLoaded
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+  // El DOMContentLoaded ya está registrado arriba para el login check + init()
+  // Asegurar que los módulos nuevos se llamen si la sesión ya está activa
+  // (No hace falta llamarlos aquí, se llaman desde showPage)
 });
 </script>
 </body>
