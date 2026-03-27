@@ -146,8 +146,8 @@ tbody tr:last-child td{border-bottom:none;}
 .cat-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
 
 /* Product grid */
-.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;overflow-y:auto;flex:1;}
-.product-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;overflow-y:auto;flex:1;}
+.product-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:8px 6px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
 .product-card:hover{border-color:var(--accent2);transform:translateY(-2px);box-shadow:0 4px 12px var(--shadow);}
 .product-card.out-of-stock{opacity:.5;cursor:not-allowed;}
 .product-card.out-of-stock:hover{transform:none;}
@@ -3342,9 +3342,12 @@ function _asiCard(prod, tasa) {
 
 function _asiAddCart(id) {
   var prods = DB.get('productos') || [];
-  var p = prods.find(function(x){ return x.id === id; });
-  if (!p) { _asiMsg('bot','No encontré el producto.'); return; }
-  if (typeof addToCart === 'function') { addToCart(p); _asiMsg('bot','✅ **' + p.nombre + '** agregado al carrito.'); }
+  // Comparación laxa para evitar fallo número vs string
+  var p = prods.find(function(x){ return String(x.id) === String(id); });
+  if (!p) { _asiMsg('bot','⚠️ Producto no encontrado en el inventario.'); return; }
+  if (p.stock <= 0) { _asiMsg('bot','❌ **' + p.nombre + '** está agotado.'); return; }
+  // addToCart espera el ID, no el objeto
+  if (typeof addToCart === 'function') { addToCart(p.id); _asiMsg('bot','✅ **' + p.nombre + '** agregado al carrito.'); }
   else { _asiMsg('bot','Para agregar al carrito ve al catálogo de productos.'); }
 }
 
@@ -3443,8 +3446,8 @@ function _procesarAsi(q) {
     var enCat = prods.filter(function(p){ return (p.categoria||'').toLowerCase().includes(catBuscar.toLowerCase()); });
     if (!enCat.length) { _asiMsg('bot','No encontré productos en la categoría "' + catBuscar + '".'); return; }
     _asiMsg('bot','📂 **' + enCat.length + ' productos en "' + catBuscar + '":**');
-    enCat.slice(0,6).forEach(function(p){ _asiCard(p, tasa); });
-    if (enCat.length > 6) _asiMsg('bot','...y ' + (enCat.length-6) + ' más. Busca por nombre para ver uno específico.');
+    enCat.slice(0,8).forEach(function(p){ _asiCard(p, tasa); });
+    if (enCat.length > 8) _asiMsg('bot','...y ' + (enCat.length-8) + ' más. Busca por nombre para ver uno específico.');
     return;
   }
 
@@ -3473,8 +3476,8 @@ function _procesarAsi(q) {
       _asiCard(encontrados[0], tasa);
     } else {
       _asiMsg('bot','Encontré **' + encontrados.length + ' productos** para "' + termino + '":');
-      encontrados.slice(0, 5).forEach(function(p){ _asiCard(p, tasa); });
-      if (encontrados.length > 5) _asiMsg('bot','...y ' + (encontrados.length-5) + ' más. Sé más específico para filtrar mejor.');
+      encontrados.slice(0, 8).forEach(function(p){ _asiCard(p, tasa); });
+      if (encontrados.length > 8) _asiMsg('bot','...y ' + (encontrados.length-8) + ' más. Sé más específico para filtrar mejor.');
     }
     return;
   }
