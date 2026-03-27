@@ -350,6 +350,45 @@ tbody tr:last-child td{border-bottom:none;}
 .prov-deuda-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
 .prov-deuda-alta{background:#fee2e2;color:#991b1b;}
 .prov-al-dia{background:#d4edda;color:#155724;}
+
+/* ===== ASISTENTE IA POS ===== */
+#asistente-fab{position:fixed;bottom:28px;right:28px;z-index:600;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#059669,#10b981);border:none;color:#fff;font-size:28px;cursor:pointer;box-shadow:0 6px 24px rgba(5,150,105,0.55);display:none;align-items:center;justify-content:center;transition:transform .2s,box-shadow .2s;}
+#asistente-fab:hover{transform:scale(1.12);box-shadow:0 8px 30px rgba(5,150,105,0.7);}
+#asistente-fab .fab-badge{position:absolute;top:-3px;right:-3px;background:#f77f00;color:#fff;font-size:9px;font-weight:800;padding:2px 5px;border-radius:10px;letter-spacing:.3px;}
+#asistente-panel{position:fixed;bottom:100px;right:28px;z-index:600;width:340px;max-width:calc(100vw - 40px);background:#fff;border-radius:18px;box-shadow:0 12px 48px rgba(0,0,0,0.18);display:none;flex-direction:column;max-height:72vh;border:1.5px solid #c8e6c9;overflow:hidden;animation:slideUpPanel .22s ease;}
+@keyframes slideUpPanel{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+#asistente-panel .asi-header{background:linear-gradient(135deg,#1b4332,#2d6a4f);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+#asistente-panel .asi-header-info{display:flex;align-items:center;gap:10px;}
+#asistente-panel .asi-avatar{width:36px;height:36px;border-radius:50%;background:rgba(52,211,153,0.25);display:flex;align-items:center;justify-content:center;font-size:20px;}
+#asistente-panel .asi-name{color:#fff;font-weight:800;font-size:14px;}
+#asistente-panel .asi-status{color:#6ee7b7;font-size:11px;}
+#asistente-panel .asi-close{background:rgba(255,255,255,0.15);border:none;color:#fff;width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+#asi-msgs{flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:10px;background:#f8fdf9;}
+.asi-msg{max-width:88%;word-break:break-word;font-size:13px;line-height:1.5;}
+.asi-msg.bot{align-self:flex-start;}
+.asi-msg.usr{align-self:flex-end;}
+.asi-bubble{padding:10px 13px;border-radius:14px;}
+.asi-msg.bot .asi-bubble{background:#fff;border:1.5px solid #c8e6c9;border-bottom-left-radius:4px;color:#1a2e1a;}
+.asi-msg.usr .asi-bubble{background:linear-gradient(135deg,#059669,#10b981);color:#fff;border-bottom-right-radius:4px;}
+.asi-prod-card{background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:10px 12px;margin-top:6px;font-size:12px;}
+.asi-prod-card .pc-name{font-weight:800;color:#1b4332;font-size:13px;margin-bottom:4px;}
+.asi-prod-card .pc-price{color:#059669;font-weight:700;}
+.asi-prod-card .pc-stock{color:#4a7c59;font-size:11px;margin-top:2px;}
+.asi-prod-card .pc-add{margin-top:8px;background:#059669;color:#fff;border:none;border-radius:7px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;}
+.asi-prod-card .pc-add:hover{background:#047857;}
+.asi-typing{display:flex;gap:4px;align-items:center;padding:10px 13px;background:#fff;border:1.5px solid #c8e6c9;border-radius:14px;border-bottom-left-radius:4px;width:fit-content;}
+.asi-typing span{width:7px;height:7px;border-radius:50%;background:#059669;animation:dotBlink 1.2s infinite;}
+.asi-typing span:nth-child(2){animation-delay:.2s;}
+.asi-typing span:nth-child(3){animation-delay:.4s;}
+@keyframes dotBlink{0%,80%,100%{opacity:.2;}40%{opacity:1;}}
+#asi-input-wrap{padding:10px 12px;border-top:1.5px solid #e8f5e9;background:#fff;display:flex;gap:8px;flex-shrink:0;}
+#asi-input{flex:1;border:1.5px solid #c8e6c9;border-radius:10px;padding:9px 12px;font-size:13px;outline:none;font-family:inherit;color:#1a2e1a;background:#f8fdf9;}
+#asi-input:focus{border-color:#059669;}
+#asi-send{background:#059669;border:none;color:#fff;border-radius:10px;padding:9px 14px;font-size:16px;cursor:pointer;}
+#asi-send:hover{background:#047857;}
+.asi-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.asi-chip{background:#e8f5e9;border:1px solid #c8e6c9;color:#1b4332;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;cursor:pointer;font-family:inherit;}
+.asi-chip:hover{background:#d4edda;}
 </style>
 </head>
 <body>
@@ -1219,6 +1258,10 @@ function showPage(page,el){
   if(page==='devoluciones'){renderDevoluciones();}
   if(page==='clientes'){renderClientes();}
   if(page==='proveedores'){renderProveedores();}
+  // Mostrar asistente FAB solo en POS
+  var fab = document.getElementById('asistente-fab');
+  if (fab) fab.style.display = (page === 'pos') ? 'flex' : 'none';
+  if (page !== 'pos' && _asiAbierto) { toggleAsistente(); }
 }
 
 function toggleSidebar(){
@@ -3117,6 +3160,246 @@ function imprimirEtiquetas() {
   '</body></html>');
   w.document.close();
 }
+
+// ============================================================
+// ASISTENTE IA — POS FRUTERIA PRO
+// ============================================================
+var _asiAbierto = false;
+var _asiSaludado = false;
+
+function toggleAsistente() {
+  _asiAbierto = !_asiAbierto;
+  var panel = document.getElementById('asistente-panel');
+  var fab   = document.getElementById('asistente-fab');
+  panel.style.display = _asiAbierto ? 'flex' : 'none';
+  fab.style.transform = _asiAbierto ? 'scale(1.05)' : '';
+  if (_asiAbierto && !_asiSaludado) {
+    _asiSaludado = true;
+    var prods = DB.get('productos') || [];
+    _asiMsg('bot',
+      '¡Hola! 👋 Soy tu asistente de inventario.\n\nTengo acceso a **' + prods.length + ' productos** en tiempo real. Puedo ayudarte con:',
+      [{txt:'💰 Ver precios',q:'precios'},{txt:'📦 Inventario',q:'inventario completo'},{txt:'⚠️ Stock bajo',q:'stock bajo'},{txt:'🍊 Frutas',q:'categoria frutas'}]
+    );
+    setTimeout(function(){ document.getElementById('asi-input').focus(); }, 300);
+  }
+}
+
+function _asiMsg(tipo, texto, chips) {
+  var wrap = document.getElementById('asi-msgs');
+  var div  = document.createElement('div');
+  div.className = 'asi-msg ' + tipo;
+  var html = '<div class="asi-bubble">' + _asiFormat(texto) + '</div>';
+  if (chips && chips.length) {
+    html += '<div class="asi-chips">' + chips.map(function(c){
+      return '<button class="asi-chip" onclick="enviarAsi(\''+c.q.replace(/'/g,"\\'")+'\')">' + c.txt + '</button>';
+    }).join('') + '</div>';
+  }
+  div.innerHTML = html;
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function _asiFormat(txt) {
+  return txt
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\n/g,'<br>');
+}
+
+function _asiCard(prod, tasa) {
+  var wrap = document.getElementById('asi-msgs');
+  var div  = document.createElement('div');
+  div.className = 'asi-msg bot';
+  var stockColor = (prod.stock||0) <= 0 ? '#dc2626' : (prod.stock||0) <= (prod.minStock||3) ? '#d97706' : '#059669';
+  var stockTxt   = (prod.stock||0) <= 0 ? '❌ Agotado' : '📦 Stock: ' + prod.stock + ' ' + (prod.unidad||'und');
+  div.innerHTML =
+    '<div class="asi-prod-card">' +
+    '<div class="pc-name">' + prod.nombre + '</div>' +
+    (prod.categoria ? '<div style="font-size:10px;color:#6b8f71;margin-bottom:4px;">📂 '+prod.categoria+'</div>' : '') +
+    '<div class="pc-price">💵 $' + Number(prod.precio||0).toFixed(2) +
+    ' &nbsp;|&nbsp; Bs ' + (Number(prod.precio||0) * tasa).toFixed(2) + '</div>' +
+    '<div class="pc-stock" style="color:'+stockColor+'">'+stockTxt+'</div>' +
+    '<button class="pc-add" onclick="_asiAddCart(\''+prod.id+'\')">🛒 Agregar al carrito</button>' +
+    '</div>';
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function _asiAddCart(id) {
+  var prods = DB.get('productos') || [];
+  var p = prods.find(function(x){ return x.id === id; });
+  if (!p) { _asiMsg('bot','No encontré el producto.'); return; }
+  if (typeof addToCart === 'function') { addToCart(p); _asiMsg('bot','✅ **' + p.nombre + '** agregado al carrito.'); }
+  else { _asiMsg('bot','Para agregar al carrito ve al catálogo de productos.'); }
+}
+
+function _asiTyping(cb) {
+  var wrap = document.getElementById('asi-msgs');
+  var t = document.createElement('div');
+  t.className = 'asi-msg bot'; t.id = 'asi-typing-indicator';
+  t.innerHTML = '<div class="asi-typing"><span></span><span></span><span></span></div>';
+  wrap.appendChild(t); wrap.scrollTop = wrap.scrollHeight;
+  setTimeout(function(){
+    var old = document.getElementById('asi-typing-indicator');
+    if (old) old.remove();
+    cb();
+    wrap.scrollTop = wrap.scrollHeight;
+  }, 700);
+}
+
+function enviarAsi(textoForzado) {
+  var inp  = document.getElementById('asi-input');
+  var texto = (textoForzado || inp.value).trim();
+  if (!texto) return;
+  inp.value = '';
+  _asiMsg('usr', texto);
+  _asiTyping(function(){ _procesarAsi(texto); });
+}
+
+function _procesarAsi(q) {
+  var prods = DB.get('productos') || [];
+  var ventas = DB.get('ventas') || [];
+  var tasa   = (STATE && STATE.tasa) ? STATE.tasa : 40;
+  var ql = q.toLowerCase();
+
+  // ── Saludo ──
+  if (/^(hola|buenas|hey|buenos|saludos|ola)/i.test(ql)) {
+    _asiMsg('bot', '¡Hola! 😊 ¿En qué te ayudo?\n\nPuedo decirte **precios**, **stock**, buscar **productos** o mostrarte el **inventario**.', [
+      {txt:'💰 Ver precios', q:'dame los precios'}, {txt:'📦 Inventario', q:'inventario completo'}, {txt:'⚠️ Agotados', q:'productos agotados'}
+    ]);
+    return;
+  }
+
+  // ── Tasa ──
+  if (/tasa|cambio|dolar|d[oó]lar|boliv/i.test(ql)) {
+    _asiMsg('bot', '💱 La tasa actual es **Bs ' + tasa + ' por $1**.\n\nPor ejemplo: $10 = Bs ' + (10 * tasa).toFixed(2));
+    return;
+  }
+
+  // ── Ventas del día ──
+  if (/venta|vendido|vendimos|hoy/i.test(ql)) {
+    var hoy = new Date().toISOString().slice(0,10);
+    var ventasHoy = ventas.filter(function(v){ return (v.fecha||'').startsWith(hoy); });
+    if (!ventasHoy.length) { _asiMsg('bot','📊 No hay ventas registradas hoy todavía.'); return; }
+    var totalUSD = ventasHoy.reduce(function(s,v){ return s + (v.total||0); }, 0);
+    _asiMsg('bot',
+      '📊 **Ventas de hoy:**\n' +
+      '🧾 Transacciones: **' + ventasHoy.length + '**\n' +
+      '💵 Total: **$' + totalUSD.toFixed(2) + '** / Bs ' + (totalUSD * tasa).toFixed(2)
+    );
+    return;
+  }
+
+  // ── Inventario completo ──
+  if (/inventario|todos los productos|lista de productos|qu[eé] hay|qu[eé] tienes/i.test(ql) && !/precio|cuesta|vale/i.test(ql)) {
+    if (!prods.length) { _asiMsg('bot','📦 El inventario está vacío.'); return; }
+    var cats = {};
+    prods.forEach(function(p){ var c = p.categoria||'Sin categoría'; if(!cats[c])cats[c]=[]; cats[c].push(p); });
+    var resp = '📦 **Inventario completo** (' + prods.length + ' productos):\n\n';
+    Object.keys(cats).forEach(function(c){
+      resp += '**' + c + '** (' + cats[c].length + '):\n';
+      cats[c].forEach(function(p){ resp += '• ' + p.nombre + ' — $' + Number(p.precio||0).toFixed(2) + '\n'; });
+      resp += '\n';
+    });
+    _asiMsg('bot', resp.trim());
+    return;
+  }
+
+  // ── Agotados ──
+  if (/agotado|sin stock|no hay|0 unid/i.test(ql)) {
+    var ag = prods.filter(function(p){ return (p.stock||0) <= 0; });
+    if (!ag.length) { _asiMsg('bot','✅ ¡Ningún producto agotado! Todo tiene stock.'); return; }
+    _asiMsg('bot','❌ **Productos agotados (' + ag.length + '):**\n' + ag.map(function(p){ return '• ' + p.nombre; }).join('\n'));
+    return;
+  }
+
+  // ── Stock bajo ──
+  if (/stock bajo|poco stock|por agotarse|m[ií]nimo/i.test(ql)) {
+    var bajos = prods.filter(function(p){ return (p.stock||0) > 0 && (p.stock||0) <= (p.minStock||3); });
+    if (!bajos.length) { _asiMsg('bot','✅ Ningún producto en stock bajo por ahora.'); return; }
+    _asiMsg('bot','⚠️ **Stock bajo (' + bajos.length + ' productos):**\n' + bajos.map(function(p){ return '• ' + p.nombre + ' — ' + p.stock + ' restantes'; }).join('\n'));
+    return;
+  }
+
+  // ── Categoría ──
+  var catMatch = ql.match(/categor[ií]a\s+(.+)|frutas?|verduras?|vegetales?|granos?|condimentos?|bebidas?|l[áa]cteos?/i);
+  if (catMatch || /categor[ií]a/i.test(ql)) {
+    var catBuscar = catMatch ? (catMatch[1] || catMatch[0]).trim() : '';
+    var enCat = prods.filter(function(p){ return (p.categoria||'').toLowerCase().includes(catBuscar.toLowerCase()); });
+    if (!enCat.length) { _asiMsg('bot','No encontré productos en la categoría "' + catBuscar + '".'); return; }
+    _asiMsg('bot','📂 **' + enCat.length + ' productos en "' + catBuscar + '":**');
+    enCat.slice(0,6).forEach(function(p){ _asiCard(p, tasa); });
+    if (enCat.length > 6) _asiMsg('bot','...y ' + (enCat.length-6) + ' más. Busca por nombre para ver uno específico.');
+    return;
+  }
+
+  // ── Precio específico / búsqueda por nombre ──
+  // Limpiar la pregunta de palabras comunes para extraer el término de búsqueda
+  var termino = ql
+    .replace(/cu[aá]nto\s+(cuesta|vale|sale|cobran|es)|precio\s*(de(l)?)?|d[aá]me\s+(el\s+precio\s+(de(l)?)?)?|hay\s*/gi, '')
+    .replace(/\b(el|la|los|las|un|una|del|de|hay|tiene[ns]?|tenemos|busca|buscar|ver|mostrar|dime|dame|info|informaci[oó]n)\b/gi, '')
+    .replace(/\s+/g,' ').trim();
+
+  if (termino.length >= 2) {
+    var encontrados = prods.filter(function(p){
+      return p.nombre.toLowerCase().includes(termino) ||
+             (p.categoria||'').toLowerCase().includes(termino) ||
+             (p.descripcion||'').toLowerCase().includes(termino);
+    });
+    if (!encontrados.length) {
+      _asiMsg('bot','🔍 No encontré productos con "' + termino + '".\n\n¿Quizás quisiste decir algo diferente? Prueba con parte del nombre.', [
+        {txt:'📦 Ver todo el inventario', q:'inventario completo'},
+        {txt:'⚠️ Ver agotados', q:'productos agotados'}
+      ]);
+      return;
+    }
+    if (encontrados.length === 1) {
+      _asiMsg('bot','Encontré esto para "' + termino + '":');
+      _asiCard(encontrados[0], tasa);
+    } else {
+      _asiMsg('bot','Encontré **' + encontrados.length + ' productos** para "' + termino + '":');
+      encontrados.slice(0, 5).forEach(function(p){ _asiCard(p, tasa); });
+      if (encontrados.length > 5) _asiMsg('bot','...y ' + (encontrados.length-5) + ' más. Sé más específico para filtrar mejor.');
+    }
+    return;
+  }
+
+  // ── Ayuda / fallback ──
+  _asiMsg('bot',
+    'No entendí bien tu pregunta. 🤔 Puedo ayudarte con:\n\n' +
+    '• **Precios**: "¿Cuánto cuesta el mango?"\n' +
+    '• **Stock**: "¿Hay aguacate?"\n' +
+    '• **Inventario**: "Dame el inventario"\n' +
+    '• **Agotados**: "¿Qué está agotado?"\n' +
+    '• **Tasa**: "¿Cuál es la tasa?"',
+    [
+      {txt:'💰 Precios', q:'dame los precios'}, {txt:'📦 Inventario', q:'inventario completo'},
+      {txt:'⚠️ Stock bajo', q:'stock bajo'}, {txt:'💱 Tasa', q:'tasa del día'}
+    ]
+  );
+}
 </script>
+
+<!-- ===== ASISTENTE IA FLOTANTE ===== -->
+<button id="asistente-fab" onclick="toggleAsistente()" title="Asistente IA">
+  🤖<span class="fab-badge">IA</span>
+</button>
+
+<div id="asistente-panel">
+  <div class="asi-header">
+    <div class="asi-header-info">
+      <div class="asi-avatar">🤖</div>
+      <div>
+        <div class="asi-name">Asistente Fruteria Pro</div>
+        <div class="asi-status">● En línea — pregúntame lo que necesites</div>
+      </div>
+    </div>
+    <button class="asi-close" onclick="toggleAsistente()">✕</button>
+  </div>
+  <div id="asi-msgs"></div>
+  <div id="asi-input-wrap">
+    <input id="asi-input" type="text" placeholder="Ej: ¿Cuánto cuesta el mango?" onkeydown="if(event.key==='Enter')enviarAsi()">
+    <button id="asi-send" onclick="enviarAsi()">➤</button>
+  </div>
+</div>
 </body>
 </html>
