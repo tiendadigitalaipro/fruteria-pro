@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FruteriaPro 🍃</title>
+<title>🍊 FruteriaPro — Mercado Tropical</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
-  --bg:#f0f7f0;--bg2:#e8f5e9;--bg3:#dcedc8;
-  --card:#ffffff;--card2:#f9fbe7;
-  --sidebar:#1b4332;--sidebar2:#2d6a4f;--sidebar3:#40916c;
-  --accent:#2d6a4f;--accent2:#52b788;--accent3:#74c69d;
-  --orange:#f77f00;--orange2:#fcbf49;--orange3:#ffd166;
-  --danger:#e63946;--success:#2d6a4f;--warn:#f4a261;
-  --text:#1a2e1a;--text2:#4a7c59;--text3:#888;
-  --border:#c8e6c9;--shadow:rgba(45,106,79,0.12);
+  --bg:#FFFBF5;--bg2:#FFF3E0;--bg3:#FFE0B2;
+  --card:#ffffff;--card2:#FFF8F0;
+  --sidebar:#7C2D12;--sidebar2:#9A3412;--sidebar3:#C2410C;
+  --accent:#EA580C;--accent2:#F97316;--accent3:#FB923C;
+  --orange:#16A34A;--orange2:#22C55E;--orange3:#4ADE80;
+  --danger:#DC2626;--success:#16A34A;--warn:#D97706;
+  --text:#1C0A00;--text2:#7C2D12;--text3:#92400E;
+  --border:#FED7AA;--shadow:rgba(234,88,12,0.12);
   --radius:12px;--radius2:8px;
 }
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
@@ -188,7 +188,7 @@ tbody tr:last-child td{border-bottom:none;}
 .discount-row input{flex:1;padding:7px 10px;border:1.5px solid var(--border);border-radius:var(--radius2);font-size:12px;outline:none;}
 .discount-row input:focus{border-color:var(--accent2);}
 .discount-row button{padding:7px 12px;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius2);font-size:12px;cursor:pointer;font-weight:600;color:var(--text2);}
-.btn-cobrar{width:100%;padding:14px;background:linear-gradient(135deg,var(--orange),var(--orange2));border:none;border-radius:var(--radius);color:#fff;font-size:16px;font-weight:800;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-cobrar{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:var(--radius);color:#fff;font-size:16px;font-weight:800;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
 .btn-cobrar:hover{filter:brightness(1.05);transform:translateY(-1px);}
 .btn-cobrar:disabled{opacity:.5;cursor:not-allowed;transform:none;}
 
@@ -247,7 +247,7 @@ tbody tr:last-child td{border-bottom:none;}
 .receipt{font-family:'Courier New',monospace;font-size:13px;line-height:1.8;white-space:pre-wrap;}
 
 /* ===== LOGIN SCREEN ===== */
-#loginScreen{position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#0d2b1d 0%,#1b4332 55%,#2d6a4f 100%);display:flex;align-items:center;justify-content:center;}
+#loginScreen{position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#431407 0%,#7C2D12 55%,#C2410C 100%);display:flex;align-items:center;justify-content:center;}
 .login-card{background:#fff;border-radius:18px;padding:40px 38px;width:92%;max-width:420px;box-shadow:0 24px 80px rgba(0,0,0,0.45);text-align:center;}
 .login-logo{font-size:58px;margin-bottom:6px;line-height:1;}
 .login-title{font-size:27px;font-weight:800;color:#1b4332;margin-bottom:4px;}
@@ -256,7 +256,7 @@ tbody tr:last-child td{border-bottom:none;}
 .login-field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#4a7c59;margin-bottom:5px;}
 .login-field input{width:100%;padding:11px 14px;border:1.5px solid #c8e6c9;border-radius:9px;font-size:14px;color:#1a2e1a;outline:none;transition:border-color .2s;background:#f9fbe7;}
 .login-field input:focus{border-color:#2d6a4f;background:#fff;}
-.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#2d6a4f,#52b788);border:none;border-radius:10px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;margin-top:10px;transition:all .2s;letter-spacing:.3px;}
+.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#EA580C,#F97316);border:none;border-radius:10px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;margin-top:10px;transition:all .2s;letter-spacing:.3px;}
 .login-btn:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 6px 20px rgba(45,106,79,0.4);}
 .login-error{background:#fee2e2;color:#991b1b;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;margin-top:14px;display:none;text-align:left;}
 .login-error.show{display:block;}
@@ -265,7 +265,7 @@ tbody tr:last-child td{border-bottom:none;}
 /* ===== DEMO BADGE & BLOCK ===== */
 .demo-badge{background:#e63946;color:#fff;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;white-space:nowrap;cursor:default;animation:demoPulse 2s infinite;}
 @keyframes demoPulse{0%,100%{opacity:1;}50%{opacity:.7;}}
-#demoBlock{position:fixed;inset:0;background:linear-gradient(135deg,#0d2b1d 0%,#1b4332 60%,#2d6a4f 100%);z-index:999999;display:flex;align-items:center;justify-content:center;pointer-events:all;overflow:hidden;}
+#demoBlock{position:fixed;inset:0;background:linear-gradient(135deg,#431407 0%,#7C2D12 60%,#C2410C 100%);z-index:999999;display:flex;align-items:center;justify-content:center;pointer-events:all;overflow:hidden;}
 #demoBlock.hidden{display:none;}
 .demo-block-card{background:#fff;border-radius:18px;padding:46px 38px;width:92%;max-width:460px;box-shadow:0 24px 80px rgba(0,0,0,.5);text-align:center;}
 .btn-whatsapp{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:linear-gradient(135deg,#25d366,#128c7e);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;text-decoration:none;}
@@ -344,7 +344,7 @@ tbody tr:last-child td{border-bottom:none;}
 <div id="loginScreen">
   <div class="login-card">
     <div class="login-logo">🍎</div>
-    <div class="login-title">FruteriaPro</div>
+    <div class="login-title">🍊 Fruteria Pro</div>
     <div class="login-sub">Sistema POS para Fruterías</div>
     <div class="login-field">
       <label for="shopName">Nombre de tu frutería</label>
@@ -377,8 +377,8 @@ tbody tr:last-child td{border-bottom:none;}
     <div class="sidebar-brand">
       <span class="brand-icon">🍃</span>
       <div class="brand-text">
-        <div class="brand-name">FruteriaPro</div>
-        <div class="brand-sub">Punto de Venta</div>
+        <div class="brand-name">🍊 Fruteria Pro</div>
+        <div class="brand-sub">Mercado Tropical</div>
       </div>
     </div>
     <nav class="sidebar-nav">

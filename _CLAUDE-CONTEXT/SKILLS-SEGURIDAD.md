@@ -1,73 +1,103 @@
-# 🔐 SKILLS-SEGURIDAD — Licencias y Acceso
+# 🔒 SKILLS SEGURIDAD — Fruteria Pro Iron Lock
 
-## FruteriaPro — Licencias hardcodeadas
+---
 
-| Código | Tipo | Vence |
-|--------|------|-------|
-| `FP-ADMIN-2026` | ADMIN | 2027-12-31 |
-| `FP-PRO-ZYNC`   | PRO   | 2027-12-31 |
-| `FP-DEMO-2026`  | DEMO  | 2026-12-31 |
+## 🛡️ ESTRUCTURA DE PROTECCIÓN
 
-**Licencia admin principal:** `FP-ADMIN-2026`
+```
+#loginScreen   → pantalla licencia (display:flex por defecto)
+#app           → oculto hasta validar (display:none)
+#demoBlock     → overlay fullscreen al vencer demo (z-index: 999999)
+```
 
-## Sesión
-- Clave localStorage: `fp_session`
-- Campos: `{ shop, code, tipo, loginAt }`
-- Para cerrar sesión: `localStorage.removeItem('fp_session')` + `location.reload()`
+---
 
-## Licencias dinámicas (v2.0)
+## 🔑 CÓDIGOS MASTER (hardcodeados)
 
-- El admin puede generar licencias PRO y DEMO desde ⚙️ Configuración → 🔑 Gestión de Licencias
-- Se guardan en localStorage: `fp_licencias_generadas` (array)
-- Formato PRO: `FP-PRO-[6 chars]` | Formato DEMO: `FP-DEMO-[6 chars]`
-- El `validarLicencia()` busca primero en hardcoded, luego en `fp_licencias_generadas`
+```
+FPRO-DEMO-2024   → Master demo
+FPRO-ABIG-2024   → Master PRO
+FPRO-ZYNC-2024   → Master PRO alternativo
+FP-ADMIN-2026    → Admin original
+FP-PRO-ZYNC      → PRO original
+FP-DEMO-2026     → Demo estática (vence 2026-12-31)
+```
 
-### Lógica de DEMO (5 días — protección triple)
+---
 
-**Paso 1 — Registro de activación (primer login con DEMO generada):**
-- Clave: `fp_demo_activated_[btoa(code)]`
-- Valor: `btoa(JSON.stringify({ ts: Date.now(), h: ((ts*1234567891)%999983).toString(36) }))`
+## ⏱️ SISTEMA DEMO — 5 DÍAS EXACTOS
 
-**Paso 2 — Verificación en cada carga:**
-- Decodifica con `atob()` y valida hash de integridad
-- Si `Date.now() - ts >= 432000000` ms (5 días exactos) → `showDemoBlock()`
-- Si el hash no coincide (posible manipulación) → `showDemoBlock()`
+```javascript
+vence.setDate(vd.getDate() + 5)  // ← NO CAMBIAR NUNCA
+```
 
-**Paso 3 — Verificación con servidor:**
-- `fetch('https://worldtimeapi.org/api/timezone/America/Caracas')` con timeout
-- Si el servidor dice que han pasado 5 días → `showDemoBlock()`
-- Si falla el fetch (sin internet) → confía en localStorage
+**Storage:**
+```
+fp_demo_activated_[btoa(code)] = btoa({ ts: Date.now(), h: hash })
+```
 
-**Re-check continuo:**
-- `setInterval(checkDemoExpiry, 60000)` — verifica cada minuto mientras la app está abierta
+**Verificación triple:**
+1. Hash de integridad local
+2. worldtimeapi.org si hay internet
+3. Re-check `setInterval(checkDemoExpiry, 60000)` cada minuto
 
-### Overlay de bloqueo `#demoBlock`
-- `position: fixed; inset: 0; z-index: 999999`
-- Sin botón X, sin cierre por ESC, bloquea scroll (`document.body.style.overflow='hidden'`)
-- Mensaje: "⏰ Tu período de prueba de 5 días ha finalizado"
-- Botón único: "💬 Contactar para adquirir PRO" → WhatsApp de ZYNC
-- La DEMO estática `FP-DEMO-2026` usa su fecha de vencimiento `2026-12-31` (sin timer de 5 días)
+---
 
-### Badge regresiva en topbar
-- Elemento: `<span id="demo-badge" class="demo-badge">`
-- Texto: `⏳ Demo: Xd Xh Xm restantes`
-- Actualización: `setInterval` cada 60 segundos
+## 🔑 LICENCIAS GENERADAS
 
-## Datos protegidos en localStorage
-- `fp_productos` — catálogo de productos
-- `fp_ventas` — historial de ventas
-- `fp_config` — configuración de tienda
-- `fp_licencias_generadas` — licencias emitidas por el admin
-- `fp_caja_apertura` — turno de caja activo
-- `fp_caja_cierres` — historial de cierres
-- NUNCA eliminar estas claves sin exportar backup primero
+**Formato:**
+```
+PRO:  FP-PRO-[RANDOM6]
+DEMO: FP-DEMO-[RANDOM6]
+```
 
-## Reset de emergencia
-- Abrir consola F12 y ejecutar: `localStorage.clear(); location.reload()`
-- Esto borra TODOS los datos — hacer backup primero
+**Storage:** `fp_licencias_generadas` (array)
 
-## Notas
-- Sin Firebase, funciona 100% offline
-- Validación en frontend (hardcoded + localStorage generadas)
-- z-index del loginScreen: 99999
-- z-index del demoBlock: 999999
+**Funciones:**
+```javascript
+generarLicencia()      // PRO con duración seleccionable
+generarLicenciaDemo()  // DEMO 5 días fijos
+activarConCodigoPro()  // Activa en el dispositivo actual
+```
+
+---
+
+## 🪟 Z-INDEX STACK
+
+```
+999999 → #demoBlock
+ 99999 → #loginScreen
+  9999 → modales dinámicos (modalEtiquetas, modalCobroRapido)
+  1000 → .modal-overlay
+```
+
+---
+
+## 🚨 REGLAS DE ORO
+
+1. NUNCA cambiar `+ 5` en el timer demo
+2. NUNCA modificar los códigos MASTER
+3. NUNCA agregar botón de cierre al `#demoBlock`
+4. NUNCA hacer bypass del loginScreen
+
+---
+
+## 🔐 CONTRASEÑA ADMIN
+
+- Se solicita en Configuración → Gestión de Licencias
+- Buscar `adminPwOkBtn` (~línea 830) para encontrarla en el código
+- No exponer en logs ni commits
+
+---
+
+## 🔄 RESET DE EMERGENCIA
+
+```javascript
+// En consola F12 del navegador:
+localStorage.clear(); location.reload();
+// ⚠️ Borra TODOS los datos — exportar backup JSON primero
+```
+
+---
+
+*Actualizado: 2026-03-26 · A2K Digital Studio*
