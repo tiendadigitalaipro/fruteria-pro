@@ -246,21 +246,36 @@ tbody tr:last-child td{border-bottom:none;}
 }
 .receipt{font-family:'Courier New',monospace;font-size:13px;line-height:1.8;white-space:pre-wrap;}
 
-/* ===== LOGIN SCREEN ===== */
-#loginScreen{position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#431407 0%,#7C2D12 55%,#C2410C 100%);display:flex;align-items:center;justify-content:center;}
-.login-card{background:#fff;border-radius:18px;padding:40px 38px;width:92%;max-width:420px;box-shadow:0 24px 80px rgba(0,0,0,0.45);text-align:center;}
-.login-logo{font-size:58px;margin-bottom:6px;line-height:1;}
-.login-title{font-size:27px;font-weight:800;color:#1b4332;margin-bottom:4px;}
-.login-sub{font-size:13px;color:#6b8f71;margin-bottom:28px;font-weight:500;}
-.login-field{text-align:left;margin-bottom:15px;}
-.login-field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#4a7c59;margin-bottom:5px;}
-.login-field input{width:100%;padding:11px 14px;border:1.5px solid #c8e6c9;border-radius:9px;font-size:14px;color:#1a2e1a;outline:none;transition:border-color .2s;background:#f9fbe7;}
-.login-field input:focus{border-color:#2d6a4f;background:#fff;}
-.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#EA580C,#F97316);border:none;border-radius:10px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;margin-top:10px;transition:all .2s;letter-spacing:.3px;}
-.login-btn:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 6px 20px rgba(45,106,79,0.4);}
-.login-error{background:#fee2e2;color:#991b1b;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;margin-top:14px;display:none;text-align:left;}
+/* ===== LOGIN SCREEN — Iron Lock ===== */
+#loginScreen{position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#0a1628 0%,#0d2137 50%,#091c12 100%);display:flex;align-items:center;justify-content:center;padding:20px;}
+.login-wrap{width:100%;max-width:420px;}
+.login-logo-wrap{text-align:center;margin-bottom:28px;}
+.login-logo-icon{width:72px;height:72px;border-radius:20px;margin:0 auto 14px;background:linear-gradient(135deg,#059669,#34d399);display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 10px 40px rgba(5,150,105,0.45);}
+.login-logo-title{font-size:26px;font-weight:900;color:#fff;letter-spacing:-.5px;}
+.login-logo-title span{color:#34d399;}
+.login-logo-sub{color:#6b8f71;font-size:13px;margin-top:4px;}
+.login-card{background:rgba(15,30,20,0.85);border:1px solid rgba(52,211,153,0.2);border-radius:20px;padding:28px;backdrop-filter:blur(12px);box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+.login-card::before{content:'🔒  LICENCIA PROTEGIDA  •  NO TRANSFERIBLE';display:block;text-align:center;font-size:9px;letter-spacing:2px;color:#2d6647;margin-bottom:20px;font-weight:700;}
+.login-field{text-align:left;margin-bottom:14px;}
+.login-field label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#4a7c59;margin-bottom:6px;}
+.login-field input{width:100%;padding:11px 14px;border:1.5px solid rgba(52,211,153,0.2);border-radius:9px;font-size:14px;color:#e6f7f0;outline:none;transition:border-color .2s,box-shadow .2s;background:rgba(0,0,0,0.3);}
+.login-field input:focus{border-color:#34d399;box-shadow:0 0 0 3px rgba(52,211,153,0.12);background:rgba(0,0,0,0.5);}
+.login-field input::placeholder{color:#2d6647;}
+.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#059669,#047857);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;margin-top:6px;transition:all .2s;letter-spacing:.3px;box-shadow:0 4px 16px rgba(5,150,105,0.4);}
+.login-btn:hover{filter:brightness(1.1);transform:translateY(-1px);}
+.login-error{background:rgba(239,68,68,0.12);color:#fca5a5;border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;margin-top:14px;display:none;text-align:left;}
 .login-error.show{display:block;}
-.login-footer{margin-top:22px;font-size:11px;color:#9ca3af;letter-spacing:.5px;}
+.login-footer{margin-top:18px;font-size:10px;color:#2d6647;letter-spacing:.5px;text-align:center;}
+.device-id-box{background:rgba(5,150,105,0.08);border:1px solid rgba(52,211,153,0.25);border-radius:10px;padding:12px 14px;margin-bottom:16px;}
+.device-id-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#4a7c59;margin-bottom:6px;}
+.device-id-row{display:flex;align-items:center;gap:8px;}
+.device-id-value{flex:1;font-size:13px;font-weight:800;font-family:'Courier New',monospace;color:#34d399;letter-spacing:2px;background:rgba(0,0,0,0.3);padding:7px 12px;border-radius:6px;border:1px solid rgba(52,211,153,0.2);}
+.device-id-copy{padding:7px 10px;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);border-radius:6px;color:#34d399;font-size:12px;cursor:pointer;white-space:nowrap;font-weight:700;}
+.device-id-copy:hover{background:rgba(52,211,153,0.2);}
+.device-id-hint{font-size:10px;color:#2d6647;margin-top:6px;line-height:1.4;}
+.lock-security-msg{background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.15);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:11px;color:#4a7c59;line-height:1.5;text-align:center;}
+.lock-security-msg strong{color:#34d399;}
+.cart-pay-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin:8px 0 5px;}
 
 /* ===== DEMO BADGE & BLOCK ===== */
 .demo-badge{background:#e63946;color:#fff;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;white-space:nowrap;cursor:default;animation:demoPulse 2s infinite;}
@@ -342,32 +357,53 @@ tbody tr:last-child td{border-bottom:none;}
 <body>
 <!-- ===== LOGIN / LICENCIA ===== -->
 <div id="loginScreen">
-  <div class="login-card">
-    <div class="login-logo">🍎</div>
-    <div class="login-title">🍊 Fruteria Pro</div>
-    <div class="login-sub">Sistema POS para Fruterías</div>
-    <div class="login-field">
-      <label for="shopName">Nombre de tu frutería</label>
-      <input type="text" id="shopName" placeholder="Ej: Frutería La Esperanza" autocomplete="off">
+  <div class="login-wrap">
+    <div class="login-logo-wrap">
+      <div class="login-logo-icon">🍊</div>
+      <div class="login-logo-title">Fruteria <span>Pro</span></div>
+      <div class="login-logo-sub">Sistema POS para Fruterías · A2K Digital Studio</div>
     </div>
-    <div class="login-field">
-      <label for="licenseCode">Código de licencia</label>
-      <input type="text" id="licenseCode" placeholder="Ej: FP-ADMIN-2026" autocomplete="off" spellcheck="false">
+    <div class="login-card">
+      <div class="device-id-box">
+        <div class="device-id-label">🖥️ Device ID de tu equipo</div>
+        <div class="device-id-row">
+          <div class="device-id-value" id="deviceIdDisplay">Calculando...</div>
+          <button class="device-id-copy" onclick="navigator.clipboard.writeText(document.getElementById('deviceIdDisplay').textContent).then(()=>showToast('Device ID copiado','success'))">📋 Copiar</button>
+        </div>
+        <div class="device-id-hint">Proporciona este ID al adquirir tu licencia PRO</div>
+      </div>
+      <div class="lock-security-msg">🔒 Licencia vinculada a este dispositivo.<br><strong>No transferible.</strong> Solo funciona en el equipo registrado.</div>
+      <div class="login-field">
+        <label for="shopName">Nombre de tu frutería</label>
+        <input type="text" id="shopName" placeholder="Ej: Frutería La Esperanza" autocomplete="off">
+      </div>
+      <div class="login-field">
+        <label for="licenseCode">Código de licencia</label>
+        <input type="text" id="licenseCode" placeholder="FPRO-XXXX-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <button class="login-btn" onclick="validarLicencia()">🚀 Ingresar al Sistema</button>
+      <div class="login-error" id="login-error"></div>
+      <div class="login-footer">🔐 Iron Lock · Fruteria Pro · A2K Digital Studio © 2026</div>
     </div>
-    <button class="login-btn" onclick="validarLicencia()">🚀 Ingresar al Sistema</button>
-    <div class="login-error" id="login-error"></div>
-    <div class="login-footer">ZYNC Electronics © 2026</div>
   </div>
 </div>
 
 <!-- ===== DEMO BLOCK OVERLAY (no cierra con ESC, no tiene X) ===== -->
 <div id="demoBlock" class="hidden">
   <div class="demo-block-card">
-    <div style="font-size:64px;line-height:1;margin-bottom:12px;">⏰</div>
-    <div style="font-size:24px;font-weight:800;color:#1b4332;margin-bottom:10px;">Tu período de prueba de 5 días ha finalizado</div>
-    <div style="font-size:14px;color:#6b8f71;line-height:1.6;margin-bottom:16px;">Para continuar usando FruteriaPro,<br>adquiere la versión PRO.</div>
-    <div style="font-size:13px;color:#4a7c59;font-weight:600;margin-bottom:22px;">📱 Contacta a ZYNC Electronics: @zyncelectronics</div>
-    <button class="btn-whatsapp" onclick="contactarZync()">💬 Contactar para adquirir PRO</button>
+    <div style="font-size:60px;line-height:1;margin-bottom:10px;">⏰</div>
+    <div style="font-size:22px;font-weight:800;color:#1b4332;margin-bottom:8px;">Tu período de prueba ha finalizado</div>
+    <div style="font-size:13px;color:#6b8f71;line-height:1.7;margin-bottom:10px;">
+      Los 5 días de prueba de <strong>Fruteria Pro</strong> han concluido en este dispositivo.<br>
+      Tus datos están seguros — solo necesitas activar la versión PRO.
+    </div>
+    <div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:10px 14px;margin-bottom:16px;">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#6b8f71;margin-bottom:4px;">🖥️ Device ID de este equipo</div>
+      <div style="font-size:13px;font-weight:800;font-family:'Courier New',monospace;color:#1b4332;" id="demoBlockDeviceId">—</div>
+      <div style="font-size:10px;color:#9ca3af;margin-top:2px;">Proporciona este ID al adquirir tu licencia PRO</div>
+    </div>
+    <div style="font-size:12px;color:#4a7c59;font-weight:600;margin-bottom:18px;">📱 ZYNC Electronics: @zyncelectronics</div>
+    <button class="btn-whatsapp" onclick="contactarZync()">💬 Quiero la versión PRO — Contactar ahora</button>
   </div>
 </div>
 
@@ -475,6 +511,8 @@ tbody tr:last-child td{border-bottom:none;}
               <div class="cart-total-row sub"><span>Descuento</span><span id="cart-descuento">-$0.00</span></div>
               <div class="cart-total-row main"><span>TOTAL</span><span id="cart-total">$0.00</span></div>
               <div class="cart-total-row sub" style="margin-bottom:12px;"><span>En Bs</span><span id="cart-total-bs">Bs 0.00</span></div>
+              <div class="cart-pay-label">💳 Método de pago</div>
+              <div class="pay-methods" id="cart-pay-grid"></div>
               <button class="btn-cobrar" id="btn-cobrar" onclick="abrirCobro()" disabled>💳 Cobrar — <span id="btn-total">$0.00</span></button>
             </div>
           </div>
@@ -1097,6 +1135,23 @@ const PRODUCTOS_DEFAULT = [
   {id:74,nombre:'Frijol Blanco',emoji:'🫘',categoria:'Granos y Semillas',precio:1.10,costo:0.80,stock:20,stockMin:5,unidad:'kg'},
 ];
 
+// ============================================================
+// DEVICE FINGERPRINT — Iron Lock
+// ============================================================
+function getDeviceId() {
+  try {
+    var nav = window.navigator || {};
+    var scr = window.screen || {};
+    var fp = [nav.userAgent||'ua', nav.language||'es', scr.colorDepth||24,
+      (scr.width||1920)+'x'+(scr.height||1080), new Date().getTimezoneOffset(),
+      nav.hardwareConcurrency||4, nav.platform||'Win32'].join('|');
+    var h = 0;
+    for (var i=0; i<fp.length; i++) { h=((h<<5)-h)+fp.charCodeAt(i); h=h&h; }
+    return 'FP-'+Math.abs(h).toString(36).toUpperCase().slice(0,4)+'-'+Math.abs(h>>8).toString(36).toUpperCase().slice(0,4);
+  } catch(e) { return 'FP-ZYNC-2026'; }
+}
+const DEVICE_ID = getDeviceId();
+
 const METODOS_PAGO = [
   {id:'efectivo_usd', nombre:'💵 Efectivo USD',  moneda:'USD'},
   {id:'efectivo_bs',  nombre:'💴 Efectivo Bs',   moneda:'BS'},
@@ -1355,6 +1410,25 @@ function renderCartTotals(){
   stext('btn-total',fmt$(total));
   const btnCobrar=gel('btn-cobrar');
   if(btnCobrar)btnCobrar.disabled=!STATE.cart.length;
+  // Renderizar métodos de pago en el carrito
+  const cartPayGrid=gel('cart-pay-grid');
+  if(cartPayGrid){
+    cartPayGrid.innerHTML=METODOS_PAGO.map(m=>`
+      <button class="pay-btn${STATE.payMethod===m.id?' active':''}" onclick="selCartPago('${m.id}',this)">
+        ${m.nombre}
+      </button>`).join('');
+  }
+}
+function selCartPago(id,el){
+  STATE.payMethod=id;
+  document.querySelectorAll('#cart-pay-grid .pay-btn').forEach(b=>b.classList.remove('active'));
+  if(el)el.classList.add('active');
+  // Sync with modal grid if open
+  document.querySelectorAll('#pay-methods-grid .pay-btn').forEach(b=>{
+    b.classList.toggle('active',b.getAttribute('onclick').includes("'"+id+"'"));
+  });
+  const mixtoPanel=gel('mixto-panel');
+  if(mixtoPanel)mixtoPanel.style.display=id==='mixto'?'block':'none';
 }
 
 // ============================================================
@@ -2154,24 +2228,25 @@ function checkDemoExpiry(){
   const licGen=generadas.find(l=>l.code===sess.code&&l.tipo==='DEMO');
 
   if(licGen){
-    // Generated DEMO: 5-day from activation
-    const activatedRaw=localStorage.getItem('fp_demo_activated_'+btoa(sess.code));
+    // Generated DEMO: 5-day from activation — key bound to device
+    const _demoKey='fp_demo_'+btoa(DEVICE_ID+'|'+sess.code);
+    const activatedRaw=localStorage.getItem(_demoKey);
     if(!activatedRaw){
-      // First time: register activation
+      // First time: register activation on this device
       const ts=Date.now();
-      localStorage.setItem('fp_demo_activated_'+btoa(sess.code),btoa(JSON.stringify({ts,h:_simpleHash(ts)})));
+      localStorage.setItem(_demoKey,btoa(JSON.stringify({ts,h:_simpleHash(ts),dev:DEVICE_ID})));
       startDemoCountdown(ts,432000000);
       return;
     }
     try{
       const data=JSON.parse(atob(activatedRaw));
-      // Integrity check
-      if(data.h!==_simpleHash(data.ts)){showDemoBlock();return;}
+      // Integrity check + device check
+      if(data.h!==_simpleHash(data.ts)||data.dev!==DEVICE_ID){showDemoBlock();return;}
       const elapsed=Date.now()-data.ts;
       if(elapsed>=432000000){showDemoBlock();return;}
       startDemoCountdown(data.ts,432000000);
       // Also try server time
-      _verifyWithServer(data.ts);
+      _verifyWithServer(data.ts,_demoKey);
     }catch{showDemoBlock();}
     return;
   }
@@ -2188,27 +2263,39 @@ function checkDemoExpiry(){
   }
 }
 
-function _verifyWithServer(tsLocal){
-  fetch('https://worldtimeapi.org/api/timezone/America/Caracas',{signal:AbortSignal.timeout?AbortSignal.timeout(5000):undefined})
+function _verifyWithServer(tsLocal,demoKey){
+  const ctrl=new AbortController();
+  const timer=setTimeout(()=>ctrl.abort(),5000);
+  fetch('https://worldtimeapi.org/api/timezone/America/Caracas',{signal:ctrl.signal})
     .then(r=>r.json())
     .then(d=>{
+      clearTimeout(timer);
       const serverMs=new Date(d.datetime).getTime();
-      if(serverMs-tsLocal>=432000000){showDemoBlock();}
-    }).catch(()=>{/* no internet — usar local time */});
+      if(serverMs-tsLocal>=432000000){
+        // Marcar como expirado para que no reintente
+        if(demoKey)localStorage.removeItem(demoKey);
+        showDemoBlock();
+      }
+    }).catch(()=>{clearTimeout(timer);/* no internet — usar tiempo local */});
 }
 
 function showDemoBlock(){
   const el=gel('demoBlock');
   if(el){el.classList.remove('hidden');}
-  // Bloquear scroll y ESC
+  // Mostrar Device ID en el overlay
+  const devEl=gel('demoBlockDeviceId');
+  if(devEl)devEl.textContent=DEVICE_ID;
+  // Bloquear scroll, ESC, F5 y F12 para evitar bypass por consola
   document.body.style.overflow='hidden';
   document.addEventListener('keydown',function(e){
-    if(e.key==='Escape'||e.key==='F5'){e.preventDefault();e.stopPropagation();}
+    if(['Escape','F5','F12'].includes(e.key)){e.preventDefault();e.stopPropagation();}
   },true);
+  // Bloquear click derecho sobre el overlay
+  el.addEventListener('contextmenu',function(e){e.preventDefault();});
 }
 
 function contactarZync(){
-  window.open('https://wa.me/58000000000?text=Hola!%20Quiero%20adquirir%20FruteriaPro%20PRO','_blank');
+  window.open('https://wa.me/584241406951?text=Hola!%20Quiero%20adquirir%20Fruteria%20Pro%20versi%C3%B3n%20PRO.%20Mi%20Device%20ID%20es:%20'+encodeURIComponent(DEVICE_ID),'_blank');
 }
 
 function startDemoCountdown(tsActivated,durMs){
@@ -2242,9 +2329,9 @@ document.querySelectorAll('.modal-overlay').forEach(overlay=>{
 // LOGIN / LICENCIA
 // ============================================================
 const LICENCIAS_VALIDAS=[
-  {code:'FP-ADMIN-2026',tipo:'ADMIN',negocio:null,vence:'2027-12-31'},
-  {code:'FP-PRO-ZYNC',  tipo:'PRO',  negocio:null,vence:'2027-12-31'},
-  {code:'FP-DEMO-2026', tipo:'DEMO', negocio:null,vence:'2026-12-31'},
+  {code:'FPRO-ABIG-ADMN-ZYNC-2026',tipo:'ADMIN',negocio:null,vence:'2027-12-31'},
+  {code:'FPRO-ZYNC-ELEC-TRON-2026',tipo:'PRO',  negocio:null,vence:'2027-12-31'},
+  {code:'FPDEMO-TEST-DEMO-2026',   tipo:'DEMO', negocio:null,vence:'2026-12-31'},
 ];
 
 var _loginVisible=true;
@@ -2277,11 +2364,18 @@ function validarLicencia(){
   if(!lic){
     var generadas=DB.get('licencias_generadas')||[];
     var g=generadas.find(function(l){return l.code===code;});
-    if(g)lic={code:g.code,tipo:g.tipo,negocio:g.negocio,vence:g.vence};
+    if(g){
+      // Verificar device binding si la licencia fue registrada con un Device ID
+      if(g.deviceId && g.deviceId!==DEVICE_ID){
+        mostrarError('❌ Tu clave ya fue utilizada en otro equipo');
+        return;
+      }
+      lic={code:g.code,tipo:g.tipo,negocio:g.negocio,vence:g.vence};
+    }
   }
   if(!lic){mostrarError('❌ Código inválido. Contacta a ZYNC Electronics');return;}
   if(new Date(lic.vence)<new Date()){mostrarError('❌ Licencia vencida');return;}
-  localStorage.setItem('fp_session',JSON.stringify({shop:shop,code:code,tipo:lic.tipo,loginAt:new Date().toISOString()}));
+  localStorage.setItem('fp_session',JSON.stringify({shop:shop,code:code,tipo:lic.tipo,loginAt:new Date().toISOString(),deviceId:DEVICE_ID}));
   _hideLogin(shop);
 }
 
@@ -2298,16 +2392,28 @@ document.addEventListener('keydown',function(e){
 // START
 // ============================================================
 window.addEventListener('DOMContentLoaded',function(){
+  // Mostrar Device ID en pantalla de login
+  var devEl=document.getElementById('deviceIdDisplay');
+  if(devEl)devEl.textContent=DEVICE_ID;
+
   var session=localStorage.getItem('fp_session');
   if(session){
     try{
       var s=JSON.parse(session);
-      _hideLogin(s.shop||null);
+      // Verificar que la sesión pertenece a este dispositivo
+      if(s.deviceId && s.deviceId!==DEVICE_ID){
+        localStorage.removeItem('fp_session');
+        mostrarError('⚠️ Licencia activada en otro dispositivo. Ingresa tu código.');
+      } else {
+        _hideLogin(s.shop||null);
+      }
     }catch(e){localStorage.removeItem('fp_session');}
   }
   init();
   // DEMO protection: check on every load
   checkDemoExpiry();
+  // Inicializar métodos de pago en carrito
+  renderCartTotals();
 });
 
 function abrirCobroRapido() {
@@ -2861,8 +2967,8 @@ function provEliminar(id) {
 // IRON LOCK REFORZADO — FPRO MASTER CODES
 // ============================================================
 (function FPRO_IRON_LOCK_REINFORCE() {
-  // Códigos MASTER de FruteriaPro
-  var FPRO_MASTER = ['FPRO-DEMO-2024', 'FPRO-ABIG-2024', 'FPRO-ZYNC-2024'];
+  // Códigos MASTER de FruteriaPro (formato nuevo: PRO=5 partes, DEMO=FPDEMO-4partes)
+  var FPRO_MASTER = ['FPRO-ABIG-2024-FULL-ADMN', 'FPRO-ZYNC-2024-FULL-ADMN', 'FPDEMO-ABIG-2024-TEST'];
 
   // Parchar validarLicencia para aceptar códigos FPRO master
   var _originalValidar = window.validarLicencia;
@@ -2875,17 +2981,20 @@ function provEliminar(id) {
 
     // Verificar FPRO MASTER codes primero
     if (FPRO_MASTER.indexOf(code) !== -1) {
-      var esDemo = code.indexOf('-DEMO-') !== -1;
+      var esDemo = code.startsWith('FPDEMO-') || code.indexOf('-DEMO-') !== -1;
       var tipo = esDemo ? 'DEMO' : 'PRO';
       var vence = new Date();
       if (esDemo) { vence.setDate(vence.getDate() + 5); }
       else { vence.setFullYear(vence.getFullYear() + 10); }
-      var sess = { shop:shop, code:code, tipo:tipo, loginAt:new Date().toISOString(), vence:vence.toISOString() };
+      var sess = { shop:shop, code:code, tipo:tipo, loginAt:new Date().toISOString(), vence:vence.toISOString(), deviceId:DEVICE_ID };
       localStorage.setItem('fp_session', JSON.stringify(sess));
       if (esDemo) {
-        // Registrar activación demo
+        // Registrar activación demo ligada al device
         var tsNow = Date.now();
-        localStorage.setItem('fp_demo_activated_' + btoa(code), btoa(JSON.stringify({ ts:tsNow, h:_simpleHash(tsNow) })));
+        var _demoKey = 'fp_demo_' + btoa(DEVICE_ID + '|' + code);
+        if (!localStorage.getItem(_demoKey)) {
+          localStorage.setItem(_demoKey, btoa(JSON.stringify({ ts:tsNow, h:_simpleHash(tsNow), dev:DEVICE_ID })));
+        }
       }
       _hideLogin(shop);
       return;
@@ -2897,28 +3006,33 @@ function provEliminar(id) {
     }
   };
 
-  // Exponer función generarLicencia compatible con panel admin
-  window.generarLicenciaFPRO = function(nombre, durDias) {
+  // Exponer función generarLicencia — PRO: FPRO-XXXX-XXXX-XXXX-XXXX (5 partes)
+  window.generarLicenciaFPRO = function(nombre, durDias, deviceId) {
     durDias = durDias || 365;
     var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     var seg = '';
-    for (var i = 0; i < 8; i++) seg += chars[Math.floor(Math.random() * chars.length)];
-    var code = 'FPRO-' + seg.slice(0,4) + '-' + seg.slice(4,8);
+    for (var i = 0; i < 16; i++) seg += chars[Math.floor(Math.random() * chars.length)];
+    var code = 'FPRO-' + seg.slice(0,4) + '-' + seg.slice(4,8) + '-' + seg.slice(8,12) + '-' + seg.slice(12,16);
     var vence = new Date(); vence.setDate(vence.getDate() + durDias);
     var lista = DB.get('licencias_generadas') || [];
-    lista.unshift({ code:code, tipo:'PRO', negocio:nombre||'', vence:vence.toISOString().slice(0,10), creada:new Date().toISOString() });
+    var entry = { code:code, tipo:'PRO', negocio:nombre||'', vence:vence.toISOString().slice(0,10), creada:new Date().toISOString() };
+    if (deviceId) entry.deviceId = deviceId;
+    lista.unshift(entry);
     DB.set('licencias_generadas', lista);
     return code;
   };
 
-  window.generarLicenciaDemoFPRO = function() {
+  // Exponer función generarLicencia — DEMO: FPDEMO-XXXX-XXXX-XXXX (4 partes)
+  window.generarLicenciaDemoFPRO = function(deviceId) {
     var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     var seg = '';
-    for (var i = 0; i < 8; i++) seg += chars[Math.floor(Math.random() * chars.length)];
-    var code = 'FP-DEMO-' + seg.slice(0,6);
+    for (var i = 0; i < 12; i++) seg += chars[Math.floor(Math.random() * chars.length)];
+    var code = 'FPDEMO-' + seg.slice(0,4) + '-' + seg.slice(4,8) + '-' + seg.slice(8,12);
     var vence = new Date(); vence.setDate(vence.getDate() + 5);
     var lista = DB.get('licencias_generadas') || [];
-    lista.unshift({ code:code, tipo:'DEMO', negocio:'', vence:vence.toISOString().slice(0,10), creada:new Date().toISOString(), diasDemo:5 });
+    var entry = { code:code, tipo:'DEMO', negocio:'', vence:vence.toISOString().slice(0,10), creada:new Date().toISOString(), diasDemo:5 };
+    if (deviceId) entry.deviceId = deviceId;
+    lista.unshift(entry);
     DB.set('licencias_generadas', lista);
     return code;
   };
