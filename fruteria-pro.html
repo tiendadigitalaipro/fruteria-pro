@@ -373,15 +373,30 @@ tbody tr:last-child td{border-bottom:none;}
         <div class="device-id-hint">Proporciona este ID al adquirir tu licencia PRO</div>
       </div>
       <div class="lock-security-msg">🔒 Licencia vinculada a este dispositivo.<br><strong>No transferible.</strong> Solo funciona en el equipo registrado.</div>
-      <div class="login-field">
+      <!-- Banner de usuario de retorno -->
+      <div id="login-returning-banner" style="display:none;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.25);border-radius:9px;padding:9px 14px;margin-bottom:14px;font-size:12px;color:#4a7c59;text-align:center;">
+        🏪 Ingresando a: <strong id="login-returning-shop" style="color:#34d399;"></strong>
+        &nbsp;·&nbsp;<span style="cursor:pointer;text-decoration:underline;color:#6b8f71;" onclick="loginModoNuevo()">Usar otra licencia</span>
+      </div>
+      <!-- Campo negocio (solo primera vez) -->
+      <div class="login-field" id="loginNegocioField">
         <label for="shopName">Nombre de tu frutería</label>
         <input type="text" id="shopName" placeholder="Ej: Frutería La Esperanza" autocomplete="off">
       </div>
       <div class="login-field">
-        <label for="licenseCode">Código de licencia</label>
+        <label for="loginUsuario">Usuario</label>
+        <input type="text" id="loginUsuario" placeholder="Ej: admin" autocomplete="off">
+      </div>
+      <div class="login-field">
+        <label for="loginPassword">Contraseña</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="off">
+      </div>
+      <!-- Campo licencia (solo primera vez) -->
+      <div class="login-field" id="loginLicenseField">
+        <label for="licenseCode">Código de activación</label>
         <input type="text" id="licenseCode" placeholder="FPRO-XXXX-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false" oninput="this.value=this.value.toUpperCase()">
       </div>
-      <button class="login-btn" onclick="validarLicencia()">🚀 Ingresar al Sistema</button>
+      <button class="login-btn" onclick="validarLicencia()">🔓 Activar e Ingresar</button>
       <div class="login-error" id="login-error"></div>
       <div class="login-footer">🔐 Iron Lock · Fruteria Pro · A2K Digital Studio © 2026</div>
     </div>
@@ -2216,6 +2231,20 @@ function renderLicList(){
 // DEMO PROTECTION
 // ============================================================
 function _simpleHash(n){return((n*1234567891)%999983).toString(36);}
+function _hashStr(s){var h=0;for(var i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i)|0;return _simpleHash(Math.abs(h)||1);}
+
+// Modo nuevo: mostrar todos los campos (otra licencia)
+function loginModoNuevo(){
+  document.getElementById('loginNegocioField').style.display='';
+  document.getElementById('loginLicenseField').style.display='';
+  document.getElementById('login-returning-banner').style.display='none';
+  document.getElementById('loginLicenseField').querySelector('input').value='';
+  document.getElementById('shopName').value='';
+  document.getElementById('loginUsuario').value='';
+  document.getElementById('loginPassword').value='';
+  document.getElementById('login-error').classList.remove('show');
+  document.querySelector('.login-btn').textContent='🔓 Activar e Ingresar';
+}
 
 function checkDemoExpiry(){
   const sessionRaw=localStorage.getItem('fp_session');
@@ -2354,10 +2383,31 @@ function mostrarError(msg){
 }
 
 function validarLicencia(){
+  var usuario=document.getElementById('loginUsuario').value.trim();
+  var password=document.getElementById('loginPassword').value;
+  if(!usuario){mostrarError('Ingresa tu usuario');return;}
+  if(!password){mostrarError('Ingresa tu contraseña');return;}
+
+  // ---- MODO RETORNO: sesión guardada en este dispositivo ----
+  var sessionRaw=localStorage.getItem('fp_session');
+  if(sessionRaw && document.getElementById('loginNegocioField').style.display==='none'){
+    try{
+      var s=JSON.parse(sessionRaw);
+      if(s.usuario===usuario && s.passwordHash===_hashStr(password)){
+        _hideLogin(s.shop||null);
+        return;
+      } else {
+        mostrarError('❌ Usuario o contraseña incorrectos');
+        return;
+      }
+    }catch(e){localStorage.removeItem('fp_session');}
+  }
+
+  // ---- MODO PRIMERA VEZ: requiere negocio + código ----
   var shop=document.getElementById('shopName').value.trim();
   var code=document.getElementById('licenseCode').value.trim().toUpperCase();
   if(!shop){mostrarError('Ingresa el nombre de tu frutería');return;}
-  if(!code){mostrarError('Ingresa tu código de licencia');return;}
+  if(!code){mostrarError('Ingresa tu código de activación');return;}
   // Buscar en licencias hardcodeadas
   var lic=LICENCIAS_VALIDAS.find(function(l){return l.code===code;});
   // También buscar en licencias generadas dinámicamente
@@ -2365,7 +2415,6 @@ function validarLicencia(){
     var generadas=DB.get('licencias_generadas')||[];
     var g=generadas.find(function(l){return l.code===code;});
     if(g){
-      // Verificar device binding si la licencia fue registrada con un Device ID
       if(g.deviceId && g.deviceId!==DEVICE_ID){
         mostrarError('❌ Tu clave ya fue utilizada en otro equipo');
         return;
@@ -2373,9 +2422,14 @@ function validarLicencia(){
       lic={code:g.code,tipo:g.tipo,negocio:g.negocio,vence:g.vence};
     }
   }
-  if(!lic){mostrarError('❌ Código inválido. Contacta a ZYNC Electronics');return;}
+  if(!lic){mostrarError('❌ Código inválido. Contacta a A2K Digital Studio');return;}
   if(new Date(lic.vence)<new Date()){mostrarError('❌ Licencia vencida');return;}
-  localStorage.setItem('fp_session',JSON.stringify({shop:shop,code:code,tipo:lic.tipo,loginAt:new Date().toISOString(),deviceId:DEVICE_ID}));
+  // Guardar sesión con usuario + hash de contraseña
+  localStorage.setItem('fp_session',JSON.stringify({
+    shop:shop, code:code, tipo:lic.tipo,
+    usuario:usuario, passwordHash:_hashStr(password),
+    loginAt:new Date().toISOString(), deviceId:DEVICE_ID
+  }));
   _hideLogin(shop);
 }
 
@@ -2405,7 +2459,16 @@ window.addEventListener('DOMContentLoaded',function(){
         localStorage.removeItem('fp_session');
         mostrarError('⚠️ Licencia activada en otro dispositivo. Ingresa tu código.');
       } else {
-        _hideLogin(s.shop||null);
+        // Modo retorno: ocultar campos negocio y licencia, mostrar banner
+        document.getElementById('loginNegocioField').style.display='none';
+        document.getElementById('loginLicenseField').style.display='none';
+        var banner=document.getElementById('login-returning-banner');
+        if(banner){
+          banner.style.display='block';
+          var shopSpan=document.getElementById('login-returning-shop');
+          if(shopSpan)shopSpan.textContent=s.shop||'';
+        }
+        document.querySelector('.login-btn').textContent='🔑 Ingresar';
       }
     }catch(e){localStorage.removeItem('fp_session');}
   }
@@ -2973,11 +3036,23 @@ function provEliminar(id) {
   // Parchar validarLicencia para aceptar códigos FPRO master
   var _originalValidar = window.validarLicencia;
   window.validarLicencia = function() {
+    var usuario = (document.getElementById('loginUsuario')||{}).value || '';
+    var password = (document.getElementById('loginPassword')||{}).value || '';
     var shop = (document.getElementById('shopName')||{}).value || '';
     var code = ((document.getElementById('licenseCode')||{}).value || '').trim().toUpperCase();
-    shop = shop.trim();
+    usuario = usuario.trim(); shop = shop.trim();
+
+    // Si el campo negocio está oculto → modo retorno → delegar al sistema original
+    var negocioField = document.getElementById('loginNegocioField');
+    if (negocioField && negocioField.style.display === 'none') {
+      if (typeof _originalValidar === 'function') { _originalValidar(); }
+      return;
+    }
+
+    if (!usuario) { mostrarError('Ingresa tu usuario'); return; }
+    if (!password) { mostrarError('Ingresa tu contraseña'); return; }
     if (!shop) { mostrarError('Ingresa el nombre de tu frutería'); return; }
-    if (!code) { mostrarError('Ingresa tu código de licencia'); return; }
+    if (!code) { mostrarError('Ingresa tu código de activación'); return; }
 
     // Verificar FPRO MASTER codes primero
     if (FPRO_MASTER.indexOf(code) !== -1) {
@@ -2986,10 +3061,9 @@ function provEliminar(id) {
       var vence = new Date();
       if (esDemo) { vence.setDate(vence.getDate() + 5); }
       else { vence.setFullYear(vence.getFullYear() + 10); }
-      var sess = { shop:shop, code:code, tipo:tipo, loginAt:new Date().toISOString(), vence:vence.toISOString(), deviceId:DEVICE_ID };
+      var sess = { shop:shop, code:code, tipo:tipo, usuario:usuario, passwordHash:_hashStr(password), loginAt:new Date().toISOString(), vence:vence.toISOString(), deviceId:DEVICE_ID };
       localStorage.setItem('fp_session', JSON.stringify(sess));
       if (esDemo) {
-        // Registrar activación demo ligada al device
         var tsNow = Date.now();
         var _demoKey = 'fp_demo_' + btoa(DEVICE_ID + '|' + code);
         if (!localStorage.getItem(_demoKey)) {
@@ -3000,7 +3074,7 @@ function provEliminar(id) {
       return;
     }
 
-    // Fallback al sistema original
+    // Fallback al sistema original (valida licencias estáticas + generadas)
     if (typeof _originalValidar === 'function') {
       _originalValidar();
     }
