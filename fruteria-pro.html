@@ -2393,6 +2393,14 @@ function validarLicencia(){
   if(sessionRaw && document.getElementById('loginNegocioField').style.display==='none'){
     try{
       var s=JSON.parse(sessionRaw);
+      // Sesión antigua sin usuario/contraseña → registrar credenciales ahora
+      if(!s.usuario && !s.passwordHash){
+        s.usuario=usuario;
+        s.passwordHash=_hashStr(password);
+        localStorage.setItem('fp_session',JSON.stringify(s));
+        _hideLogin(s.shop||null);
+        return;
+      }
       if(s.usuario===usuario && s.passwordHash===_hashStr(password)){
         _hideLogin(s.shop||null);
         return;
