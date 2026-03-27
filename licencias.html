@@ -649,8 +649,24 @@ function rnd(n) {
   for(var i=0;i<n;i++) s += c[Math.floor(Math.random()*c.length)];
   return s;
 }
-function mkDemo() { return 'FPDEMO-' + rnd(4) + '-' + rnd(4) + '-' + rnd(4); }
-function mkPro()  { return 'FPRO-'   + rnd(4) + '-' + rnd(4) + '-' + rnd(4) + '-' + rnd(4); }
+var _SL=['A2K','FP','2026']; var _SIGN_SALT=_SL.join('');
+function _fnv(s){var h=0x811c9dc5>>>0;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return h;}
+function _b36(n){return n.toString(36).toUpperCase().padStart(4,'0').slice(-4);}
+function mkPro(deviceId, dias) {
+  var dev=deviceId||'OPEN';
+  var expDay=Math.floor((Date.now()+dias*86400000)/86400000);
+  var eS=_b36(expDay), dS=_b36(_fnv(dev+_SIGN_SALT));
+  var c1=_b36(_fnv(eS+dS+_SIGN_SALT));
+  var c2=_b36(_fnv(c1+dev+_SIGN_SALT));
+  return 'FPRO-'+eS+'-'+dS+'-'+c1+'-'+c2;
+}
+function mkDemo(deviceId, dias) {
+  var dev=deviceId||'OPEN'; dias=dias||5;
+  var expDay=Math.floor((Date.now()+dias*86400000)/86400000);
+  var eS=_b36(expDay), dS=_b36(_fnv(dev+_SIGN_SALT));
+  var c1=_b36(_fnv(eS+dS+_SIGN_SALT+'DM'));
+  return 'FPDEMO-'+eS+'-'+dS+'-'+c1;
+}
 function planLabel(dias) {
   if (dias === 36500) return 'Permanente';
   if (dias === 365)  return '1 año';
@@ -807,7 +823,7 @@ function generarDemo() {
   var btn = document.getElementById('btnGenDemo');
   btn.textContent = '⏳ Generando...'; btn.disabled = true;
 
-  var codigo = mkDemo();
+  var codigo = mkDemo(deviceId, dias);
   var ahora  = new Date().toISOString();
   var venc   = new Date(); venc.setDate(venc.getDate() + dias);
   var tel    = telefono.replace(/[^0-9]/g,'');
@@ -883,7 +899,7 @@ function generarPro() {
   var btn = document.getElementById('btnGenPro');
   btn.textContent = '⏳ Generando...'; btn.disabled = true;
 
-  var codigo = mkPro();
+  var codigo = mkPro(deviceId, plan);
   var ahora  = new Date().toISOString();
   var venc   = new Date(); venc.setDate(venc.getDate() + plan);
   var tel    = telefono.replace(/[^0-9]/g,'');

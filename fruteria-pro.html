@@ -2089,6 +2089,34 @@ function randCode(n){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let r='';for(let
 // ============================================================
 // DEMO PROTECTION
 // ============================================================
+// ── Verificador de licencias auto-validantes ──────────────────
+var _SL2=['A2K','FP','2026']; var _SIGN_SALT=_SL2.join('');
+function _fnv(s){var h=0x811c9dc5>>>0;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return h;}
+function _b36(n){return n.toString(36).toUpperCase().padStart(4,'0').slice(-4);}
+function _verificarFirmada(code,deviceId){
+  var isDemo=code.startsWith('FPDEMO-'),isPro=code.startsWith('FPRO-');
+  if(!isDemo&&!isPro)return null;
+  var parts=code.split('-');
+  if(isPro&&parts.length!==5)return null;
+  if(isDemo&&parts.length!==4)return null;
+  try{
+    var eS=parts[1],dS=parts[2],c1=parts[3],c2=isPro?parts[4]:null;
+    // Verificar device: intenta con este equipo, luego con OPEN (cualquier equipo)
+    var usedDev=null;
+    if(dS===_b36(_fnv(deviceId+_SIGN_SALT)))usedDev=deviceId;
+    else if(dS===_b36(_fnv('OPEN'+_SIGN_SALT)))usedDev='OPEN';
+    else return{error:'device'};
+    // Checksum 1
+    var expC1=_b36(_fnv(eS+dS+(isDemo?_SIGN_SALT+'DM':_SIGN_SALT)));
+    if(c1!==expC1)return null;
+    // Checksum 2 (solo PRO)
+    if(isPro){var expC2=_b36(_fnv(c1+usedDev+_SIGN_SALT));if(c2!==expC2)return{error:'device'};}
+    // Vencimiento
+    var expDate=new Date(parseInt(eS,36)*86400000);
+    if(expDate<new Date())return{error:'expired'};
+    return{tipo:isDemo?'DEMO':'PRO',vence:expDate.toISOString().slice(0,10)};
+  }catch(e){return null;}
+}
 function _simpleHash(n){return((n*1234567891)%999983).toString(36);}
 function _hashStr(s){var h=0;for(var i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i)|0;return _simpleHash(Math.abs(h)||1);}
 
@@ -2275,7 +2303,16 @@ function validarLicencia(){
   var code=document.getElementById('licenseCode').value.trim().toUpperCase();
   if(!shop){mostrarError('Ingresa el nombre de tu frutería');return;}
   if(!code){mostrarError('Ingresa tu código de activación');return;}
-  // Buscar en licencias hardcodeadas
+  // 1. Verificar código firmado (auto-validante — funciona en cualquier PC sin internet)
+  var _firmada=_verificarFirmada(code,DEVICE_ID);
+  if(_firmada){
+    if(_firmada.error==='device'){mostrarError('❌ Tu clave ya fue utilizada en otro equipo');return;}
+    if(_firmada.error==='expired'){mostrarError('❌ Licencia vencida. Contacta a A2K Digital Studio');return;}
+    localStorage.setItem('fp_session',JSON.stringify({shop:shop,code:code,tipo:_firmada.tipo,usuario:usuario,passwordHash:_hashStr(password),loginAt:new Date().toISOString(),deviceId:DEVICE_ID}));
+    _hideLogin(shop);
+    return;
+  }
+  // 2. Buscar en licencias hardcodeadas
   var lic=LICENCIAS_VALIDAS.find(function(l){return l.code===code;});
   // También buscar en licencias generadas dinámicamente
   if(!lic){
