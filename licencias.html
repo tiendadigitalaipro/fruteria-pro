@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Panel de Licencias — Fruteria Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f7f4;
+  --white:#ffffff;
+  --border:#d1e7dc;
+  --text:#0f2419;
+  --text2:#4a7c6b;
+  --demo:#ea580c;
+  --demo-bg:#fff7ed;
+  --demo-border:#fed7aa;
+  --pro:#059669;
+  --pro-bg:#ecfdf5;
+  --pro-border:#6ee7b7;
+  --pro-dark:#1b4332;
+  --orange:#f97316;
+  --green:#059669;
+  --red:#dc2626;
+  --mono:'JetBrains Mono',monospace
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;min-height:100vh}
+
+/* ── Login ── */
+.screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+  background:linear-gradient(135deg,#d1fae5 0%,#f0f7f4 50%,#fff7ed 100%)}
+.login-box{background:var(--white);border:2px solid var(--border);border-radius:24px;padding:36px 28px;
+  width:100%;max-width:360px;text-align:center;box-shadow:0 24px 60px rgba(5,150,105,.12)}
+.login-icon{font-size:60px;margin-bottom:14px}
+.login-title{font-size:24px;font-weight:900;margin-bottom:4px}
+.login-title span{color:var(--pro)}
+.login-sub{font-size:13px;color:var(--text2);margin-bottom:24px}
+.inp{width:100%;background:var(--bg);border:2px solid var(--border);color:var(--text);
+  padding:14px 16px;border-radius:12px;font-size:18px;outline:none;margin-bottom:12px;
+  font-family:var(--mono);text-align:center;letter-spacing:6px;transition:border-color .2s}
+.inp:focus{border-color:var(--pro)}
+.btn-login{width:100%;padding:14px;border-radius:12px;border:none;
+  background:linear-gradient(135deg,var(--pro),#10b981);color:#fff;
+  font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;
+  box-shadow:0 4px 16px rgba(5,150,105,.35)}
+.err{color:var(--red);font-size:13px;margin-top:10px;display:none;font-weight:700}
+
+/* ── App ── */
+#appPanel{display:none}
+
+/* ── Header ── */
+.hdr{background:var(--white);border-bottom:2px solid var(--border);padding:14px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:10;box-shadow:0 2px 8px rgba(5,150,105,.07)}
+.hdr-brand{display:flex;align-items:center;gap:12px}
+.hdr-icon{width:40px;height:40px;border-radius:12px;
+  background:linear-gradient(135deg,var(--pro),#10b981);
+  display:flex;align-items:center;justify-content:center;font-size:20px}
+.hdr-name{font-size:16px;font-weight:900}
+.hdr-name span{color:var(--pro)}
+.hdr-sub{font-size:11px;color:var(--text2);margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:12px}
+.hdr-badge{background:linear-gradient(135deg,var(--pro-dark),var(--pro));color:#fff;
+  font-size:10px;font-weight:800;padding:5px 10px;border-radius:20px;letter-spacing:.6px}
+.hdr-sync{font-size:11px;color:var(--text2);font-family:var(--mono)}
+
+/* ── Body ── */
+.body{padding:20px;max-width:1100px;margin:0 auto;padding-bottom:48px}
+
+/* ── Stats ── */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+@media(max-width:680px){.stats{grid-template-columns:1fr 1fr}}
+.scard{background:var(--white);border:2px solid var(--border);border-radius:14px;
+  padding:16px;text-align:center;position:relative;overflow:hidden;
+  box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.scard::after{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.scard.total::after{background:var(--pro)}
+.scard.activas::after{background:var(--green)}
+.scard.vencidas::after{background:#f59e0b}
+.scard.inactivas::after{background:var(--red)}
+.scard.demos::after{background:var(--demo)}
+.scard-val{font-family:var(--mono);font-size:32px;font-weight:900;line-height:1}
+.scard.total .scard-val{color:var(--pro)}
+.scard.activas .scard-val{color:var(--green)}
+.scard.vencidas .scard-val{color:#d97706}
+.scard.inactivas .scard-val{color:var(--red)}
+.scard.demos .scard-val{color:var(--demo)}
+.scard-lbl{font-size:11px;color:var(--text2);margin-top:6px;
+  text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+
+/* ── Modules grid ── */
+.modules{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+@media(max-width:700px){.modules{grid-template-columns:1fr}}
+
+/* ── Module card ── */
+.module{background:var(--white);border-radius:20px;padding:24px;border:2px solid;
+  box-shadow:0 4px 20px rgba(0,0,0,.06)}
+.module-demo{border-color:var(--demo-border);
+  background:linear-gradient(160deg,#fff 60%,var(--demo-bg))}
+.module-pro{border-color:var(--pro-border);
+  background:linear-gradient(160deg,#fff 60%,var(--pro-bg))}
+
+.mod-head{display:flex;align-items:center;gap:14px;margin-bottom:20px;
+  padding-bottom:16px;border-bottom:2px dashed}
+.module-demo .mod-head{border-color:var(--demo-border)}
+.module-pro .mod-head{border-color:var(--pro-border)}
+.mod-icon{width:52px;height:52px;border-radius:16px;display:flex;
+  align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.module-demo .mod-icon{background:rgba(234,88,12,.12)}
+.module-pro .mod-icon{background:rgba(5,150,105,.12)}
+.mod-title{font-size:20px;font-weight:900;letter-spacing:-.4px}
+.module-demo .mod-title{color:var(--demo)}
+.module-pro .mod-title{color:var(--pro)}
+.mod-sub{font-size:12px;color:var(--text2);margin-top:3px;font-weight:500}
+
+/* ── Form fields ── */
+.field{margin-bottom:14px}
+.field label{font-size:11px;font-weight:700;color:var(--text2);
+  text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px}
+.finput{width:100%;background:var(--bg);border:2px solid var(--border);color:var(--text);
+  padding:11px 14px;border-radius:10px;font-size:14px;outline:none;font-family:inherit;transition:border-color .2s}
+.finput:focus{border-color:var(--pro)}
+.module-demo .finput:focus{border-color:var(--demo)}
+select.finput{cursor:pointer}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.device-row{display:flex;gap:8px;align-items:flex-end}
+.device-row .finput{flex:1}
+.btn-dev{padding:11px 12px;border-radius:10px;border:2px solid var(--border);
+  background:var(--white);color:var(--text2);font-size:12px;font-weight:700;
+  cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;transition:border-color .2s}
+.btn-dev:hover{border-color:var(--pro);color:var(--pro)}
+
+/* ── Generate buttons ── */
+.btn-gen-demo{width:100%;padding:14px;border-radius:12px;border:none;
+  background:linear-gradient(135deg,var(--demo),var(--orange));color:#fff;
+  font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;
+  margin-top:4px;letter-spacing:.3px;
+  box-shadow:0 4px 14px rgba(234,88,12,.4);transition:opacity .2s}
+.btn-gen-pro{width:100%;padding:14px;border-radius:12px;border:none;
+  background:linear-gradient(135deg,var(--pro-dark),var(--pro));color:#fff;
+  font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;
+  margin-top:4px;letter-spacing:.3px;
+  box-shadow:0 4px 14px rgba(5,150,105,.4);transition:opacity .2s}
+.btn-gen-demo:disabled,.btn-gen-pro:disabled{opacity:.55;cursor:default;box-shadow:none}
+
+/* ── Result panels ── */
+.result-panel{margin-top:18px;display:none}
+.code-box{border:2px solid;border-radius:14px;padding:16px;margin-bottom:10px}
+.code-box.demo{border-color:var(--demo-border);background:rgba(234,88,12,.04)}
+.code-box.pro-sys{border-color:var(--pro-border);background:rgba(5,150,105,.04)}
+.code-lbl{font-size:10px;font-weight:700;color:var(--text2);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.code-val{font-family:var(--mono);font-size:17px;font-weight:700;
+  letter-spacing:1px;word-break:break-all;margin-bottom:12px}
+.code-val.demo{color:var(--demo)}
+.code-val.pro{color:var(--pro)}
+.code-btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn-cp{padding:8px 14px;border-radius:8px;border:2px solid;
+  font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;background:transparent}
+.btn-cp.demo{border-color:var(--demo);color:var(--demo)}
+.btn-cp.pro{border-color:var(--pro);color:var(--pro)}
+.btn-wa-sm{padding:8px 14px;border-radius:8px;border:none;background:#25d366;
+  color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+
+/* ── Search bar ── */
+.search-wrap{margin-bottom:14px}
+.search-inp{width:100%;background:var(--white);border:2px solid var(--border);color:var(--text);
+  padding:11px 14px;border-radius:10px;font-size:14px;outline:none;font-family:inherit;
+  transition:border-color .2s}
+.search-inp:focus{border-color:var(--pro)}
+
+/* ── License list section ── */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.sec-title{font-size:12px;font-weight:800;color:var(--text2);
+  text-transform:uppercase;letter-spacing:.8px}
+.btn-refresh{padding:9px 16px;border-radius:10px;border:2px solid var(--border);
+  background:var(--white);color:var(--text2);font-size:13px;font-weight:700;
+  cursor:pointer;font-family:inherit}
+
+/* ── License card ── */
+.lic-card{background:var(--white);border:2px solid var(--border);border-radius:14px;
+  padding:16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.lic-card.is-demo{border-left:5px solid var(--demo)}
+.lic-card.is-pro{border-left:5px solid var(--pro)}
+.lic-top{display:flex;align-items:flex-start;justify-content:space-between;
+  gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.lic-code{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:1px}
+.lic-code.demo{color:var(--demo)}
+.lic-code.pro{color:var(--pro)}
+.lic-device{font-family:var(--mono);font-size:11px;color:var(--text2);margin-top:3px;font-weight:700}
+.lic-name{font-size:14px;font-weight:800;margin-top:4px}
+.lic-info{font-size:12px;color:var(--text2);margin-top:2px}
+.badge{font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap}
+.badge-ok{background:#d1fae5;color:var(--green);border:1px solid #6ee7b7}
+.badge-warn{background:#fef3c7;color:#b45309;border:1px solid #fcd34d}
+.badge-off{background:#f1f5f9;color:var(--text2);border:1px solid var(--border)}
+.badge-demo{background:rgba(234,88,12,.12);color:var(--demo);border:1px solid var(--demo-border)}
+.badge-pro{background:rgba(5,150,105,.12);color:var(--pro);border:1px solid var(--pro-border)}
+.lic-details{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+@media(max-width:480px){.lic-details{grid-template-columns:1fr 1fr}}
+.lic-det-lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;font-weight:700}
+.lic-det-val{font-size:13px;font-weight:700;margin-top:2px}
+.lic-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn-sm{padding:7px 13px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-deact{background:#fee2e2;color:var(--red)}
+.btn-act{background:#d1fae5;color:var(--green)}
+.btn-copy-lc{background:#d1fae5;color:var(--pro-dark)}
+.btn-edit{background:#dbeafe;color:#1d4ed8}
+.btn-wa-lc{background:#dcfce7;color:#16a34a}
+.btn-del{background:#fee2e2;color:var(--red);opacity:.7}
+.ren-warn{background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;
+  padding:8px 12px;font-size:11px;color:#b45309;margin-top:8px;font-weight:600}
+.empty{text-align:center;padding:48px;color:var(--text2);font-size:14px}
+.loading-state{text-align:center;padding:48px;color:var(--text2)}
+
+/* ── Edit modal ── */
+.overlay{position:fixed;inset:0;background:rgba(15,36,25,.5);display:flex;
+  align-items:center;justify-content:center;padding:20px;z-index:100;
+  backdrop-filter:blur(4px)}
+.modal{background:var(--white);border-radius:20px;padding:24px;width:100%;max-width:460px;
+  max-height:90vh;overflow-y:auto;border:2px solid var(--border);
+  box-shadow:0 24px 60px rgba(5,150,105,.15)}
+.modal-title{font-size:17px;font-weight:900;margin-bottom:20px;color:var(--pro-dark)}
+.form-group{margin-bottom:14px}
+.form-label{font-size:11px;font-weight:700;color:var(--text2);
+  text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px}
+.form-input{width:100%;background:var(--bg);border:2px solid var(--border);color:var(--text);
+  padding:10px 12px;border-radius:8px;font-size:14px;outline:none;font-family:inherit;transition:border-color .2s}
+.form-input:focus{border-color:var(--pro)}
+select.form-input{cursor:pointer}
+.modal-footer{display:flex;gap:10px;margin-top:20px}
+.btn-cancel{flex:1;padding:12px;border-radius:10px;border:2px solid var(--border);
+  background:none;color:var(--text2);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-save{flex:2;padding:12px;border-radius:10px;border:none;
+  background:linear-gradient(135deg,var(--pro-dark),var(--pro));color:#fff;
+  font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-save:disabled{opacity:.6;cursor:default}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginPanel" class="screen">
+  <div class="login-box">
+    <div class="login-icon">🍊</div>
+    <div class="login-title">Panel <span>Fruteria Pro</span></div>
+    <div class="login-sub">Gestión de Licencias · ZYNC Electronics</div>
+    <input type="password" id="masterPin" class="inp"
+      placeholder="● ● ● ● ● ●"
+      onkeydown="if(event.key==='Enter')accederPanel()">
+    <button class="btn-login" onclick="accederPanel()">🔓 Ingresar al Panel</button>
+    <div id="panelErr" class="err">❌ PIN incorrecto</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appPanel">
+  <div class="hdr">
+    <div class="hdr-brand">
+      <div class="hdr-icon">🍊</div>
+      <div>
+        <div class="hdr-name">Fruteria <span>Pro</span></div>
+        <div class="hdr-sub">Panel de Licencias · ZYNC Electronics</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="hdr-badge">🔒 LICENCIAS • NO TRANSFERIBLES</div>
+      <div class="hdr-sync" id="lastSync">—</div>
+      <button onclick="_cerrarSesion(false)" style="background:rgba(220,38,38,.12);border:1px solid rgba(220,38,38,.3);color:#dc2626;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">🔒 Cerrar sesión</button>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="scard total">
+        <div class="scard-val" id="statTotal">0</div>
+        <div class="scard-lbl">Total</div>
+      </div>
+      <div class="scard activas">
+        <div class="scard-val" id="statActivas">0</div>
+        <div class="scard-lbl">Activas</div>
+      </div>
+      <div class="scard vencidas">
+        <div class="scard-val" id="statVencidas">0</div>
+        <div class="scard-lbl">Vencidas</div>
+      </div>
+      <div class="scard inactivas">
+        <div class="scard-val" id="statInactivas">0</div>
+        <div class="scard-lbl">Inactivas</div>
+      </div>
+      <div class="scard demos">
+        <div class="scard-val" id="statDemos">0</div>
+        <div class="scard-lbl">Demos</div>
+      </div>
+    </div>
+
+    <!-- ── Modules ── -->
+    <div class="modules">
+
+      <!-- MÓDULO DEMO -->
+      <div class="module module-demo">
+        <div class="mod-head">
+          <div class="mod-icon">🆓</div>
+          <div>
+            <div class="mod-title">LICENCIA DEMO</div>
+            <div class="mod-sub">Prueba gratuita para el cliente</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Nombre del Negocio Cliente *</label>
+          <input type="text" id="d-negocio" class="finput" placeholder="Ej: Frutería La 23">
+        </div>
+        <div class="field">
+          <label>Teléfono / WhatsApp</label>
+          <input type="text" id="d-telefono" class="finput" placeholder="+58 424-1406951">
+        </div>
+        <div class="field">
+          <label>Device ID del Cliente (opcional — bloquea licencia a 1 solo equipo)</label>
+          <div class="device-row">
+            <input type="text" id="d-deviceid" class="finput" placeholder="FP-XXXX-XXXX — El cliente lo ve en pantalla de login">
+            <button class="btn-dev" onclick="copiarCampo('d-deviceid')" title="Copiar Device ID">📋 Copiar Device</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Días de prueba</label>
+          <select id="d-dias" class="finput">
+            <option value="1">1 día</option>
+            <option value="2">2 días</option>
+            <option value="3">3 días</option>
+            <option value="4">4 días</option>
+            <option value="5" selected>5 días</option>
+          </select>
+        </div>
+        <button class="btn-gen-demo" id="btnGenDemo" onclick="generarDemo()">
+          🆓 Generar Código DEMO
+        </button>
+
+        <!-- Resultado DEMO -->
+        <div class="result-panel" id="resultDemo">
+          <div class="code-box demo">
+            <div class="code-lbl">🆓 Código de Acceso DEMO</div>
+            <div class="code-val demo" id="codeDemoVal">—</div>
+            <div class="code-btns">
+              <button class="btn-cp demo" onclick="copiarId('codeDemoVal')">📋 Copiar</button>
+              <button class="btn-wa-sm" id="btnWADemo" style="display:none">💬 WhatsApp</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MÓDULO PRO -->
+      <div class="module module-pro">
+        <div class="mod-head">
+          <div class="mod-icon">⚡</div>
+          <div>
+            <div class="mod-title">LICENCIA PRO</div>
+            <div class="mod-sub">Acceso completo al sistema</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Nombre del Negocio Cliente *</label>
+          <input type="text" id="p-negocio" class="finput" placeholder="Ej: Frutería El Patio">
+        </div>
+        <div class="field">
+          <label>Teléfono / WhatsApp</label>
+          <input type="text" id="p-telefono" class="finput" placeholder="+58 424-1406951">
+        </div>
+        <div class="field">
+          <label>Email (opcional)</label>
+          <input type="email" id="p-email" class="finput" placeholder="cliente@email.com">
+        </div>
+        <div class="field">
+          <label>Device ID del Cliente (opcional — bloquea licencia a 1 solo equipo)</label>
+          <div class="device-row">
+            <input type="text" id="p-deviceid" class="finput" placeholder="FP-XXXX-XXXX — El cliente lo ve en pantalla de login">
+            <button class="btn-dev" onclick="copiarCampo('p-deviceid')" title="Copiar Device ID">📋 Copiar Device</button>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label>Duración</label>
+            <select id="p-duracion" class="finput">
+              <option value="30">1 mes</option>
+              <option value="90">3 meses</option>
+              <option value="180">6 meses</option>
+              <option value="365">1 año</option>
+              <option value="36500">Permanente</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Terminales</label>
+            <select id="p-terminales" class="finput">
+              <option value="1">1 terminal</option>
+              <option value="2">2 terminales</option>
+              <option value="3">3 terminales</option>
+              <option value="4">4 terminales</option>
+              <option value="5">5 terminales</option>
+              <option value="6">6 terminales</option>
+              <option value="7">7 terminales</option>
+              <option value="8">8 terminales</option>
+              <option value="9">9 terminales</option>
+              <option value="10">10 terminales</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-gen-pro" id="btnGenPro" onclick="generarPro()">
+          ⚡ Generar Código PRO
+        </button>
+
+        <!-- Resultado PRO -->
+        <div class="result-panel" id="resultPro">
+          <div class="code-box pro-sys">
+            <div class="code-lbl">⚡ Código de Activación PRO</div>
+            <div class="code-val pro" id="codePROVal">—</div>
+            <div class="code-btns">
+              <button class="btn-cp pro" onclick="copiarId('codePROVal')">📋 Copiar</button>
+              <button class="btn-wa-sm" id="btnWAPro" style="display:none">💬 WhatsApp</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /modules -->
+
+    <!-- License list -->
+    <div class="sec-hdr">
+      <div class="sec-title">📋 Licencias Emitidas</div>
+      <button class="btn-refresh" onclick="cargarLicencias()">🔄 Actualizar</button>
+    </div>
+
+    <div class="search-wrap">
+      <input type="text" id="searchInp" class="search-inp"
+        placeholder="🔍 Buscar por negocio, código, teléfono..."
+        oninput="filtrarLicencias()">
+    </div>
+
+    <div id="listaLicencias">
+      <div class="loading-state">⏳ Cargando licencias...</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal Editar -->
+<div id="modalEditar" class="overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-title">✏️ Editar Licencia</div>
+    <div class="form-group">
+      <label class="form-label">Nombre del Negocio</label>
+      <input type="text" id="e-negocio" class="form-input">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Teléfono / WhatsApp</label>
+      <input type="text" id="e-telefono" class="form-input">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input type="email" id="e-email" class="form-input">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Device ID (dejar vacío para permitir cualquier equipo)</label>
+      <input type="text" id="e-deviceid" class="form-input" placeholder="FP-XXXX-XXXX o vacío">
+    </div>
+    <div class="form-group" id="e-grupo-dias">
+      <label class="form-label">Días de prueba</label>
+      <select id="e-dias-demo" class="form-input">
+        <option value="1">1 día</option>
+        <option value="2">2 días</option>
+        <option value="3">3 días</option>
+        <option value="4">4 días</option>
+        <option value="5">5 días</option>
+      </select>
+    </div>
+    <div id="e-grupo-pro" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Duración</label>
+        <select id="e-duracion" class="form-input">
+          <option value="30">1 mes (30 días)</option>
+          <option value="90">3 meses (90 días)</option>
+          <option value="180">6 meses (180 días)</option>
+          <option value="365">12 meses (1 año)</option>
+          <option value="36500">Permanente</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Terminales</label>
+        <select id="e-terminales" class="form-input">
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+          <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+          <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notas</label>
+      <input type="text" id="e-notas" class="form-input" placeholder="Observaciones...">
+    </div>
+    <input type="hidden" id="e-id">
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="cerrarEditar()">Cancelar</button>
+      <button class="btn-save" id="btnGuardarEdit" onclick="guardarEdicion()">💾 Guardar Cambios</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  IRON LOCK — PANEL ADMIN BLINDADO
+//  ❌ No modificar esta sección — protege el acceso comercial
+// ═══════════════════════════════════════════════════════════════
+
+// ─── Hash FNV-1a (comparación sin texto plano) ────────────────
+function _ah(s){var h=0x811c9dc5>>>0;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return h.toString(16);}
+
+// ─── PIN obfuscado en fragmentos (no buscable en fuente) ──────
+(function(){var _f=['FR','UT','ER','IA','-A','DM','IN','-2','02','6'];window._PHASH=_ah(_f.join(''));})();
+
+// ─── Constantes ──────────────────────────────────────────────
+var LS_KEY    = 'fp_licencias_generadas';
+var WA_NUMBER = '584241406951';
+var _lics     = [];
+var _sesionActiva = false;
+var _sesionTs     = 0;
+var _TIMEOUT_MS   = 30 * 60 * 1000; // 30 min inactividad → cierre automático
+var _MAX_INTENTOS = 3;
+var _COOLDOWN_MS  = 5 * 60 * 1000;  // 5 min bloqueo tras 3 intentos fallidos
+
+// ─── Control de intentos (persiste en sessionStorage) ────────
+function _getBloqueo(){ try{return JSON.parse(sessionStorage.getItem('_fp_bl')||'{}');}catch(e){return{};} }
+function _setBloqueo(o){ sessionStorage.setItem('_fp_bl',JSON.stringify(o)); }
+
+// ─── Forzar cierre de sesión ──────────────────────────────────
+function _cerrarSesion(devtools){
+  _sesionActiva=false; _sesionTs=0;
+  document.getElementById('appPanel').style.display='none';
+  document.getElementById('loginPanel').style.display='flex';
+  document.getElementById('masterPin').value='';
+  var err=document.getElementById('panelErr');
+  if(devtools){
+    // DevTools detectado: limpiar DOM para no exponer datos y recargar
+    err.textContent='⚠️ Sesión cerrada por seguridad';
+    err.style.display='block';
+    var app=document.getElementById('appPanel');
+    if(app)app.innerHTML='<div style="display:none"></div>';
+    setTimeout(function(){location.reload();},2000);
+  }
+}
+
+// ─── Timeout de inactividad ───────────────────────────────────
+function _resetTimer(){ if(_sesionActiva) _sesionTs=Date.now(); }
+document.addEventListener('mousemove',_resetTimer);
+document.addEventListener('keydown',_resetTimer);
+document.addEventListener('click',_resetTimer);
+setInterval(function(){ if(_sesionActiva && Date.now()-_sesionTs>_TIMEOUT_MS) _cerrarSesion(false); },60000);
+
+// ─── Detección de DevTools ────────────────────────────────────
+(function _devWatch(){
+  var _t=setInterval(function(){
+    if(!_sesionActiva)return;
+    // Tamaño de ventana — DevTools lateral/abajo ocupa >160px
+    if(window.outerWidth-window.innerWidth>160||window.outerHeight-window.innerHeight>160){
+      clearInterval(_t); _cerrarSesion(true);
+    }
+  },1500);
+})();
+
+// ─── Bloquear F12, Ctrl+Shift+I/J/C, Ctrl+U (ver fuente) ─────
+document.addEventListener('keydown',function(e){
+  var k=e.key||'';
+  if(k==='F12'){e.preventDefault();e.stopPropagation();return false;}
+  if(e.ctrlKey&&e.shiftKey&&(k==='I'||k==='J'||k==='C')){e.preventDefault();e.stopPropagation();return false;}
+  if(e.ctrlKey&&(k==='u'||k==='U')){e.preventDefault();e.stopPropagation();return false;}
+},true);
+
+// ─── Bloquear click derecho ───────────────────────────────────
+document.addEventListener('contextmenu',function(e){e.preventDefault();return false;},true);
+
+// ─── Login blindado ───────────────────────────────────────────
+function accederPanel(){
+  var ahora=Date.now();
+  var bl=_getBloqueo();
+  // Verificar bloqueo activo
+  if(bl.hasta && ahora<bl.hasta){
+    var segs=Math.ceil((bl.hasta-ahora)/1000);
+    var min=Math.floor(segs/60), s=segs%60;
+    var err=document.getElementById('panelErr');
+    err.textContent='🔒 Panel bloqueado. Espera '+min+'m '+s+'s';
+    err.style.display='block';
+    return;
+  }
+  var pin=document.getElementById('masterPin').value;
+  if(_ah(pin)!==window._PHASH){
+    bl.intentos=(bl.intentos||0)+1;
+    if(bl.intentos>=_MAX_INTENTOS){
+      bl.hasta=Date.now()+_COOLDOWN_MS; bl.intentos=0;
+      _setBloqueo(bl);
+      var err2=document.getElementById('panelErr');
+      err2.textContent='🔒 Demasiados intentos. Bloqueado 5 minutos.';
+      err2.style.display='block';
+    } else {
+      _setBloqueo(bl);
+      var err3=document.getElementById('panelErr');
+      err3.textContent='❌ PIN incorrecto ('+bl.intentos+'/'+_MAX_INTENTOS+' intentos)';
+      err3.style.display='block';
+      setTimeout(function(){err3.style.display='none';err3.textContent='❌ PIN incorrecto';},3000);
+    }
+    document.getElementById('masterPin').value='';
+    return;
+  }
+  // Acceso correcto
+  _setBloqueo({});
+  _sesionActiva=true; _sesionTs=Date.now();
+  document.getElementById('loginPanel').style.display='none';
+  document.getElementById('appPanel').style.display='block';
+  cargarLicencias();
+}
+
+// ─── localStorage helpers ────────────────────────────────────
+function lsGet() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+function lsSave(arr) {
+  localStorage.setItem(LS_KEY, JSON.stringify(arr));
+}
+
+// ─── Helpers ─────────────────────────────────────────────────
+function getEstado(lic) {
+  if (!lic.activa) return { label:'⚫ Inactiva', cls:'badge-off' };
+  if (lic.dias === 36500) return { label:'✅ Activa', cls:'badge-ok' }; // permanente
+  if (new Date(lic.fechaVencimiento) < new Date()) return { label:'⏰ Vencida', cls:'badge-warn' };
+  return { label:'✅ Activa', cls:'badge-ok' };
+}
+function diasRestantes(fv, dias) {
+  if (dias === 36500) return Infinity;
+  return Math.ceil((new Date(fv) - new Date()) / 86400000);
+}
+function fmtFecha(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('es-VE',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+function rnd(n) {
+  var c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', s = '';
+  for(var i=0;i<n;i++) s += c[Math.floor(Math.random()*c.length)];
+  return s;
+}
+function mkDemo() { return 'FPDEMO-' + rnd(4) + '-' + rnd(4) + '-' + rnd(4); }
+function mkPro()  { return 'FPRO-'   + rnd(4) + '-' + rnd(4) + '-' + rnd(4) + '-' + rnd(4); }
+function planLabel(dias) {
+  if (dias === 36500) return 'Permanente';
+  if (dias === 365)  return '1 año';
+  if (dias === 180)  return '6 meses';
+  if (dias === 90)   return '3 meses';
+  if (dias === 30)   return '1 mes';
+  return dias + ' días';
+}
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── Load ─────────────────────────────────────────────────────
+function cargarLicencias() {
+  _lics = lsGet();
+  _lics.sort(function(a,b){ return new Date(b.creadaEn) - new Date(a.creadaEn); });
+  renderLicencias(_lics);
+  document.getElementById('searchInp').value = '';
+  document.getElementById('lastSync').textContent =
+    'Local: ' + new Date().toLocaleTimeString('es-VE',{hour:'2-digit',minute:'2-digit'});
+}
+
+// ─── Search ───────────────────────────────────────────────────
+function filtrarLicencias() {
+  var q = document.getElementById('searchInp').value.trim().toLowerCase();
+  if (!q) { renderLicencias(_lics); return; }
+  var filtradas = _lics.filter(function(l){
+    return (l.codigo||'').toLowerCase().includes(q)
+      || (l.negocio||'').toLowerCase().includes(q)
+      || (l.nombreCliente||'').toLowerCase().includes(q)
+      || (l.telefono||'').toLowerCase().includes(q)
+      || (l.deviceId||'').toLowerCase().includes(q);
+  });
+  renderLicencias(filtradas);
+}
+
+// ─── Render ───────────────────────────────────────────────────
+function renderLicencias(lista) {
+  var now = new Date();
+  var total=_lics.length, activas=0, vencidas=0, inactivas=0, demos=0;
+  _lics.forEach(function(l) {
+    if (!l.activa) { inactivas++; return; }
+    var isPerm = l.dias === 36500;
+    if (!isPerm && new Date(l.fechaVencimiento) < now) { vencidas++; return; }
+    if (l.tipo === 'DEMO') demos++;
+    activas++;
+  });
+  document.getElementById('statTotal').textContent     = total;
+  document.getElementById('statActivas').textContent   = activas;
+  document.getElementById('statVencidas').textContent  = vencidas;
+  document.getElementById('statInactivas').textContent = inactivas;
+  document.getElementById('statDemos').textContent     = demos;
+
+  if (!lista.length) {
+    document.getElementById('listaLicencias').innerHTML = _lics.length === 0
+      ? '<div class="empty">📭 No hay licencias aún. Usa los módulos de arriba para crear la primera.</div>'
+      : '<div class="empty">🔍 Sin resultados para tu búsqueda.</div>';
+    return;
+  }
+
+  var html = '';
+  lista.forEach(function(lic) {
+    var esDemo = lic.tipo === 'DEMO';
+    var estado = getEstado(lic);
+    var dr     = diasRestantes(lic.fechaVencimiento, lic.dias);
+    var isPerm = lic.dias === 36500;
+    var dcol   = isPerm ? '#059669' : (dr > 14 ? '#059669' : dr > 0 ? '#d97706' : '#dc2626');
+    var dtxt   = !lic.activa ? '—' : (isPerm ? 'Permanente' : (dr > 0 ? dr + ' días' : 'Vencida'));
+    var tel    = (lic.telefono || '').replace(/[^0-9]/g,'');
+    var fv     = fmtFecha(lic.fechaVencimiento);
+    var locked = lic.deviceId ? true : false;
+
+    var msgWA = encodeURIComponent(
+      (esDemo
+        ? '🍊 Prueba DEMO — Fruteria Pro\n'
+        : '🍊 Licencia PRO — Fruteria Pro\n') +
+      'Código: ' + lic.codigo + '\n' +
+      'Negocio: ' + (lic.negocio||'') + '\n' +
+      'Vence: ' + fv + '\n' +
+      (locked ? '🔒 Licencia vinculada a tu equipo específico\n' : '') +
+      '📲 Abre tu app y activa con este código\n' +
+      '¡Gracias por elegir Fruteria Pro!'
+    );
+
+    html += '<div class="lic-card ' + (esDemo ? 'is-demo' : 'is-pro') + '">';
+    html += '<div class="lic-top"><div>';
+    html += '<div class="lic-code ' + (esDemo ? 'demo' : 'pro') + '">' + escHtml(lic.codigo) + '</div>';
+    if (locked)
+      html += '<div class="lic-device">🔒 Device: ' + escHtml(lic.deviceId) + '</div>';
+    html += '<div class="lic-name">' + escHtml(lic.negocio || lic.nombreCliente || '—') + '</div>';
+    if (lic.nombreCliente && lic.nombreCliente !== lic.negocio)
+      html += '<div class="lic-info">👤 ' + escHtml(lic.nombreCliente) + '</div>';
+    if (lic.telefono) html += '<div class="lic-info">📱 ' + escHtml(lic.telefono) + '</div>';
+    html += '</div>';
+    html += '<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">';
+    html += esDemo
+      ? '<span class="badge badge-demo">🆓 DEMO ' + (lic.dias||5) + 'd</span>'
+      : '<span class="badge badge-pro">⚡ PRO</span>';
+    html += '<span class="badge ' + estado.cls + '">' + estado.label + '</span>';
+    html += '</div></div>';
+
+    html += '<div class="lic-details">';
+    html += '<div><div class="lic-det-lbl">Plan</div><div class="lic-det-val">'
+      + escHtml(planLabel(lic.dias||5)) + '</div></div>';
+    if (!esDemo && lic.terminales)
+      html += '<div><div class="lic-det-lbl">Terminales</div><div class="lic-det-val">'
+        + lic.terminales + '</div></div>';
+    html += '<div><div class="lic-det-lbl">Inicio</div><div class="lic-det-val">'
+      + fmtFecha(lic.fechaInicio) + '</div></div>';
+    html += '<div><div class="lic-det-lbl">Vence</div><div class="lic-det-val">'
+      + (isPerm ? 'Nunca' : fmtFecha(lic.fechaVencimiento)) + '</div></div>';
+    html += '<div><div class="lic-det-lbl">Vigencia</div><div class="lic-det-val" style="color:' + dcol + '">'
+      + dtxt + '</div></div>';
+    if (lic.email)
+      html += '<div><div class="lic-det-lbl">Email</div><div class="lic-det-val" style="font-size:11px">'
+        + escHtml(lic.email) + '</div></div>';
+    if (lic.notas)
+      html += '<div><div class="lic-det-lbl">Notas</div><div class="lic-det-val" style="font-size:11px">'
+        + escHtml(lic.notas) + '</div></div>';
+    html += '</div>';
+
+    if (lic.activa && !isPerm && dr <= 7 && dr > 0) {
+      html += '<div class="ren-warn">' +
+        (esDemo
+          ? '🆓 Demo próxima a vencer. Contacta al cliente para convertirla en PRO.'
+          : '⚠️ Licencia próxima a vencer. Considera renovar con el cliente.') +
+        '</div>';
+    }
+
+    html += '<div class="lic-actions">';
+    html += lic.activa
+      ? '<button class="btn-sm btn-deact" onclick="toggleLic(\'' + lic._id + '\',false)">🚫 Desactivar</button>'
+      : '<button class="btn-sm btn-act" onclick="toggleLic(\'' + lic._id + '\',true)">✅ Activar</button>';
+    html += '<button class="btn-sm btn-copy-lc" onclick="copiarTxt(\'' + lic.codigo.replace(/'/g,"\\'") + '\')">📋 Copiar</button>';
+    if (tel)
+      html += '<button class="btn-sm btn-wa-lc" onclick="window.open(\'https://wa.me/'
+        + tel + '?text=' + msgWA + '\',\'_blank\')">💬 WA</button>';
+    html += '<button class="btn-sm btn-edit" onclick="abrirEditar(\'' + lic._id + '\')">✏️ Editar</button>';
+    html += '<button class="btn-sm btn-del" onclick="eliminarLic(\'' + lic._id + '\')">🗑️ Eliminar</button>';
+    html += '</div></div>';
+  });
+
+  document.getElementById('listaLicencias').innerHTML = html;
+}
+
+// ─── Generate DEMO ────────────────────────────────────────────
+function generarDemo() {
+  var negocio  = document.getElementById('d-negocio').value.trim();
+  var telefono = document.getElementById('d-telefono').value.trim();
+  var deviceId = document.getElementById('d-deviceid').value.trim() || null;
+  var dias     = parseInt(document.getElementById('d-dias').value);
+  if (!negocio) { alert('⚠️ Ingresa el nombre del negocio.'); return; }
+
+  var btn = document.getElementById('btnGenDemo');
+  btn.textContent = '⏳ Generando...'; btn.disabled = true;
+
+  var codigo = mkDemo();
+  var ahora  = new Date().toISOString();
+  var venc   = new Date(); venc.setDate(venc.getDate() + dias);
+  var tel    = telefono.replace(/[^0-9]/g,'');
+  var fv     = fmtFecha(venc.toISOString());
+  var locked = deviceId ? true : false;
+
+  // Guardar en localStorage
+  var lic = {
+    _id: 'lic_' + Date.now(),
+    codigo: codigo,
+    tipo: 'DEMO',
+    negocio: negocio,
+    nombreCliente: negocio,
+    telefono: telefono,
+    email: '',
+    deviceId: deviceId,
+    dias: dias,
+    terminales: 1,
+    plan: planLabel(dias),
+    fechaInicio: ahora,
+    fechaVencimiento: venc.toISOString(),
+    activa: true,
+    notas: '',
+    creadaEn: ahora
+  };
+  var arr = lsGet();
+  arr.unshift(lic);
+  lsSave(arr);
+  _lics = arr;
+
+  // Mostrar resultado
+  document.getElementById('codeDemoVal').textContent = codigo;
+  var msgWA = encodeURIComponent(
+    '🍊 Prueba DEMO — Fruteria Pro\n' +
+    'Código: ' + codigo + '\n' +
+    'Negocio: ' + negocio + '\n' +
+    'Días de prueba: ' + dias + '\n' +
+    'Vence: ' + fv + '\n' +
+    (locked ? '🔒 Licencia vinculada a tu equipo específico\n' : '') +
+    '📲 Abre tu app y activa con este código\n' +
+    '¡Gracias por elegir Fruteria Pro!'
+  );
+  var btnWA = document.getElementById('btnWADemo');
+  if (tel) {
+    btnWA.style.display = '';
+    btnWA.onclick = function(){ window.open('https://wa.me/'+tel+'?text='+msgWA,'_blank'); };
+  } else {
+    btnWA.style.display = 'none';
+  }
+  document.getElementById('resultDemo').style.display = 'block';
+  btn.textContent = '🆓 Generar Código DEMO'; btn.disabled = false;
+
+  // Limpiar y refrescar lista
+  document.getElementById('d-negocio').value  = '';
+  document.getElementById('d-telefono').value = '';
+  document.getElementById('d-deviceid').value = '';
+  document.getElementById('d-dias').value     = '5';
+  renderLicencias(_lics);
+  document.getElementById('lastSync').textContent =
+    'Local: ' + new Date().toLocaleTimeString('es-VE',{hour:'2-digit',minute:'2-digit'});
+}
+
+// ─── Generate PRO ─────────────────────────────────────────────
+function generarPro() {
+  var negocio    = document.getElementById('p-negocio').value.trim();
+  var telefono   = document.getElementById('p-telefono').value.trim();
+  var email      = document.getElementById('p-email').value.trim();
+  var deviceId   = document.getElementById('p-deviceid').value.trim() || null;
+  var plan       = parseInt(document.getElementById('p-duracion').value);
+  var terminales = parseInt(document.getElementById('p-terminales').value);
+  if (!negocio) { alert('⚠️ Ingresa el nombre del negocio cliente.'); return; }
+
+  var btn = document.getElementById('btnGenPro');
+  btn.textContent = '⏳ Generando...'; btn.disabled = true;
+
+  var codigo = mkPro();
+  var ahora  = new Date().toISOString();
+  var venc   = new Date(); venc.setDate(venc.getDate() + plan);
+  var tel    = telefono.replace(/[^0-9]/g,'');
+  var fv     = fmtFecha(venc.toISOString());
+  var locked = deviceId ? true : false;
+
+  // Guardar en localStorage
+  var lic = {
+    _id: 'lic_' + Date.now(),
+    codigo: codigo,
+    tipo: 'PRO',
+    negocio: negocio,
+    nombreCliente: negocio,
+    telefono: telefono,
+    email: email,
+    deviceId: deviceId,
+    dias: plan,
+    terminales: terminales,
+    plan: planLabel(plan),
+    fechaInicio: ahora,
+    fechaVencimiento: venc.toISOString(),
+    activa: true,
+    notas: '',
+    creadaEn: ahora
+  };
+  var arr = lsGet();
+  arr.unshift(lic);
+  lsSave(arr);
+  _lics = arr;
+
+  // Mostrar resultado
+  document.getElementById('codePROVal').textContent = codigo;
+  var msgWA = encodeURIComponent(
+    '🍊 Licencia PRO — Fruteria Pro\n' +
+    'Código: ' + codigo + '\n' +
+    'Negocio: ' + negocio + '\n' +
+    'Vence: ' + (plan === 36500 ? 'Nunca (Permanente)' : fv) + '\n' +
+    (locked ? '🔒 Licencia vinculada a tu equipo específico\n' : '') +
+    '📲 Abre tu app y activa con este código\n' +
+    '¡Gracias por elegir Fruteria Pro!'
+  );
+  var btnWA = document.getElementById('btnWAPro');
+  if (tel) {
+    btnWA.style.display = '';
+    btnWA.onclick = function(){ window.open('https://wa.me/'+tel+'?text='+msgWA,'_blank'); };
+  } else {
+    btnWA.style.display = 'none';
+  }
+  document.getElementById('resultPro').style.display = 'block';
+  btn.textContent = '⚡ Generar Código PRO'; btn.disabled = false;
+
+  // Limpiar y refrescar lista
+  document.getElementById('p-negocio').value    = '';
+  document.getElementById('p-telefono').value   = '';
+  document.getElementById('p-email').value      = '';
+  document.getElementById('p-deviceid').value   = '';
+  document.getElementById('p-duracion').value   = '30';
+  document.getElementById('p-terminales').value = '1';
+  renderLicencias(_lics);
+  document.getElementById('lastSync').textContent =
+    'Local: ' + new Date().toLocaleTimeString('es-VE',{hour:'2-digit',minute:'2-digit'});
+}
+
+// ─── Copy ─────────────────────────────────────────────────────
+function copiarId(id) { copiarTxt(document.getElementById(id).textContent); }
+function copiarTxt(txt) {
+  navigator.clipboard.writeText(txt)
+    .then(function(){ alert('✅ Copiado:\n' + txt); })
+    .catch(function(){ prompt('Copia el código:', txt); });
+}
+function copiarCampo(id) {
+  var val = document.getElementById(id).value.trim();
+  if (!val) { alert('⚠️ El campo está vacío.'); return; }
+  copiarTxt(val);
+}
+
+// ─── Edit modal ───────────────────────────────────────────────
+function abrirEditar(id) {
+  var lic = _lics.find(function(l){ return l._id === id; });
+  if (!lic) return;
+  var esDemo = lic.tipo === 'DEMO';
+  document.getElementById('e-negocio').value  = lic.negocio || '';
+  document.getElementById('e-telefono').value = lic.telefono || '';
+  document.getElementById('e-email').value    = lic.email || '';
+  document.getElementById('e-deviceid').value = lic.deviceId || '';
+  document.getElementById('e-notas').value    = lic.notas || '';
+  document.getElementById('e-id').value       = id;
+  if (esDemo) {
+    document.getElementById('e-dias-demo').value = String(lic.dias || 5);
+    document.getElementById('e-grupo-dias').style.display = 'block';
+    document.getElementById('e-grupo-pro').style.display  = 'none';
+  } else {
+    document.getElementById('e-duracion').value   = String(lic.dias || 30);
+    document.getElementById('e-terminales').value = String(lic.terminales || 1);
+    document.getElementById('e-grupo-dias').style.display = 'none';
+    document.getElementById('e-grupo-pro').style.display  = 'block';
+  }
+  document.getElementById('modalEditar').style.display = 'flex';
+}
+
+function cerrarEditar() {
+  document.getElementById('modalEditar').style.display = 'none';
+}
+
+function guardarEdicion() {
+  var id = document.getElementById('e-id').value;
+  var arr = lsGet();
+  var idx = arr.findIndex(function(l){ return l._id === id; });
+  if (idx === -1) { alert('❌ Licencia no encontrada.'); return; }
+  var lic    = arr[idx];
+  var esDemo = lic.tipo === 'DEMO';
+  var negocio  = document.getElementById('e-negocio').value.trim();
+  var telefono = document.getElementById('e-telefono').value.trim();
+  var email    = document.getElementById('e-email').value.trim();
+  var deviceId = document.getElementById('e-deviceid').value.trim() || null;
+  var notas    = document.getElementById('e-notas').value.trim();
+  var dias     = esDemo
+    ? parseInt(document.getElementById('e-dias-demo').value)
+    : parseInt(document.getElementById('e-duracion').value);
+  var terminales = esDemo ? 1 : parseInt(document.getElementById('e-terminales').value);
+
+  var btn = document.getElementById('btnGuardarEdit');
+  btn.textContent = '⏳ Guardando...'; btn.disabled = true;
+
+  var nuevaVenc = new Date(lic.fechaInicio);
+  nuevaVenc.setDate(nuevaVenc.getDate() + dias);
+
+  arr[idx] = Object.assign({}, lic, {
+    negocio: negocio,
+    nombreCliente: negocio,
+    telefono: telefono,
+    email: email,
+    deviceId: deviceId,
+    dias: dias,
+    terminales: terminales,
+    plan: planLabel(dias),
+    notas: notas,
+    fechaVencimiento: nuevaVenc.toISOString()
+  });
+
+  lsSave(arr);
+  _lics = arr;
+  _lics.sort(function(a,b){ return new Date(b.creadaEn) - new Date(a.creadaEn); });
+
+  cerrarEditar();
+  renderLicencias(_lics);
+  btn.textContent = '💾 Guardar Cambios'; btn.disabled = false;
+  document.getElementById('lastSync').textContent =
+    'Local: ' + new Date().toLocaleTimeString('es-VE',{hour:'2-digit',minute:'2-digit'});
+}
+
+// ─── Toggle ───────────────────────────────────────────────────
+function toggleLic(id, activar) {
+  var lic = _lics.find(function(l){ return l._id === id; });
+  if (!lic) return;
+  if (!confirm((activar ? '✅ Activar' : '🚫 Desactivar') + ' licencia de ' + (lic.negocio || lic.nombreCliente) + '?')) return;
+  var arr = lsGet();
+  var idx = arr.findIndex(function(l){ return l._id === id; });
+  if (idx === -1) return;
+  arr[idx].activa = activar;
+  lsSave(arr);
+  _lics = arr;
+  _lics.sort(function(a,b){ return new Date(b.creadaEn) - new Date(a.creadaEn); });
+  renderLicencias(_lics);
+}
+
+// ─── Delete ───────────────────────────────────────────────────
+function eliminarLic(id) {
+  var lic = _lics.find(function(l){ return l._id === id; });
+  if (!lic) return;
+  if (!confirm('⚠️ ¿Eliminar licencia de ' + (lic.negocio||lic.nombreCliente||'—') + ' (' + lic.codigo + ')?\nAcción irreversible.')) return;
+  var arr = lsGet().filter(function(l){ return l._id !== id; });
+  lsSave(arr);
+  _lics = arr;
+  renderLicencias(_lics);
+  document.getElementById('lastSync').textContent =
+    'Local: ' + new Date().toLocaleTimeString('es-VE',{hour:'2-digit',minute:'2-digit'});
+}
+
+// ─── Close modal on overlay click ─────────────────────────────
+document.getElementById('modalEditar').addEventListener('click', function(e){
+  if (e.target === this) cerrarEditar();
+});
+
+// Expose to window for inline onclick
+window.accederPanel  = accederPanel;
+window.generarDemo   = generarDemo;
+window.generarPro    = generarPro;
+window.copiarId      = copiarId;
+window.copiarTxt     = copiarTxt;
+window.copiarCampo   = copiarCampo;
+window.cargarLicencias = cargarLicencias;
+window.filtrarLicencias = filtrarLicencias;
+window.abrirEditar   = abrirEditar;
+window.cerrarEditar  = cerrarEditar;
+window.guardarEdicion = guardarEdicion;
+window.toggleLic     = toggleLic;
+window.eliminarLic   = eliminarLic;
+</script>
+</body>
+</html>
