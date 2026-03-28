@@ -954,8 +954,18 @@ tbody tr:last-child td{border-bottom:none;}
         </div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Monto Recibido ($)</label><input type="number" class="form-input" id="cobro-recibido" step="0.01" min="0" placeholder="0.00" oninput="calcVuelto()"></div>
-        <div class="form-group"><label class="form-label">Vuelto ($)</label><input type="number" class="form-input" id="cobro-vuelto" readonly style="background:var(--bg2);font-weight:700;color:var(--accent2);"></div>
+        <div class="form-group">
+          <label class="form-label">Monto Recibido ($)</label>
+          <input type="number" class="form-input" id="cobro-recibido" step="0.01" min="0" placeholder="0.00" oninput="calcVuelto()">
+          <div style="font-size:11px;color:var(--text3);margin-top:5px;" id="cobro-recibido-bs">≈ Bs 0.00</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Vuelto</label>
+          <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius2);padding:9px 12px;min-height:42px;">
+            <div style="font-size:18px;font-weight:800;color:var(--accent2);line-height:1;" id="cobro-vuelto-usd">$0.00</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:3px;" id="cobro-vuelto-bs">Bs 0.00</div>
+          </div>
+        </div>
       </div>
       <div class="form-group"><label class="form-label">Notas (opcional)</label><input type="text" class="form-input" id="cobro-notas" placeholder="Ej: cliente frecuente"></div>
     </div>
@@ -1483,7 +1493,9 @@ function abrirCobro(){
   stext('cobro-total-display',fmt$(total));
   stext('cobro-total-bs-display',fmtBs(total));
   sval('cobro-recibido','');
-  sval('cobro-vuelto','');
+  stext('cobro-recibido-bs','≈ Bs 0.00');
+  stext('cobro-vuelto-usd','$0.00');
+  stext('cobro-vuelto-bs','Bs 0.00');
   sval('cobro-notas','');
   renderPayMethods();
   openModal('modalCobro');
@@ -1512,8 +1524,13 @@ function selPago(id,el){
 function calcVuelto(){
   const total=getTotal();
   const recibido=gnum('cobro-recibido');
+  const tasa=STATE.tasa||1;
   const vuelto=Math.max(0,recibido-total);
-  sval('cobro-vuelto',vuelto.toFixed(2));
+  // Recibido en Bs
+  stext('cobro-recibido-bs','≈ '+fmtBs(recibido));
+  // Vuelto en $ y Bs
+  stext('cobro-vuelto-usd',fmt$(vuelto));
+  stext('cobro-vuelto-bs',fmtBs(vuelto));
 }
 
 function confirmarVenta(){
