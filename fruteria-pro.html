@@ -162,7 +162,7 @@ tbody tr:last-child td{border-bottom:none;}
 /* CART */
 .cart-header{padding:14px 16px;border-bottom:1px solid var(--border);font-weight:700;font-size:14px;color:var(--accent);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .cart-count-badge{background:var(--orange);color:#fff;border-radius:12px;padding:2px 8px;font-size:12px;}
-.cart-items{flex:1;overflow-y:auto;padding:10px 12px;}
+.cart-items{flex:1;overflow-y:auto;padding:10px 12px;min-height:200px;}
 .cart-empty{text-align:center;padding:40px 20px;color:var(--text3);}
 .cart-empty-icon{font-size:48px;margin-bottom:12px;}
 .cart-item{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--bg3);}
@@ -180,7 +180,7 @@ tbody tr:last-child td{border-bottom:none;}
 .cart-remove:hover{color:var(--danger);}
 
 /* Cart footer */
-.cart-footer{border-top:1px solid var(--border);padding:14px 16px;flex-shrink:0;}
+.cart-footer{border-top:1px solid var(--border);padding:10px 14px;flex-shrink:0;max-height:52%;overflow-y:auto;}
 .cart-total-row{display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px;}
 .cart-total-row.main{font-weight:800;font-size:16px;color:var(--accent);margin-bottom:10px;}
 .cart-total-row.sub{color:var(--text3);font-size:12px;}
@@ -193,8 +193,8 @@ tbody tr:last-child td{border-bottom:none;}
 .btn-cobrar:disabled{opacity:.5;cursor:not-allowed;transform:none;}
 
 /* ===== PAY METHODS ===== */
-.pay-methods{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;}
-.pay-btn{padding:10px 8px;border:1.5px solid var(--border);border-radius:var(--radius2);background:var(--card);cursor:pointer;font-size:12px;font-weight:600;text-align:center;transition:all .2s;color:var(--text2);}
+.pay-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:10px;}
+.pay-btn{padding:7px 5px;border:1.5px solid var(--border);border-radius:var(--radius2);background:var(--card);cursor:pointer;font-size:11px;font-weight:600;text-align:center;transition:all .2s;color:var(--text2);line-height:1.3;}
 .pay-btn:hover{border-color:var(--accent2);}
 .pay-btn.active{border-color:var(--accent);background:var(--bg2);color:var(--accent);}
 
@@ -1425,10 +1425,12 @@ function renderCartTotals(){
   stext('btn-total',fmt$(total));
   const btnCobrar=gel('btn-cobrar');
   if(btnCobrar)btnCobrar.disabled=!STATE.cart.length;
-  // Renderizar métodos de pago en el carrito
+  // Renderizar métodos de pago en el carrito — solo los activos en configuración
   const cartPayGrid=gel('cart-pay-grid');
   if(cartPayGrid){
-    cartPayGrid.innerHTML=METODOS_PAGO.map(m=>`
+    var _activos=typeof _getMetodosActivos==='function'?_getMetodosActivos():METODOS_PAGO.map(m=>m.id);
+    var _visibles=METODOS_PAGO.filter(m=>_activos.indexOf(m.id)!==-1||m.id==='mixto');
+    cartPayGrid.innerHTML=_visibles.map(m=>`
       <button class="pay-btn${STATE.payMethod===m.id?' active':''}" onclick="selCartPago('${m.id}',this)">
         ${m.nombre}
       </button>`).join('');
@@ -1462,7 +1464,9 @@ function abrirCobro(){
 }
 
 function renderPayMethods(){
-  shtml('pay-methods-grid',METODOS_PAGO.map(m=>`
+  var _activos=typeof _getMetodosActivos==='function'?_getMetodosActivos():METODOS_PAGO.map(m=>m.id);
+  var _visibles=METODOS_PAGO.filter(m=>_activos.indexOf(m.id)!==-1||m.id==='mixto');
+  shtml('pay-methods-grid',_visibles.map(m=>`
     <button class="pay-btn${STATE.payMethod===m.id?' active':''}" onclick="selPago('${m.id}',this)">
       ${m.nombre}
     </button>`).join(''));
