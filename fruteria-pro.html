@@ -406,7 +406,32 @@ tbody tr:last-child td{border-bottom:none;}
 .toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff;transition:left .2s;}
 .metodo-toggle.activo .toggle-switch{background:#059669;}
 .metodo-toggle.activo .toggle-switch::after{left:16px;}
+/* DARK MODE */
+body.dark-mode{--bg:#1a1a2e;--bg2:#16213e;--bg3:#0f3460;--card:#1e1e3a;--card2:#16213e;--text:#e8e8f0;--text2:#a0a0c0;--text3:#606080;--border:#2e2e5e;--shadow:rgba(0,0,0,0.5);}
+body.dark-mode .topbar{background:var(--card);border-color:var(--border);}
+body.dark-mode .modal{background:var(--card);}
+body.dark-mode .form-input,body.dark-mode .form-select{background:var(--bg2);color:var(--text);border-color:var(--border);}
+/* DARK TOGGLE BUTTON */
+.btn-dark-toggle{background:none;border:1.5px solid var(--border);border-radius:20px;padding:4px 10px;font-size:15px;cursor:pointer;color:var(--text2);transition:all .2s;}
+.btn-dark-toggle:hover{background:var(--bg2);}
+/* HARDWARE CARDS */
+.hw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:4px;}
+.hw-card{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;transition:all .2s;}
+.hw-card.connected{border-color:#22c55e;background:#f0fdf4;}
+body.dark-mode .hw-card.connected{background:#0a2a0a;}
+.hw-icon{font-size:28px;margin-bottom:6px;}
+.hw-name{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:4px;}
+.hw-status{font-size:11px;color:var(--text3);margin-bottom:8px;}
+.hw-status.ok{color:#16a34a;font-weight:600;}
+/* QR SCANNER */
+.qr-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:2000;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
+.qr-overlay.open{display:flex;}
+#qr-video{width:280px;height:280px;object-fit:cover;border-radius:12px;border:3px solid var(--accent);}
+.qr-aim{position:absolute;width:200px;height:200px;border:2px solid rgba(255,255,255,.6);border-radius:8px;pointer-events:none;}
+/* CAJA ACTION BAR */
+.caja-action-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 </head>
 <body>
 <!-- ===== LOGIN / LICENCIA ===== -->
@@ -510,6 +535,7 @@ tbody tr:last-child td{border-bottom:none;}
       <div class="page-title" id="topbar-title">🛒 Punto de Venta</div>
       <div class="topbar-right">
         <span id="demo-badge" class="demo-badge" style="display:none;"></span>
+        <button class="btn-dark-toggle" id="btn-dark-toggle" onclick="toggleDarkMode()" title="Cambiar tema claro/oscuro">🌙</button>
         <span class="tasa-badge" onclick="openModal('modalTasa')" title="Cambiar tasa">💱 Tasa: <span id="tasa-display">40.00</span> Bs/$</span>
         <span style="font-size:13px;color:var(--text2);" id="fecha-display"></span>
       </div>
@@ -538,6 +564,39 @@ tbody tr:last-child td{border-bottom:none;}
           <div class="card-title" style="margin-bottom:14px;">🔔 Alertas activas</div>
           <div id="dash-alertas"></div>
         </div>
+        <!-- Hardware / Periféricos -->
+        <div class="card" style="margin-top:18px;">
+          <div class="card-header" style="margin-bottom:4px;">
+            <div class="card-title">🔌 Periféricos y Hardware</div>
+            <span style="font-size:11px;color:var(--text3);">Chrome + HTTPS requerido para hardware serial</span>
+          </div>
+          <div class="hw-grid">
+            <div class="hw-card" id="hw-card-balanza">
+              <div class="hw-icon">⚖️</div>
+              <div class="hw-name">Balanza Digital</div>
+              <div class="hw-status" id="hw-st-balanza">Desconectada</div>
+              <button class="btn btn-ghost btn-sm" onclick="conectarBalanza()">Conectar</button>
+            </div>
+            <div class="hw-card" id="hw-card-gaveta">
+              <div class="hw-icon">💰</div>
+              <div class="hw-name">Gaveta de Dinero</div>
+              <div class="hw-status" id="hw-st-gaveta">Desconectada</div>
+              <button class="btn btn-ghost btn-sm" onclick="conectarGaveta()">Conectar</button>
+            </div>
+            <div class="hw-card" id="hw-card-datafono">
+              <div class="hw-icon">💳</div>
+              <div class="hw-name">Datafono / POS</div>
+              <div class="hw-status" id="hw-st-datafono">Requiere integración</div>
+              <button class="btn btn-ghost btn-sm" onclick="infoDatafono()">¿Cómo integrar?</button>
+            </div>
+            <div class="hw-card" id="hw-card-biopago">
+              <div class="hw-icon">🫆</div>
+              <div class="hw-name">BioPago</div>
+              <div class="hw-status" id="hw-st-biopago">Requiere integración</div>
+              <button class="btn btn-ghost btn-sm" onclick="infoBioPago()">¿Cómo integrar?</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- ===== POS PAGE ===== -->
@@ -550,6 +609,7 @@ tbody tr:last-child td{border-bottom:none;}
                 <input type="text" id="pos-search" placeholder="Buscar producto..." oninput="filterProducts()">
               </div>
               <button class="btn btn-primary" onclick="openModal('modalProducto')">+ Producto</button>
+              <button class="btn btn-ghost btn-sm" onclick="abrirQRScanner()" title="Escanear código QR o de barras">📷 QR</button>
               <button class="btn btn-sm" style="background:var(--warn,#f59e0b);color:#000;font-weight:700;border:none;border-radius:8px;padding:4px 10px;font-size:13px;cursor:pointer" onclick="abrirCobroRapido()" title="Cobrar producto sin registrar">⚡ Cobro Rápido</button>
             </div>
             <div class="cat-scroll" id="cat-filter"></div>
@@ -592,8 +652,13 @@ tbody tr:last-child td{border-bottom:none;}
       <div class="page" id="page-inventario">
         <div class="card-header" style="margin-bottom:16px;">
           <h2 style="font-size:18px;font-weight:800;">📦 Inventario</h2>
-          <button class="btn btn-primary" onclick="openModal('modalProducto');editingProd=null;resetProdForm()">+ Agregar Producto</button>
-          <button class="btn btn-ghost btn-sm" onclick="abrirEtiquetas()" title="Imprimir etiquetas de productos">🏷️ Etiquetas</button>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="openModal('modalProducto');editingProd=null;resetProdForm()">+ Agregar Producto</button>
+            <button class="btn btn-ghost btn-sm" onclick="abrirEtiquetas()" title="Imprimir etiquetas de productos">🏷️ Etiquetas</button>
+            <button class="btn btn-ghost btn-sm" onclick="exportarInventarioCSV()" title="Exportar a Excel/CSV">📊 Excel</button>
+            <button class="btn btn-ghost btn-sm" onclick="exportarInventarioPDF()" title="Exportar a PDF">📄 PDF</button>
+            <button class="btn btn-ghost btn-sm" onclick="compartirInventarioWA()" title="Compartir por WhatsApp" style="color:#25d366;border-color:#25d366;">📱 WhatsApp</button>
+          </div>
         </div>
         <div class="inv-filters">
           <div class="search-bar" style="flex:1;min-width:200px;">
@@ -787,6 +852,13 @@ tbody tr:last-child td{border-bottom:none;}
         <div class="card-header" style="margin-bottom:16px;">
           <h2 style="font-size:18px;font-weight:800;">🏧 Módulo de Caja</h2>
         </div>
+        <!-- Botones de acción siempre visibles -->
+        <div class="caja-action-bar" id="caja-action-bar">
+          <button class="btn btn-primary" id="caja-btn-abrir" onclick="document.getElementById('caja-responsable')?.focus()||scrollTo(0,300)">🔓 Abrir Caja</button>
+          <button class="btn btn-danger" id="caja-btn-cerrar" onclick="cerrarCaja()" style="display:none;">🔒 Cerrar Caja</button>
+          <button class="btn btn-ghost btn-sm" id="caja-btn-declarar" onclick="imprimirDeclaracion()" style="display:none;">📋 Imprimir Declaración</button>
+          <button class="btn btn-ghost btn-sm" onclick="verHistorialCaja()">📜 Ver Historial Cierres</button>
+        </div>
         <div id="caja-status-container"></div>
         <div class="grid-2" id="caja-content">
           <!-- Apertura / Cierre se renderiza aquí -->
@@ -839,15 +911,15 @@ tbody tr:last-child td{border-bottom:none;}
           <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;">
             <div class="form-group" style="flex:1;min-width:130px;">
               <label class="form-label">Sidebar</label>
-              <input type="color" id="color-sidebar" class="form-input" style="height:40px;padding:4px 6px;cursor:pointer;">
+              <input type="color" id="color-sidebar" class="form-input" style="height:40px;padding:4px 6px;cursor:pointer;" oninput="previewColor('sidebar',this.value)">
             </div>
             <div class="form-group" style="flex:1;min-width:130px;">
               <label class="form-label">Color Acento</label>
-              <input type="color" id="color-acento" class="form-input" style="height:40px;padding:4px 6px;cursor:pointer;">
+              <input type="color" id="color-acento" class="form-input" style="height:40px;padding:4px 6px;cursor:pointer;" oninput="previewColor('acento',this.value)">
             </div>
             <div class="form-group" style="flex:1;min-width:130px;">
               <label class="form-label">Botón Activo</label>
-              <input type="color" id="color-activo" class="form-input" style="height:40px;padding:4px 6px;cursor:pointer;">
+              <input type="color" id="color-activo" class="form-input" style="height:40px;padding:4px 6px;cursor:pointer;" oninput="previewColor('activo',this.value)">
             </div>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -1091,6 +1163,17 @@ tbody tr:last-child td{border-bottom:none;}
 
 <!-- TOAST -->
 <div id="toast"></div>
+
+<!-- QR SCANNER OVERLAY -->
+<div class="qr-overlay" id="qrOverlay">
+  <div style="position:relative;display:flex;align-items:center;justify-content:center;">
+    <video id="qr-video" autoplay playsinline></video>
+    <div class="qr-aim"></div>
+  </div>
+  <canvas id="qr-canvas" style="display:none;"></canvas>
+  <div style="color:#fff;font-size:13px;text-align:center;max-width:280px;">Apunta la cámara al código QR o de barras del producto</div>
+  <button class="btn btn-danger btn-sm" onclick="cerrarQRScanner()">✕ Cancelar</button>
+</div>
 
 <script>
 // ============================================================
@@ -1591,6 +1674,8 @@ function confirmarVenta(){
   renderCart();
   filterProducts();
   closeModal('modalCobro');
+  // Abrir gaveta automáticamente si está conectada
+  if(window._HW&&window._HW.gaveta)abrirGaveta();
 
   showToast(`✅ Venta registrada — ${fmt$(total)}`,4000);
 
@@ -1972,7 +2057,8 @@ function toggleMonedaGrupo(monId) {
 }
 
 function guardarMetodosActivos() {
-  showToast('✅ Métodos de pago guardados', 'success');
+  renderCartTotals();   // actualiza botones de pago en el POS
+  showToast('✅ Métodos de pago actualizados en el POS', 'success');
 }
 
 // ============================================================
@@ -2288,6 +2374,11 @@ function renderCaja(){
   const statusEl=gel('caja-status-container');
   const contentEl=gel('caja-content');
   if(!statusEl||!contentEl)return;
+  // Sync action bar buttons
+  var btnAbrir=gel('caja-btn-abrir'),btnCerrar=gel('caja-btn-cerrar'),btnDeclarar=gel('caja-btn-declarar');
+  if(btnAbrir)btnAbrir.style.display=apertura?'none':'inline-flex';
+  if(btnCerrar)btnCerrar.style.display=apertura?'inline-flex':'none';
+  if(btnDeclarar)btnDeclarar.style.display=apertura?'inline-flex':'none';
 
   if(!apertura){
     // CAJA CERRADA
@@ -3388,7 +3479,6 @@ function abrirEtiquetas() {
     modal = document.createElement('div');
     modal.className = 'modal-overlay';
     modal.id = 'modalEtiquetas';
-    modal.style.display = 'none';
     modal.innerHTML = '<div class="modal" style="max-width:660px"><div class="modal-header"><span class="modal-title">🏷️ Etiquetas de Productos</span><button class="btn-close-modal" onclick="closeModal(\'modalEtiquetas\')">✕</button></div><div class="modal-body"><div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;"><select id="etiqueta-cat-filter" class="form-select" style="flex:1;min-width:160px" onchange="renderEtiquetasPreview()"><option value="">🍎 Todas las categorías</option></select><select id="etiqueta-size" class="form-select" style="width:150px" onchange="renderEtiquetasPreview()"><option value="small">Pequeña (5×3cm)</option><option value="medium" selected>Mediana (7×4cm)</option><option value="large">Grande (10×6cm)</option></select><button class="btn btn-primary btn-sm" onclick="imprimirEtiquetas()">🖨️ Imprimir</button></div><div id="etiquetasPreview" style="display:flex;flex-wrap:wrap;gap:8px;max-height:400px;overflow-y:auto;padding:4px"></div></div><div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal(\'modalEtiquetas\')">Cerrar</button><button class="btn btn-primary" onclick="imprimirEtiquetas()">🖨️ Imprimir Etiquetas</button></div></div>';
     document.body.appendChild(modal);
   }
@@ -3692,6 +3782,228 @@ function _procesarAsi(q) {
       {txt:'⚠️ Stock bajo', q:'stock bajo'}, {txt:'💱 Tasa', q:'tasa del día'}
     ]
   );
+}
+
+// ============================================================
+// MODO OSCURO / CLARO
+// ============================================================
+function toggleDarkMode(){
+  var isDark=document.body.classList.toggle('dark-mode');
+  localStorage.setItem('fp_dark_mode',isDark?'1':'0');
+  var btn=gel('btn-dark-toggle');
+  if(btn)btn.textContent=isDark?'☀️':'🌙';
+}
+(function(){
+  if(localStorage.getItem('fp_dark_mode')==='1'){
+    document.body.classList.add('dark-mode');
+    var btn=gel('btn-dark-toggle');if(btn)btn.textContent='☀️';
+  }
+})();
+
+// ============================================================
+// PREVIEW EN VIVO DE COLOR PICKERS
+// ============================================================
+function previewColor(tipo,val){
+  var root=document.documentElement;
+  if(tipo==='sidebar'){root.style.setProperty('--sidebar',val);root.style.setProperty('--sidebar2',val);root.style.setProperty('--sidebar3',val);}
+  if(tipo==='acento'){root.style.setProperty('--accent',val);root.style.setProperty('--accent2',val);root.style.setProperty('--accent3',val);}
+  if(tipo==='activo'){root.style.setProperty('--orange',val);root.style.setProperty('--orange2',val);root.style.setProperty('--orange3',val);}
+}
+
+// ============================================================
+// EXPORTAR INVENTARIO
+// ============================================================
+function exportarInventarioCSV(){
+  var prods=DB.get('productos')||[];
+  if(!prods.length){showToast('No hay productos en el inventario','warn');return;}
+  var headers=['Nombre','Categoría','Emoji','Precio $','Costo $','Stock','Stock Mín','Unidad'];
+  var rows=prods.map(function(p){return[p.nombre||'',p.categoria||'',p.emoji||'',p.precio||0,p.costo||0,p.stock||0,p.stockMin||0,p.unidad||''];});
+  var csv=[headers].concat(rows).map(function(r){return r.map(function(v){return'"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\r\n');
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download='inventario-fruteria.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  showToast('✅ Inventario exportado como Excel/CSV','success');
+}
+
+function exportarInventarioPDF(){
+  var prods=DB.get('productos')||[];
+  if(!prods.length){showToast('No hay productos en el inventario','warn');return;}
+  var cfg=DB.get('config')||{};
+  var filas=prods.map(function(p){
+    return '<tr><td>'+(p.emoji||'')+'</td><td>'+p.nombre+'</td><td>'+(p.categoria||'')+'</td><td style="text-align:right">$'+parseFloat(p.precio||0).toFixed(2)+'</td><td style="text-align:right">'+(p.stock||0)+'</td><td>'+(p.unidad||'')+'</td></tr>';
+  }).join('');
+  var win=window.open('','_blank');
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Inventario</title><style>body{font-family:sans-serif;padding:20px;font-size:12px}h2{margin-bottom:4px}p{color:#666;margin-bottom:16px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:6px 8px}th{background:#f5f5f5;font-weight:700}tr:nth-child(even){background:#fafafa}@media print{.no-print{display:none}}</style></head><body>');
+  win.document.write('<h2>'+( cfg.nombre||'FruteriaPro')+' — Inventario de Productos</h2>');
+  win.document.write('<p>Generado: '+new Date().toLocaleString('es-VE')+' | Total: '+prods.length+' productos</p>');
+  win.document.write('<table><thead><tr><th></th><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Unidad</th></tr></thead><tbody>'+filas+'</tbody></table>');
+  win.document.write('<script>setTimeout(function(){window.print();},400);<\/script></body></html>');
+  win.document.close();
+}
+
+function compartirInventarioWA(){
+  var prods=DB.get('productos')||[];
+  var cfg=DB.get('config')||{};
+  var text='*'+(cfg.nombre||'FruteriaPro')+' — Lista de Precios*\n\n';
+  prods.slice(0,25).forEach(function(p){
+    text+=(p.emoji||'•')+' *'+p.nombre+'* — $'+parseFloat(p.precio||0).toFixed(2)+' | Stock: '+(p.stock||0)+'\n';
+  });
+  if(prods.length>25)text+='\n...y '+(prods.length-25)+' productos más\n';
+  text+='\n_'+(cfg.nombre||'FruteriaPro')+' · '+new Date().toLocaleDateString('es-VE')+'_';
+  window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');
+}
+
+// ============================================================
+// CAJA — funciones adicionales
+// ============================================================
+function imprimirDeclaracion(){
+  var decEl=gel('caja-declaracion');
+  if(!decEl||!decEl.innerHTML.trim()){showToast('⚠️ Cierra primero la caja para generar la declaración','warn');return;}
+  decEl.style.display='block';
+  setTimeout(function(){window.print();decEl.style.display='none';},400);
+}
+
+function verHistorialCaja(){
+  var cierres=DB.get('caja_cierres')||[];
+  if(!cierres.length){showToast('No hay cierres registrados aún','warn');return;}
+  var html='<div style="font-family:sans-serif;padding:20px;max-width:700px;margin:auto"><h2>📋 Historial de Cierres de Caja</h2><br>';
+  cierres.slice(0,20).forEach(function(c,i){
+    html+='<div style="border:1px solid #ddd;border-radius:8px;padding:12px;margin-bottom:10px;">';
+    html+='<b>#'+(i+1)+' — '+fmtDate(c.fecha)+'</b><br>';
+    html+='Responsable: '+c.responsable+' | Ventas: '+c.ventasTurno+' | Total: $'+parseFloat(c.totalVentas||0).toFixed(2);
+    html+='</div>';
+  });
+  html+='</div>';
+  var win=window.open('','_blank');
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Historial Caja</title></head><body>'+html+'<script>setTimeout(window.print,500);<\/script></body></html>');
+  win.document.close();
+}
+
+// ============================================================
+// HARDWARE — WebSerial
+// ============================================================
+window._HW={balanza:null,gaveta:null};
+window._balanzaPeso=0;
+
+async function conectarBalanza(){
+  if(!navigator.serial){showToast('⚠️ Requiere Chrome y HTTPS para WebSerial','warn');return;}
+  try{
+    var port=await navigator.serial.requestPort();
+    await port.open({baudRate:9600});
+    window._HW.balanza=port;
+    var el=gel('hw-st-balanza');if(el){el.textContent='✅ Conectada';el.className='hw-status ok';}
+    var card=gel('hw-card-balanza');if(card)card.classList.add('connected');
+    showToast('✅ Balanza conectada','success');
+    _leerBalanza(port);
+  }catch(e){showToast('❌ No se pudo conectar la balanza','warn');}
+}
+
+async function _leerBalanza(port){
+  var reader=port.readable.getReader();
+  var buf='';
+  try{
+    while(true){
+      var res=await reader.read();
+      if(res.done)break;
+      buf+=new TextDecoder().decode(res.value);
+      var lines=buf.split('\n');buf=lines.pop();
+      lines.forEach(function(line){
+        var num=parseFloat(line.replace(/[^0-9.]/g,''));
+        if(!isNaN(num)&&num>0){
+          window._balanzaPeso=num;
+          showToast('⚖️ Peso: '+num.toFixed(3)+' kg',2000);
+        }
+      });
+    }
+  }catch(e){}
+}
+
+async function conectarGaveta(){
+  if(!navigator.serial){showToast('⚠️ Requiere Chrome y HTTPS para WebSerial','warn');return;}
+  try{
+    var port=await navigator.serial.requestPort();
+    await port.open({baudRate:9600});
+    window._HW.gaveta=port;
+    var el=gel('hw-st-gaveta');if(el){el.textContent='✅ Conectada';el.className='hw-status ok';}
+    var card=gel('hw-card-gaveta');if(card)card.classList.add('connected');
+    showToast('✅ Gaveta conectada','success');
+  }catch(e){showToast('❌ No se pudo conectar la gaveta','warn');}
+}
+
+async function abrirGaveta(){
+  if(!window._HW.gaveta){showToast('⚠️ Gaveta no conectada — ve al Dashboard para conectarla','warn');return;}
+  try{
+    var writer=window._HW.gaveta.writable.getWriter();
+    await writer.write(new Uint8Array([0x1B,0x70,0x00,0x19,0xFA])); // ESC p 0 pulse
+    writer.releaseLock();
+    showToast('💰 Gaveta abierta','success');
+  }catch(e){showToast('❌ Error al abrir gaveta','warn');}
+}
+
+function infoDatafono(){
+  showToast('ℹ️ Datafonos requieren SDK del banco (Banesco, Provincial, Mercantil). Contacta a A2K Digital Studio para integración.','warn');
+}
+
+function infoBioPago(){
+  showToast('ℹ️ BioPago requiere SDK y credenciales de Biometrics Venezuela. Contacta a A2K Digital Studio para integración.','warn');
+}
+
+// ============================================================
+// QR SCANNER (jsQR)
+// ============================================================
+var _qrAnimFrame=null;
+var _qrStream=null;
+
+function abrirQRScanner(){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    showToast('⚠️ Cámara no disponible en este dispositivo','warn');return;
+  }
+  var overlay=gel('qrOverlay');
+  var video=gel('qr-video');
+  if(!overlay||!video)return;
+  overlay.classList.add('open');
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}).then(function(stream){
+    _qrStream=stream;
+    video.srcObject=stream;
+    video.play();
+    _qrScanLoop();
+  }).catch(function(){showToast('❌ No se pudo acceder a la cámara','warn');overlay.classList.remove('open');});
+}
+
+function _qrScanLoop(){
+  var video=gel('qr-video');
+  var canvas=gel('qr-canvas');
+  if(!video||!canvas)return;
+  var ctx=canvas.getContext('2d');
+  function tick(){
+    if(video.readyState===video.HAVE_ENOUGH_DATA){
+      canvas.width=video.videoWidth;
+      canvas.height=video.videoHeight;
+      ctx.drawImage(video,0,0,canvas.width,canvas.height);
+      var imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
+      if(window.jsQR){
+        var code=window.jsQR(imageData.data,imageData.width,imageData.height,{inversionAttempts:'dontInvert'});
+        if(code){_qrResultado(code.data);return;}
+      }
+    }
+    _qrAnimFrame=requestAnimationFrame(tick);
+  }
+  _qrAnimFrame=requestAnimationFrame(tick);
+}
+
+function _qrResultado(texto){
+  cerrarQRScanner();
+  var posSearch=gel('pos-search');
+  if(posSearch){posSearch.value=texto;filterProducts();}
+  showToast('📷 Código escaneado: '+texto,'success');
+}
+
+function cerrarQRScanner(){
+  var overlay=gel('qrOverlay');
+  if(overlay)overlay.classList.remove('open');
+  if(_qrAnimFrame){cancelAnimationFrame(_qrAnimFrame);_qrAnimFrame=null;}
+  if(_qrStream){_qrStream.getTracks().forEach(function(t){t.stop();});_qrStream=null;}
+  var video=gel('qr-video');if(video)video.srcObject=null;
 }
 </script>
 
