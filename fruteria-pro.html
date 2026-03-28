@@ -4067,11 +4067,102 @@ async function abrirGaveta(){
 }
 
 function infoDatafono(){
-  showToast('ℹ️ Datafonos requieren SDK del banco (Banesco, Provincial, Mercantil). Contacta a A2K Digital Studio para integración.','warn');
+  _abrirModalGuia('modalGuiaDatafono',`
+    <div style="text-align:center;padding:10px 0 18px;">
+      <div style="font-size:48px;margin-bottom:8px;">💳</div>
+      <div style="font-size:18px;font-weight:800;color:var(--text);">Integración de Datafono / POS</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:4px;">Acepta pagos con tarjeta de débito y crédito</div>
+    </div>
+    <div style="background:var(--bg2);border-radius:10px;padding:14px;margin-bottom:16px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📋 Requisitos Previos</div>
+      <ul style="font-size:13px;color:var(--text2);line-height:2;padding-left:18px;">
+        <li>RIF activo del negocio</li>
+        <li>Cuenta bancaria empresarial o personal</li>
+        <li>Computadora con Windows 7 o superior</li>
+        <li>Puerto USB disponible</li>
+      </ul>
+    </div>
+    <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;">🔧 Pasos de Instalación</div>
+    ${_paso(1,'Solicitar el terminal al banco','Visita tu banco (Banesco, Provincial, Mercantil, Venezuela, Bicentenario, etc.) y solicita un terminal POS. Necesitarás presentar RIF, cédula y datos del negocio.')}
+    ${_paso(2,'Instalar el software del banco','El banco te entregará un CD o enlace de descarga con el software "Pinpad" o "POS Driver". Instálalo en la computadora donde usas FruteriaPro.')}
+    ${_paso(3,'Conectar el terminal por USB','Conecta el terminal POS al puerto USB de tu computadora. Windows instalará los drivers automáticamente. Verifica que aparezca en el Administrador de Dispositivos.')}
+    ${_paso(4,'Configurar el puerto COM','Anota el número de puerto COM asignado (ej: COM3). Lo verás en Administrador de Dispositivos → Puertos (COM y LPT).')}
+    ${_paso(5,'Integrar con FruteriaPro','Contacta a A2K Digital Studio con tu banco y número de puerto COM. Te enviaremos el módulo de integración personalizado para tu terminal.')}
+    <div style="background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;padding:14px;margin-top:16px;color:#fff;text-align:center;">
+      <div style="font-size:14px;font-weight:800;margin-bottom:6px;">¿Listo para integrar?</div>
+      <div style="font-size:12px;opacity:.9;margin-bottom:10px;">Contáctanos con los datos de tu terminal y banco</div>
+      <button onclick="window.open('https://wa.me/584140000000?text=Hola!+Quiero+integrar+mi+datafono+con+FruteriaPro','_blank')" style="background:#fff;color:var(--accent);border:none;border-radius:8px;padding:8px 18px;font-weight:700;cursor:pointer;font-size:13px;">📱 Contactar A2K Digital Studio</button>
+    </div>
+  `);
 }
 
 function infoBioPago(){
-  showToast('ℹ️ BioPago requiere SDK y credenciales de Biometrics Venezuela. Contacta a A2K Digital Studio para integración.','warn');
+  _abrirModalGuia('modalGuiaBioPago',`
+    <div style="text-align:center;padding:10px 0 18px;">
+      <div style="font-size:48px;margin-bottom:8px;">🫆</div>
+      <div style="font-size:18px;font-weight:800;color:var(--text);">Integración de BioPago</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:4px;">Pagos biométricos por huella dactilar — Venezuela</div>
+    </div>
+    <div style="background:#fef3c7;border:1.5px solid #f59e0b;border-radius:10px;padding:12px;margin-bottom:16px;">
+      <div style="font-size:12px;font-weight:700;color:#92400e;">⚠️ Importante</div>
+      <div style="font-size:12px;color:#78350f;margin-top:4px;line-height:1.6;">BioPago opera a través de los bancos afiliados al sistema SUICHE 7B. Debes tenerlo habilitado en tu cuenta bancaria.</div>
+    </div>
+    <div style="background:var(--bg2);border-radius:10px;padding:14px;margin-bottom:16px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📋 Requisitos Previos</div>
+      <ul style="font-size:13px;color:var(--text2);line-height:2;padding-left:18px;">
+        <li>Cuenta activa en banco afiliado a SUICHE 7B</li>
+        <li>Módulo BioPago habilitado por tu banco</li>
+        <li>Lector de huella dactilar USB (Digital Persona, SecuGen u otro)</li>
+        <li>Windows 10 o superior (recomendado)</li>
+        <li>Cédula de identidad laminada vigente</li>
+      </ul>
+    </div>
+    <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;">🔧 Pasos de Instalación</div>
+    ${_paso(1,'Activar BioPago en tu banco','Visita tu banco y solicita activar el servicio BioPago en tu cuenta. Bancos compatibles: Banesco, Mercantil, Provincial, Venezuela, Bicentenario, Caroní, entre otros.')}
+    ${_paso(2,'Adquirir el lector biométrico','Consigue un lector de huella dactilar USB compatible. Los más comunes en Venezuela son Digital Persona U.are.U 4500 y SecuGen Hamster Pro. Disponibles en tiendas de tecnología.')}
+    ${_paso(3,'Instalar el driver del lector','Descarga el driver desde el sitio del fabricante del lector e instálalo. El sistema reconocerá automáticamente el dispositivo por USB.')}
+    ${_paso(4,'Registrar clientes con huella','Cada cliente que usará BioPago debe tener su huella registrada en su banco. Esto se hace en la agencia bancaria presentando cédula laminada.')}
+    ${_paso(5,'Integrar con FruteriaPro','Contacta a A2K Digital Studio indicando el modelo de tu lector y banco. Te enviaremos el plugin de BioPago para FruteriaPro que activa el cobro directo desde el sistema.')}
+    <div style="background:var(--bg2);border-radius:10px;padding:12px;margin-top:4px;margin-bottom:16px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;">🏦 Bancos Compatibles con BioPago</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        ${['Banesco','Provincial','Mercantil','Venezuela','Bicentenario','Caroní','Exterior','Activo','Sofitasa','Bancrecer'].map(function(b){return '<span style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:11px;color:var(--text2);">'+b+'</span>';}).join('')}
+      </div>
+    </div>
+    <div style="background:linear-gradient(135deg,#1b4332,#2d6a4f);border-radius:10px;padding:14px;margin-top:4px;color:#fff;text-align:center;">
+      <div style="font-size:14px;font-weight:800;margin-bottom:6px;">¿Listo para integrar BioPago?</div>
+      <div style="font-size:12px;opacity:.9;margin-bottom:10px;">Indícanos tu banco y modelo de lector de huella</div>
+      <button onclick="window.open('https://wa.me/584140000000?text=Hola!+Quiero+integrar+BioPago+con+FruteriaPro','_blank')" style="background:#fff;color:#1b4332;border:none;border-radius:8px;padding:8px 18px;font-weight:700;cursor:pointer;font-size:13px;">📱 Contactar A2K Digital Studio</button>
+    </div>
+  `);
+}
+
+function _paso(n,titulo,desc){
+  return '<div style="display:flex;gap:12px;margin-bottom:14px;">'+
+    '<div style="flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;">'+n+'</div>'+
+    '<div><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;">'+titulo+'</div>'+
+    '<div style="font-size:12px;color:var(--text3);line-height:1.6;">'+desc+'</div></div>'+
+  '</div>';
+}
+
+function _abrirModalGuia(id, bodyHtml){
+  var existing=document.getElementById(id);
+  if(existing)existing.remove();
+  var modal=document.createElement('div');
+  modal.className='modal-overlay';
+  modal.id=id;
+  modal.innerHTML='<div class="modal" style="max-width:520px">'+
+    '<div class="modal-header">'+
+      '<span class="modal-title">📖 Guía de Integración</span>'+
+      '<button class="btn-close-modal" onclick="closeModal(\''+id+'\')">✕</button>'+
+    '</div>'+
+    '<div class="modal-body" style="max-height:70vh;overflow-y:auto;">'+bodyHtml+'</div>'+
+    '<div class="modal-footer">'+
+      '<button class="btn btn-ghost" onclick="closeModal(\''+id+'\')">Cerrar</button>'+
+    '</div>'+
+  '</div>';
+  document.body.appendChild(modal);
+  openModal(id);
 }
 
 // ============================================================
