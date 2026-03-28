@@ -928,6 +928,28 @@ body.dark-mode .hw-card.connected{background:#0a2a0a;}
           </div>
         </div>
 
+        <!-- IMPRESORA TÉRMICA -->
+        <div class="card" style="margin-top:20px;">
+          <div class="card-title" style="margin-bottom:14px;">🖨️ Impresora Térmica</div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Ancho de Papel</label>
+              <select class="form-select" id="cfg-papel" onchange="guardarConfigImpresora()">
+                <option value="80mm">80 mm — Estándar</option>
+                <option value="58mm">58 mm — Compacta</option>
+              </select>
+              <div style="font-size:11px;color:var(--text3);margin-top:6px;">El tamaño se aplica automáticamente al imprimir tickets.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Acciones</label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn btn-ghost btn-sm" onclick="imprimirTicketPrueba()">🖨️ Ticket de Prueba</button>
+              </div>
+              <div style="font-size:11px;color:var(--text3);margin-top:6px;">Conecta la impresora al PC y selecciona en la ventana de impresión.</div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </div><!-- /page-body -->
@@ -1058,7 +1080,8 @@ body.dark-mode .hw-card.connected{background:#0a2a0a;}
     <div class="modal-body" id="detalle-venta-body"></div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modalDetalleVenta')">Cerrar</button>
-      <button class="btn btn-primary" onclick="imprimirRecibo()">🖨️ Imprimir Recibo</button>
+      <button class="btn btn-ghost btn-sm" onclick="enviarReciboWA()" style="color:#25d366;border-color:#25d366;">📱 WhatsApp</button>
+      <button class="btn btn-primary" onclick="imprimirRecibo()">🖨️ Imprimir</button>
     </div>
   </div>
 </div>
@@ -1407,7 +1430,7 @@ function showPage(page,el){
   if(page==='devoluciones'){renderDevoluciones();}
   if(page==='clientes'){renderClientes();}
   if(page==='proveedores'){renderProveedores();}
-  if(page==='configuracion'){renderConfigMonedas();renderConfigColores();}
+  if(page==='configuracion'){renderConfigMonedas();renderConfigColores();_cargarConfigImpresora();}
   // Mostrar asistente FAB solo en POS
   var fab = document.getElementById('asistente-fab');
   if (fab) fab.style.display = (page === 'pos') ? 'flex' : 'none';
@@ -1650,7 +1673,9 @@ function confirmarVenta(){
     metodoId:STATE.payMethod,
     metodoMixto,
     recibidoUSD:recibido,
+    recibidoBs:+(recibido*STATE.tasa).toFixed(2),
     vueltoUSD:vuelto,
+    vueltoBs:+(vuelto*STATE.tasa).toFixed(2),
     tasa:STATE.tasa,
     notas,
   };
@@ -1689,30 +1714,131 @@ function mostrarRecibo(venta){
   const nombre=cfg.nombre||'FruteriaPro';
   const dir=cfg.direccion||'';
   const tel=cfg.telefono||'';
+  const papel=cfg.impresora_papel||'80mm';
+  const chars=papel==='58mm'?30:42;
+  const sep='─'.repeat(chars);
+  const tasa=venta.tasa||STATE.tasa||1;
+  const simbolo=STATE.simbolo||'Bs';
   let txt=`${nombre}\n`;
   if(dir)txt+=`${dir}\n`;
   if(tel)txt+=`Tel: ${tel}\n`;
-  txt+=`${'─'.repeat(32)}\n`;
+  txt+=sep+'\n';
   txt+=`Fecha: ${fmtDate(venta.fecha)}\n`;
   txt+=`Método: ${venta.metodo}\n`;
-  txt+=`${'─'.repeat(32)}\n`;
+  txt+=sep+'\n';
   venta.items.forEach(i=>{
     txt+=`${i.emoji} ${i.nombre}\n  ${i.qty} x ${fmt$(i.precio)} = ${fmt$(i.subtotal)}\n`;
   });
-  txt+=`${'─'.repeat(32)}\n`;
+  txt+=sep+'\n';
   if(venta.descuentoUSD>0)txt+=`Descuento: -${fmt$(venta.descuentoUSD)}\n`;
-  txt+=`TOTAL: ${fmt$(venta.totalUSD)}\n`;
-  txt+=`En Bs: ${STATE.simbolo} ${venta.totalBs.toFixed(2)}\n`;
-  if(venta.vueltoUSD>0)txt+=`Vuelto: ${fmt$(venta.vueltoUSD)}\n`;
+  txt+=`TOTAL:     ${fmt$(venta.totalUSD)}\n`;
+  txt+=`En Bs:     ${simbolo} ${(+venta.totalBs||0).toFixed(2)}\n`;
+  if(venta.recibidoUSD>0){
+    txt+=sep+'\n';
+    txt+=`Recibido:  ${fmt$(venta.recibidoUSD)}\n`;
+    txt+=`           ${simbolo} ${(venta.recibidoBs||venta.recibidoUSD*tasa).toFixed(2)}\n`;
+  }
+  if(venta.vueltoUSD>0){
+    txt+=`Vuelto:    ${fmt$(venta.vueltoUSD)}\n`;
+    txt+=`           ${simbolo} ${(venta.vueltoBs||venta.vueltoUSD*tasa).toFixed(2)}\n`;
+  }
   if(venta.notas)txt+=`Notas: ${venta.notas}\n`;
-  txt+=`${'─'.repeat(32)}\n`;
-  txt+=`¡Gracias por su compra!\n🍃 FruteriaPro`;
-  shtml('detalle-venta-body',`<pre class="receipt">${txt}</pre><div style="margin-top:14px;"><strong>Items:</strong><br>${venta.items.map(i=>`${i.emoji} ${i.nombre} x${i.qty} = ${fmt$(i.subtotal)}`).join('<br>')}</div>`);
+  txt+=sep+'\n';
+  txt+=`  ¡Gracias por su compra!  \n       🍃 FruteriaPro`;
+  // Render in modal
+  shtml('detalle-venta-body',
+    `<pre class="receipt" style="background:var(--bg2);padding:14px;border-radius:8px;overflow-x:auto;">${txt}</pre>` +
+    `<div style="margin-top:12px;padding:12px;background:var(--bg2);border-radius:8px;">` +
+    `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;">` +
+    `<div><span style="color:var(--text3);">Total $</span><br><strong style="font-size:17px;">${fmt$(venta.totalUSD)}</strong></div>` +
+    `<div><span style="color:var(--text3);">Total Bs</span><br><strong style="font-size:17px;">${simbolo} ${(+venta.totalBs||0).toFixed(2)}</strong></div>` +
+    (venta.recibidoUSD>0?`<div><span style="color:var(--text3);">Recibido $</span><br><strong>${fmt$(venta.recibidoUSD)}</strong></div><div><span style="color:var(--text3);">Recibido Bs</span><br><strong>${simbolo} ${(venta.recibidoBs||venta.recibidoUSD*tasa).toFixed(2)}</strong></div>`:'') +
+    (venta.vueltoUSD>0?`<div style="grid-column:1/-1;background:var(--accent3,#74c69d);border-radius:6px;padding:8px;text-align:center;"><span style="font-size:12px;font-weight:700;">💵 VUELTO</span><br><strong style="font-size:20px;color:var(--accent);">${fmt$(venta.vueltoUSD)}</strong> <span style="font-size:14px;color:var(--text2);">/ ${simbolo} ${(venta.vueltoBs||venta.vueltoUSD*tasa).toFixed(2)}</span></div>`:'') +
+    `</div></div>`
+  );
   gel('receipt-text').textContent=txt;
   openModal('modalDetalleVenta');
 }
 
-function imprimirRecibo(){window.print();}
+function imprimirRecibo(){
+  var cfg=DB.get('config')||{};
+  var papel=cfg.impresora_papel||'80mm';
+  // Aplicar tamaño de página dinámicamente
+  var styleId='_print_page_size';
+  var styleEl=document.getElementById(styleId)||document.createElement('style');
+  styleEl.id=styleId;
+  styleEl.textContent='@page{size:'+papel+' auto;margin:3mm 2mm;}'+
+    '#receipt-content{font-size:'+(papel==='58mm'?'9':'11')+'px;width:'+papel+';padding:2mm;}';
+  if(!document.getElementById(styleId))document.head.appendChild(styleEl);
+  window.print();
+}
+
+function enviarReciboWA(){
+  var venta=STATE.currentVentaDetail;
+  if(!venta){showToast('No hay recibo disponible','warn');return;}
+  var cfg=DB.get('config')||{};
+  var tasa=venta.tasa||STATE.tasa||1;
+  var simbolo=STATE.simbolo||'Bs';
+  var txt='*'+(cfg.nombre||'FruteriaPro')+'* — Recibo de Venta\n';
+  txt+='📅 '+fmtDate(venta.fecha)+'\n';
+  txt+='💳 '+venta.metodo+'\n\n';
+  txt+='*Productos:*\n';
+  venta.items.forEach(function(i){txt+=(i.emoji||'•')+' '+i.nombre+' x'+i.qty+' = '+fmt$(i.subtotal)+'\n';});
+  txt+='\n';
+  if(venta.descuentoUSD>0)txt+='Descuento: -'+fmt$(venta.descuentoUSD)+'\n';
+  txt+='*TOTAL: '+fmt$(venta.totalUSD)+'  /  '+simbolo+' '+(+venta.totalBs||0).toFixed(2)+'*\n';
+  if(venta.recibidoUSD>0){
+    txt+='Recibido: '+fmt$(venta.recibidoUSD)+'  /  '+simbolo+' '+(venta.recibidoBs||venta.recibidoUSD*tasa).toFixed(2)+'\n';
+    if(venta.vueltoUSD>0){
+      txt+='✅ *Vuelto: '+fmt$(venta.vueltoUSD)+'  /  '+simbolo+' '+(venta.vueltoBs||venta.vueltoUSD*tasa).toFixed(2)+'*\n';
+    }
+  }
+  if(venta.notas)txt+='\nNotas: '+venta.notas+'\n';
+  txt+='\n_¡Gracias por su compra! 🍃_';
+  window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
+}
+
+function _cargarConfigImpresora(){
+  var cfg=DB.get('config')||{};
+  var sel=document.getElementById('cfg-papel');
+  if(sel&&cfg.impresora_papel)sel.value=cfg.impresora_papel;
+}
+
+function guardarConfigImpresora(){
+  var cfg=DB.get('config')||{};
+  cfg.impresora_papel=document.getElementById('cfg-papel').value;
+  DB.set('config',cfg);
+  showToast('✅ Impresora configurada: '+cfg.impresora_papel,'success');
+}
+
+function imprimirTicketPrueba(){
+  var cfg=DB.get('config')||{};
+  var papel=cfg.impresora_papel||'80mm';
+  var chars=papel==='58mm'?30:42;
+  var sep='─'.repeat(chars);
+  var txt=cfg.nombre||'FruteriaPro';
+  txt+='\n'+sep;
+  txt+='\nTICKET DE PRUEBA';
+  txt+='\n'+fmtDate(new Date().toISOString());
+  txt+='\n'+sep;
+  txt+='\n🍌 Cambur  x 2  =  $1.00';
+  txt+='\n🍊 Naranja x 5  =  $2.50';
+  txt+='\n'+sep;
+  txt+='\nTOTAL:    $3.50';
+  txt+='\nEn Bs:    '+STATE.simbolo+' '+(3.50*STATE.tasa).toFixed(2);
+  txt+='\nRecibido: $5.00';
+  txt+='\nVuelto:   $1.50';
+  txt+='\n'+sep;
+  txt+='\n  ¡Gracias por su compra!';
+  txt+='\n     🍃 FruteriaPro';
+  gel('receipt-text').textContent=txt;
+  var styleId='_print_page_size';
+  var styleEl=document.getElementById(styleId)||document.createElement('style');
+  styleEl.id=styleId;
+  styleEl.textContent='@page{size:'+papel+' auto;margin:3mm 2mm;}#receipt-content{font-size:'+(papel==='58mm'?'9':'11')+'px;width:'+papel+';padding:2mm;}';
+  if(!document.getElementById(styleId))document.head.appendChild(styleEl);
+  window.print();
+}
 
 // ============================================================
 // INVENTARIO
