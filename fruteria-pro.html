@@ -2256,8 +2256,12 @@ function _cargarColores() {
   var cfg = DB.get('config') || {};
   var temaId = cfg.tema_id || 'naranja';
   var tema = TEMAS_COLORES.filter(function(t){return t.id===temaId;})[0] || TEMAS_COLORES[0];
-  var vars = cfg.colores_custom || tema.vars;
-  _aplicarColoresCSS(vars);
+  // Aplicar tema base primero
+  _aplicarColoresCSS(tema.vars);
+  // Luego aplicar colores personalizados encima (si existen)
+  if (cfg.colores_custom && Object.keys(cfg.colores_custom).length) {
+    _aplicarColoresCSS(cfg.colores_custom);
+  }
 }
 
 function renderConfigColores() {
@@ -2303,25 +2307,30 @@ function guardarColoresCustom() {
   var es = document.getElementById('color-sidebar');
   var ea = document.getElementById('color-acento');
   var eo = document.getElementById('color-activo');
-  if (!es || !ea || !eo) return;
+  if (!es || !ea || !eo) { showToast('⚠️ Error al leer los selectores de color', 'warn'); return; }
+  var sidebar = es.value;
+  var acento  = ea.value;
+  var activo  = eo.value;
+  // Solo guardar los 9 vars de color directamente (no copiar tema completo)
+  var custom = {
+    '--sidebar': sidebar, '--sidebar2': sidebar, '--sidebar3': sidebar,
+    '--accent':  acento,  '--accent2':  acento,  '--accent3':  acento,
+    '--orange':  activo,  '--orange2':  activo,  '--orange3':  activo
+  };
+  // Aplicar inmediatamente al DOM
+  _aplicarColoresCSS(custom);
+  // Guardar en config
   var cfg = DB.get('config') || {};
-  var temaBase = TEMAS_COLORES.filter(function(t){return t.id===(cfg.tema_id||'naranja');})[0] || TEMAS_COLORES[0];
-  var vars = {};
-  Object.keys(temaBase.vars).forEach(function(k){ vars[k] = temaBase.vars[k]; });
-  vars['--sidebar']  = es.value;
-  vars['--sidebar2'] = es.value;
-  vars['--sidebar3'] = es.value;
-  vars['--accent']   = ea.value;
-  vars['--accent2']  = ea.value;
-  vars['--accent3']  = ea.value;
-  vars['--orange']   = eo.value;
-  vars['--orange2']  = eo.value;
-  vars['--orange3']  = eo.value;
-  _aplicarColoresCSS(vars);
-  cfg.colores_custom = vars;
+  cfg.colores_custom = custom;
   DB.set('config', cfg);
+  // Confirmar guardado leyendo de vuelta
+  var confirmado = (DB.get('config')||{}).colores_custom;
+  if (confirmado && confirmado['--sidebar'] === sidebar) {
+    showToast('✅ Colores guardados correctamente', 'success');
+  } else {
+    showToast('⚠️ Colores aplicados pero no guardados (localStorage lleno?)', 'warn');
+  }
   renderConfigColores();
-  showToast('✅ Colores personalizados guardados', 'success');
 }
 
 function resetearColores() {
@@ -2329,8 +2338,11 @@ function resetearColores() {
   cfg.tema_id = 'naranja';
   delete cfg.colores_custom;
   DB.set('config', cfg);
+  // Quitar todos los inline style vars y reaplicar el tema naranja
   var root = document.documentElement;
-  TEMAS_COLORES[0].vars && Object.keys(TEMAS_COLORES[0].vars).forEach(function(k){ root.style.removeProperty(k); });
+  var naranja = TEMAS_COLORES[0];
+  Object.keys(naranja.vars).forEach(function(k){ root.style.removeProperty(k); });
+  _aplicarColoresCSS(naranja.vars);
   renderConfigColores();
   showToast('↩ Colores restablecidos al tema por defecto', 'success');
 }
