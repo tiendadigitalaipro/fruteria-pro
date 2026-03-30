@@ -614,6 +614,15 @@ body.dark-mode .hw-card.connected{background:#0a2a0a;}
               <button class="btn btn-sm" style="background:var(--warn,#f59e0b);color:#000;font-weight:700;border:none;border-radius:8px;padding:4px 10px;font-size:13px;cursor:pointer" onclick="abrirCobroRapido()" title="Cobrar producto sin registrar">⚡ Cobro Rápido</button>
             </div>
             <div class="cat-scroll" id="cat-filter"></div>
+            <!-- Widget balanza POS -->
+            <div id="scale-widget" style="display:none;background:var(--bg2);border:1.5px solid var(--orange);border-radius:12px;padding:10px 14px;margin-bottom:10px;align-items:center;gap:12px;">
+              <span style="font-size:24px;">⚖️</span>
+              <div style="flex:1">
+                <div style="font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Peso en balanza</div>
+                <div id="scaleDisplay" style="font-size:22px;font-weight:800;font-family:monospace;color:var(--orange)">0.000 kg</div>
+              </div>
+              <div id="scaleSubtotal" style="font-size:18px;font-weight:800;color:var(--warn);font-family:monospace">$0.00</div>
+            </div>
             <div class="products-grid" id="products-grid"></div>
           </div>
 
@@ -643,6 +652,8 @@ body.dark-mode .hw-card.connected{background:#0a2a0a;}
               <div class="cart-total-row sub" style="margin-bottom:12px;"><span>En Bs</span><span id="cart-total-bs">Bs 0.00</span></div>
               <div class="cart-pay-label">💳 Método de pago</div>
               <div class="pay-methods" id="cart-pay-grid"></div>
+              <div id="pausedCartsBar" style="display:none;margin-bottom:10px;background:var(--bg2);border:1px solid var(--warn);border-radius:10px;padding:8px 10px;font-size:12px;"></div>
+              <button id="btn-pausar" class="btn btn-ghost" style="width:100%;height:38px;margin-bottom:6px;font-weight:600;color:var(--warn);border-color:var(--warn)" onclick="pausarVenta()">⏸️ Pausar Venta</button>
               <button class="btn-cobrar" id="btn-cobrar" onclick="abrirCobro()" disabled>💳 Cobrar — <span id="btn-total">$0.00</span></button>
             </div>
           </div>
@@ -859,6 +870,8 @@ body.dark-mode .hw-card.connected{background:#0a2a0a;}
           <button class="btn btn-danger" id="caja-btn-cerrar" onclick="cerrarCaja()" style="display:none;">🔒 Cerrar Caja</button>
           <button class="btn btn-ghost btn-sm" id="caja-btn-declarar" onclick="imprimirDeclaracion()" style="display:none;">📋 Imprimir Declaración</button>
           <button class="btn btn-ghost btn-sm" onclick="verHistorialCaja()">📜 Ver Historial Cierres</button>
+          <button class="btn btn-ghost btn-sm" onclick="abrirMovCaja('entrada')">💵 Entrada</button>
+          <button class="btn btn-ghost btn-sm" onclick="abrirMovCaja('salida')">💸 Salida</button>
         </div>
         <div id="caja-status-container"></div>
         <div class="grid-2" id="caja-content">
@@ -1118,7 +1131,7 @@ body.dark-mode .hw-card.connected{background:#0a2a0a;}
       </div>
       <div class="form-group"><label class="form-label">Nombre *</label><input type="text" class="form-input" id="prod-nombre" placeholder="Ej: Cambur/Banana"></div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Categoría *</label><select class="form-select" id="prod-categoria"></select></div>
+        <div class="form-group"><label class="form-label">Categoría *</label><select class="form-select" id="prod-categoria" onchange="autoEmojiCategoria(this)"></select></div>
         <div class="form-group"><label class="form-label">Unidad</label><select class="form-select" id="prod-unidad"><option>kg</option><option>500g</option><option>250g</option><option>Unidad</option><option>Docena</option><option>Racimo</option><option>Bolsa</option><option>Caja</option><option>Litro</option><option>Manojo</option></select></div>
       </div>
       <div class="form-row">
@@ -2739,14 +2752,61 @@ function calcDiferenciaCaja(esperado){
 }
 
 function abrirCaja(){
-  const responsable=gval('caja-responsable').trim();
-  if(!responsable){showToast('⚠️ Ingresa el nombre del responsable');return;}
-  const montoInicialUSD=gnum('caja-ini-usd');
-  const montoInicialBs=gnum('caja-ini-bs');
-  const billetes={};
-  [100,50,20,10,5,1].forEach(d=>{const v=gnum('caja-bill-'+d);if(v)billetes['$'+d]=v;});
-  DB.set('caja_apertura',{fecha:new Date().toISOString(),responsable,montoInicialUSD,montoInicialBs,billetes});
-  showToast('✅ Caja abierta — Turno iniciado');
+  var apertura=DB.get('caja_apertura');
+  if(apertura){showToast('La caja ya está abierta','warn');return;}
+  var tasa=STATE.tasa||40;
+  var simb=(DB.get('config')&&DB.get('config').simbolo)||'Bs';
+  var viejo=gel('modalAbrirCajaFP');if(viejo)viejo.remove();
+  var m=document.createElement('div');
+  m.id='modalAbrirCajaFP';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px';
+  m.innerHTML='<div style="background:var(--card,#fff);border:2px solid var(--orange,#16a34a);border-radius:18px;padding:28px;width:100%;max-width:440px;box-sizing:border-box">'+
+    '<div style="font-size:16px;font-weight:800;color:var(--orange,#16a34a);margin-bottom:4px">📂 Apertura de Caja</div>'+
+    '<div style="font-size:12px;color:var(--text2);margin-bottom:20px">Ingresa el efectivo disponible al abrir</div>'+
+    '<div style="margin-bottom:14px">'+
+      '<label style="font-size:11px;font-weight:700;color:var(--text2);display:block;margin-bottom:6px;letter-spacing:.5px">💵 EFECTIVO EN DÓLARES ($)</label>'+
+      '<input id="cajaMontoDolares" type="number" min="0" step="0.01" value="0" oninput="cajaSyncBs()" style="width:100%;box-sizing:border-box;padding:12px 14px;background:var(--bg2,#f4f4f4);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-size:18px;font-weight:700;font-family:monospace;text-align:right;outline:none">'+
+    '</div>'+
+    '<div style="margin-bottom:6px">'+
+      '<label style="font-size:11px;font-weight:700;color:var(--text2);display:block;margin-bottom:6px;letter-spacing:.5px">🇻🇪 EFECTIVO EN '+simb.toUpperCase()+' (BOLÍVARES)</label>'+
+      '<input id="cajaMontoBs" type="number" min="0" step="1" value="0" oninput="cajaSyncUsd()" style="width:100%;box-sizing:border-box;padding:12px 14px;background:var(--bg2,#f4f4f4);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-size:18px;font-weight:700;font-family:monospace;text-align:right;outline:none">'+
+    '</div>'+
+    '<div id="cajaEquivInfo" style="font-size:12px;color:var(--text3);text-align:right;margin-bottom:20px;font-family:monospace">Tasa: '+tasa+' '+simb+'/$1</div>'+
+    '<div style="display:flex;gap:10px">'+
+      '<button onclick="gel(\'modalAbrirCajaFP\').remove()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:14px">Cancelar</button>'+
+      '<button onclick="confirmarAbrirCajaFP()" style="flex:1;padding:12px;border-radius:10px;border:none;background:var(--orange,#16a34a);color:#fff;cursor:pointer;font-size:14px;font-weight:800">📂 Abrir Caja</button>'+
+    '</div>'+
+  '</div>';
+  document.body.appendChild(m);
+  setTimeout(function(){var f=gel('cajaMontoDolares');if(f)f.focus();},150);
+}
+function cajaSyncBs(){
+  var tasa=STATE.tasa||40;
+  var simb=(DB.get('config')&&DB.get('config').simbolo)||'Bs';
+  var usd=parseFloat((gel('cajaMontoDolares')||{}).value)||0;
+  var bsEl=gel('cajaMontoBs');if(bsEl)bsEl.value=(usd*tasa).toFixed(0);
+  var info=gel('cajaEquivInfo');if(info)info.textContent='$'+usd.toFixed(2)+' \xd7 '+tasa+' = '+simb+' '+(usd*tasa).toFixed(2);
+}
+function cajaSyncUsd(){
+  var tasa=STATE.tasa||40;
+  var simb=(DB.get('config')&&DB.get('config').simbolo)||'Bs';
+  var bs=parseFloat((gel('cajaMontoBs')||{}).value)||0;
+  var usd=tasa>0?bs/tasa:0;
+  var usdEl=gel('cajaMontoDolares');if(usdEl)usdEl.value=usd.toFixed(2);
+  var info=gel('cajaEquivInfo');if(info)info.textContent=simb+' '+(bs).toFixed(2)+' / '+tasa+' = $'+usd.toFixed(2);
+}
+function confirmarAbrirCajaFP(){
+  var usd=parseFloat((gel('cajaMontoDolares')||{}).value)||0;
+  var bs=parseFloat((gel('cajaMontoBs')||{}).value)||0;
+  var tasa=STATE.tasa||40;
+  var apertura={ts:Date.now(),fecha:new Date().toISOString(),montoUSD:usd,montoBs:bs,tasa:tasa};
+  DB.set('caja_apertura',apertura);
+  var movs=DB.get('caja_movimientos')||[];
+  if(usd>0)movs.push({id:Date.now(),ts:Date.now(),tipo:'apertura',desc:'Apertura caja — $'+usd.toFixed(2),monto:usd,moneda:'USD'});
+  if(bs>0)movs.push({id:Date.now()+1,ts:Date.now(),tipo:'apertura',desc:'Apertura caja — Bs '+bs.toFixed(2),monto:bs/tasa,moneda:'Bs'});
+  DB.set('caja_movimientos',movs);
+  var m=gel('modalAbrirCajaFP');if(m)m.remove();
+  showToast('📂 Caja abierta — $'+usd.toFixed(2)+' + Bs '+bs.toFixed(2),'success');
   renderCaja();
 }
 
@@ -4178,28 +4238,67 @@ async function conectarBalanza(){
     var el=gel('hw-st-balanza');if(el){el.textContent='✅ Conectada';el.className='hw-status ok';}
     var card=gel('hw-card-balanza');if(card)card.classList.add('connected');
     showToast('✅ Balanza conectada','success');
-    _leerBalanza(port);
+    _leerBalanzaContinuo(port);
+    var sw=gel('scale-widget');if(sw)sw.style.display='flex';
   }catch(e){showToast('❌ No se pudo conectar la balanza','warn');}
 }
 
-async function _leerBalanza(port){
+async function _leerBalanzaContinuo(port){
   var reader=port.readable.getReader();
-  var buf='';
+  window._HW._reader=reader;
+  var buffer='';
   try{
     while(true){
-      var res=await reader.read();
-      if(res.done)break;
-      buf+=new TextDecoder().decode(res.value);
-      var lines=buf.split('\n');buf=lines.pop();
-      lines.forEach(function(line){
-        var num=parseFloat(line.replace(/[^0-9.]/g,''));
-        if(!isNaN(num)&&num>0){
-          window._balanzaPeso=num;
-          showToast('⚖️ Peso: '+num.toFixed(3)+' kg',2000);
-        }
-      });
+      var result=await reader.read();
+      if(result.done)break;
+      buffer+=new TextDecoder().decode(result.value);
+      if(buffer.includes('\n')||buffer.includes('\r')){
+        var peso=_parsearPeso(buffer.trim());
+        if(peso!==null&&peso>=0){window._balanzaPeso=peso;_actualizarDisplayBalanza(peso);}
+        buffer='';
+      }
     }
-  }catch(e){}
+  }catch(e){
+    var el=gel('hw-st-balanza');if(el){el.textContent='⚠️ Desconectada';el.className='hw-status';}
+  }finally{reader.releaseLock();}
+}
+function _parsearPeso(linea){
+  var match=linea.match(/[+-]?(\d+\.?\d*)\s*(kg|KG|g|G)?/);
+  if(!match)return null;
+  var val=parseFloat(match[1]);if(isNaN(val))return null;
+  if(match[2]&&(match[2]==='g'||match[2]==='G')&&val>10)val=val/1000;
+  return parseFloat(val.toFixed(3));
+}
+function _actualizarDisplayBalanza(kg){
+  var el=gel('scaleDisplay');if(el)el.textContent=kg.toFixed(3)+' kg';
+  var sub=gel('scaleSubtotal');
+  var prodId=STATE.productoBalanzaActivo;
+  if(!prodId||!sub)return;
+  var prods=DB.get('fp_productos')||[];
+  var prod=prods.find(function(p){return p.id===prodId;});
+  if(!prod)return;
+  var subtotal=prod.precio*kg;
+  sub.textContent='$'+subtotal.toFixed(2);
+  var item=STATE.cart.find(function(c){return c.productoId===prodId;});
+  if(item&&kg>0){item.qty=kg;item.subtotal=parseFloat((prod.precio*kg).toFixed(2));renderCart();}
+}
+function agregarCarritoBalanza(prodId){
+  var kg=window._balanzaPeso||0;
+  if(kg<=0){showToast('Coloca el producto en la balanza primero','warn');return;}
+  var prods=DB.get('fp_productos')||[];
+  var prod=prods.find(function(p){return p.id===prodId;});
+  if(!prod)return;
+  STATE.productoBalanzaActivo=prodId;
+  var subtotal=parseFloat((prod.precio*kg).toFixed(2));
+  STATE.cart=(STATE.cart||[]).filter(function(c){return c.productoId!==prodId;});
+  STATE.cart.push({
+    productoId:prod.id,
+    nombre:prod.nombre+' ('+kg.toFixed(3)+' kg)',
+    precio:prod.precio,qty:kg,subtotal:subtotal,
+    emoji:prod.emoji||'⚖️',esPorPeso:true
+  });
+  renderCart();
+  showToast(prod.emoji+' '+prod.nombre+': '+kg.toFixed(3)+' kg = $'+subtotal.toFixed(2),'success');
 }
 
 async function conectarGaveta(){
@@ -4222,6 +4321,33 @@ async function abrirGaveta(){
     writer.releaseLock();
     showToast('💰 Gaveta abierta','success');
   }catch(e){showToast('❌ Error al abrir gaveta','warn');}
+}
+
+async function _enviarESCPOS(bytes){
+  if(!window._HW.gaveta)return;
+  try{
+    var writer=window._HW.gaveta.writable.getWriter();
+    await writer.write(new Uint8Array(bytes));
+    writer.releaseLock();
+  }catch(e){
+    console.warn('ESC/POS error:',e);
+    window._HW.gaveta=null;
+    var el=gel('hw-st-gaveta');if(el){el.textContent='⚠️ Desconectada';el.className='hw-status';}
+  }
+}
+async function probarGaveta(){
+  if(!window._HW.gaveta){showToast('⚠️ Gaveta no conectada','warn');return;}
+  await _enviarESCPOS([0x1B,0x70,0x00,0x19,0xFA]);
+  showToast('💰 Gaveta activada (prueba)','success');
+}
+async function desconectarBalanza(){
+  if(window._HW._reader){try{await window._HW._reader.cancel();}catch(e){}}
+  if(window._HW.balanza){try{await window._HW.balanza.close();}catch(e){}}
+  window._HW.balanza=null;window._HW._reader=null;window._balanzaPeso=0;
+  var el=gel('hw-st-balanza');if(el){el.textContent='Desconectada';el.className='hw-status';}
+  var card=gel('hw-card-balanza');if(card)card.classList.remove('connected');
+  var sw=gel('scale-widget');if(sw)sw.style.display='none';
+  showToast('⚖️ Balanza desconectada','info');
 }
 
 function infoDatafono(){
@@ -4579,6 +4705,106 @@ function exportarMermaCSV(){
   a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
   a.download='merma-'+new Date().toISOString().slice(0,10)+'.csv';
   a.click();showToast('CSV exportado','success');
+}
+
+// ═══ PAUSA DE VENTAS ═══
+function pausarVenta(){
+  if(!STATE.cart||!STATE.cart.length){showToast('El carrito está vacío','warn');return;}
+  if((STATE.pausedCarts||[]).length>=5){showToast('Máximo 5 ventas pausadas a la vez','warn');return;}
+  if(!STATE.pausedCarts)STATE.pausedCarts=[];
+  STATE.pausedCarts.push({
+    id:Date.now(),
+    cart:STATE.cart.slice(),
+    payMethod:STATE.payMethod||'Efectivo $',
+    hora:new Date().toLocaleTimeString('es-VE',{hour:'2-digit',minute:'2-digit'})
+  });
+  STATE.cart=[];
+  STATE.payMethod='Efectivo $';
+  renderCart();renderPausedCarts();
+  showToast('⏸️ Venta pausada — Puedes atender otro cliente','success');
+}
+function reanudarVenta(id){
+  if(!STATE.pausedCarts)return;
+  var idx=STATE.pausedCarts.findIndex(function(c){return c.id===id;});
+  if(idx===-1)return;
+  if(STATE.cart&&STATE.cart.length>0){
+    if(!window.confirm('¿Descartar el carrito actual y reanudar la venta pausada?'))return;
+  }
+  var paused=STATE.pausedCarts.splice(idx,1)[0];
+  STATE.cart=paused.cart||[];
+  STATE.payMethod=paused.payMethod||'Efectivo $';
+  renderCart();renderPausedCarts();
+  showToast('▶️ Venta reanudada','success');
+}
+function descartarPausa(id){
+  if(!STATE.pausedCarts)return;
+  STATE.pausedCarts=STATE.pausedCarts.filter(function(c){return c.id!==id;});
+  renderPausedCarts();
+  showToast('🗑️ Venta pausada descartada','warn');
+}
+function renderPausedCarts(){
+  var bar=gel('pausedCartsBar');if(!bar)return;
+  var paused=STATE.pausedCarts||[];
+  if(!paused.length){bar.style.display='none';return;}
+  bar.style.display='block';
+  bar.innerHTML='<div style="font-size:10px;color:var(--warn);font-weight:700;margin-bottom:6px">⏸️ VENTAS EN PAUSA:</div>'+
+    paused.map(function(c){
+      var total=c.cart.reduce(function(s,i){return s+(i.subtotal||0);},0);
+      return '<div style="display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--warn);border-radius:8px;padding:5px 8px;margin-bottom:4px">'+
+        '<span style="font-size:11px;flex:1;color:var(--text)">'+c.hora+' · '+c.cart.length+' prod · <strong style="color:var(--orange)">$'+total.toFixed(2)+'</strong></span>'+
+        '<button onclick="reanudarVenta('+c.id+')" style="background:var(--orange);color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;cursor:pointer">▶️</button>'+
+        '<button onclick="descartarPausa('+c.id+')" style="background:var(--danger);color:#fff;border:none;border-radius:6px;padding:3px 6px;font-size:11px;cursor:pointer">✕</button>'+
+      '</div>';
+    }).join('');
+}
+
+// ═══ AUTO-EMOJI POR CATEGORÍA ═══
+function autoEmojiCategoria(selectEl){
+  var EMOJI_CAT={
+    'Frutas':'🍎','Verduras':'🥦','Cítricos':'🍊','Tropicales':'🥭',
+    'Hojas y Hierbas':'🌿','Tubérculos':'🥔','Legumbres':'🫘',
+    'Condimentos':'🧂','Lácteos':'🥛','Carnes':'🥩',
+    'Bebidas':'🥤','Otros':'📦'
+  };
+  var cat=selectEl?selectEl.value:'';
+  var el=gel('prod-emoji');
+  if(el&&!el.value&&EMOJI_CAT[cat])el.value=EMOJI_CAT[cat];
+}
+
+// ═══ MOVIMIENTOS DE CAJA — ENTRADA/SALIDA MANUAL ═══
+function abrirMovCaja(tipo){
+  var estado=DB.get('caja_apertura');
+  if(!estado){showToast('Abre la caja primero','warn');return;}
+  var titulo=tipo==='entrada'?'💵 Entrada de Dinero':'💸 Salida de Dinero';
+  var color=tipo==='entrada'?'var(--orange,#16a34a)':'var(--danger,#ef4444)';
+  var viejo=gel('modalMovCaja');if(viejo)viejo.remove();
+  var m=document.createElement('div');
+  m.id='modalMovCaja';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px';
+  m.innerHTML='<div style="background:var(--card,#fff);border:2px solid '+color+';border-radius:16px;padding:24px;width:100%;max-width:380px;box-sizing:border-box">'+
+    '<div style="font-size:15px;font-weight:800;color:'+color+';margin-bottom:16px">'+titulo+'</div>'+
+    '<div style="margin-bottom:12px"><label style="font-size:11px;color:var(--text2);font-weight:700;display:block;margin-bottom:6px">DESCRIPCIÓN</label>'+
+    '<input id="movCajaDesc" type="text" class="form-input" placeholder="Ej: Cambio de billetes / Pago de proveedor" style="width:100%"></div>'+
+    '<div style="margin-bottom:16px"><label style="font-size:11px;color:var(--text2);font-weight:700;display:block;margin-bottom:6px">MONTO ($)</label>'+
+    '<input id="movCajaMonto" type="number" min="0.01" step="0.01" class="form-input" placeholder="0.00" style="width:100%;font-size:18px;font-weight:700;text-align:right;font-family:monospace"></div>'+
+    '<div style="display:flex;gap:8px">'+
+      '<button onclick="gel(\'modalMovCaja\').remove()" style="flex:1;padding:11px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer">Cancelar</button>'+
+      '<button onclick="confirmarMovCaja(\''+tipo+'\')" style="flex:1;padding:11px;border-radius:8px;border:none;background:'+color+';color:#fff;cursor:pointer;font-weight:700">✅ Confirmar</button>'+
+    '</div>'+
+  '</div>';
+  document.body.appendChild(m);
+  setTimeout(function(){var f=gel('movCajaDesc');if(f)f.focus();},100);
+}
+function confirmarMovCaja(tipo){
+  var desc=((gel('movCajaDesc')||{}).value||'').trim()||tipo;
+  var monto=parseFloat((gel('movCajaMonto')||{}).value)||0;
+  if(monto<=0){showToast('Ingresa un monto válido','warn');return;}
+  var movs=DB.get('caja_movimientos')||[];
+  movs.push({id:Date.now(),ts:Date.now(),tipo:tipo,desc:desc,monto:monto,moneda:'USD'});
+  DB.set('caja_movimientos',movs);
+  var m=gel('modalMovCaja');if(m)m.remove();
+  showToast((tipo==='entrada'?'💵 Entrada':'💸 Salida')+' registrada: $'+monto.toFixed(2),'success');
+  renderCaja();
 }
 
 </script>
