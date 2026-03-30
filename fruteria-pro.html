@@ -884,23 +884,72 @@ body.dark-mode .hw-card.connected{background:#0a2a0a;}
         <div class="grid-2 mb-3">
           <!-- Formulario -->
           <div class="card">
-            <div style="font-size:14px;font-weight:700;margin-bottom:14px;">➕ Registrar Nueva Merma</div>
-            <div class="form-group">
-              <label class="form-label">Producto *</label>
-              <select id="merma-sel-prod" class="form-input" style="width:100%" onchange="onMermaProdChange()">
-                <option value="">— Seleccionar producto —</option>
-              </select>
+            <div style="font-size:14px;font-weight:700;margin-bottom:12px;">➕ Registrar Nueva Merma</div>
+
+            <!-- Toggle modo -->
+            <div style="display:flex;gap:8px;margin-bottom:14px;background:var(--surface2,#f0f0f0);border-radius:8px;padding:4px;">
+              <button id="merma-btn-inv" onclick="switchMermaMode('inventario')"
+                style="flex:1;padding:7px 0;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;background:var(--primary,#16a34a);color:#fff;transition:all .2s;">
+                📦 Desde Inventario
+              </button>
+              <button id="merma-btn-libre" onclick="switchMermaMode('libre')"
+                style="flex:1;padding:7px 0;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--text2);transition:all .2s;">
+                ✍️ Producto Manual
+              </button>
             </div>
-            <div class="grid-2">
+
+            <!-- MODO INVENTARIO -->
+            <div id="merma-modo-inv">
               <div class="form-group">
-                <label class="form-label">Cantidad *</label>
-                <input type="number" id="merma-cantidad" class="form-input" min="0.1" step="0.1" placeholder="Ej: 2.5" oninput="calcMermaValor()">
+                <label class="form-label">Producto del inventario *</label>
+                <select id="merma-sel-prod" class="form-input" style="width:100%" onchange="onMermaProdChange()">
+                  <option value="">— Seleccionar producto —</option>
+                </select>
+              </div>
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label">Cantidad *</label>
+                  <input type="number" id="merma-cantidad" class="form-input" min="0.1" step="0.1" placeholder="Ej: 2.5" oninput="calcMermaValor()">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Unidad</label>
+                  <input type="text" id="merma-unidad-lbl" class="form-input" readonly style="color:var(--text2);cursor:not-allowed">
+                </div>
+              </div>
+            </div>
+
+            <!-- MODO LIBRE (producto no en inventario) -->
+            <div id="merma-modo-libre" style="display:none">
+              <div style="background:#fff8e1;border:1px solid #fbbf24;border-radius:8px;padding:8px 12px;font-size:12px;color:#92400e;margin-bottom:12px;">
+                ⚠️ Este modo no descuenta stock. Solo registra la pérdida económica.
+              </div>
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label">Nombre del producto *</label>
+                  <input type="text" id="merma-libre-nombre" class="form-input" placeholder="Ej: Tomate importado">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Emoji</label>
+                  <input type="text" id="merma-libre-emoji" class="form-input" placeholder="🍅" maxlength="4" style="font-size:18px;text-align:center;">
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label">Cantidad *</label>
+                  <input type="number" id="merma-libre-cantidad" class="form-input" min="0.01" step="0.01" placeholder="Ej: 5" oninput="calcMermaValorLibre()">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Unidad</label>
+                  <input type="text" id="merma-libre-unidad" class="form-input" placeholder="kg / und / caja">
+                </div>
               </div>
               <div class="form-group">
-                <label class="form-label">Unidad</label>
-                <input type="text" id="merma-unidad-lbl" class="form-input" readonly style="color:var(--text2);cursor:not-allowed">
+                <label class="form-label">Precio unitario $ *</label>
+                <input type="number" id="merma-libre-precio" class="form-input" min="0" step="0.01" placeholder="0.00" oninput="calcMermaValorLibre()">
               </div>
             </div>
+
+            <!-- Campos comunes -->
             <div class="form-group">
               <label class="form-label">Motivo *</label>
               <select id="merma-motivo" class="form-input" style="width:100%">
@@ -4335,6 +4384,23 @@ function cerrarQRScanner(){
 // ============================================================
 // MÓDULO DE MERMA — FruteriaPro v2.0
 // ============================================================
+var _mermaMode='inventario';
+function switchMermaMode(modo){
+  _mermaMode=modo;
+  var esInv=modo==='inventario';
+  var mInv=gel('merma-modo-inv'),mLib=gel('merma-modo-libre');
+  if(mInv)mInv.style.display=esInv?'block':'none';
+  if(mLib)mLib.style.display=esInv?'none':'block';
+  var bInv=gel('merma-btn-inv'),bLib=gel('merma-btn-libre');
+  if(bInv){bInv.style.background=esInv?'var(--primary,#16a34a)':'transparent';bInv.style.color=esInv?'#fff':'var(--text2)';}
+  if(bLib){bLib.style.background=esInv?'transparent':'var(--primary,#16a34a)';bLib.style.color=esInv?'var(--text2)':'#fff';}
+  var prev=gel('merma-val-preview');if(prev)prev.textContent='$0.00';
+}
+function calcMermaValorLibre(){
+  var precio=parseFloat((gel('merma-libre-precio')||{}).value)||0;
+  var qty=parseFloat((gel('merma-libre-cantidad')||{}).value)||0;
+  var prev=gel('merma-val-preview');if(prev)prev.textContent='$'+(precio*qty).toFixed(2);
+}
 var MERMA_MOTIVOS={
   deterioro:'🟫 Deterioro/Pudrición',
   danio:'🤕 Daño en manejo',
@@ -4348,11 +4414,11 @@ function renderMerma(){
 }
 function _cargarProdsMerma(){
   var sel=gel('merma-sel-prod');if(!sel)return;
-  var prods=cargarProductos();
+  var prods=DB.get('productos')||[];
   var html='<option value="">— Seleccionar producto —</option>';
   var cats={};
   prods.forEach(function(p){if(!cats[p.categoria])cats[p.categoria]=[];cats[p.categoria].push(p);});
-  Object.keys(cats).forEach(function(cat){
+  Object.keys(cats).sort().forEach(function(cat){
     html+='<optgroup label="'+cat+'">';
     cats[cat].forEach(function(p){html+='<option value="'+p.id+'" data-precio="'+(p.precio||0)+'" data-unidad="'+(p.unidad||'kg')+'">'+(p.emoji||'📦')+' '+p.nombre+' (Stock: '+p.stock+' '+(p.unidad||'')+')</option>';});
     html+='</optgroup>';
@@ -4374,41 +4440,71 @@ function calcMermaValor(){
   var prev=gel('merma-val-preview');if(prev)prev.textContent='$'+(precio*qty).toFixed(2);
 }
 function registrarMerma(){
-  var selProd=gel('merma-sel-prod');
-  var prodId=selProd?selProd.value:'';
-  if(!prodId){showToast('Selecciona un producto','warning');return;}
-  var qty=parseFloat((gel('merma-cantidad')||{}).value)||0;
-  if(!qty||qty<=0){showToast('Ingresa una cantidad válida','warning');return;}
   var motivo=(gel('merma-motivo')||{}).value||'otro';
   var notas=(gel('merma-notas')||{}).value||'';
-  var prods=cargarProductos();
-  var prod=prods.find(function(p){return p.id===prodId;});
-  if(!prod){showToast('Producto no encontrado','error');return;}
-  if(qty>prod.stock){showToast('Cantidad supera el stock ('+prod.stock+' '+prod.unidad+')','warning');return;}
-  var tasa=parseFloat(localStorage.getItem('fp_tasa')||'40');
-  var valor=(prod.precio||0)*qty;
-  var registro={
-    id:'m'+Date.now()+Math.random().toString(36).slice(2,5),
-    ts:Date.now(),fecha:new Date().toISOString().slice(0,10),
-    productoId:prod.id,productoNombre:prod.nombre,emoji:prod.emoji||'📦',
-    cantidad:qty,unidad:prod.unidad||'',motivo:motivo,notas:notas,
-    valorUnitario:prod.precio||0,valorTotal:valor,tasa:tasa
-  };
-  var mermas=JSON.parse(localStorage.getItem('fp_merma')||'[]');
+  var tasa=STATE.tasa||40;
+  var registro,valor,nombreProd;
+
+  if(_mermaMode==='inventario'){
+    var selProd=gel('merma-sel-prod');
+    var prodId=selProd?selProd.value:'';
+    if(!prodId){showToast('Selecciona un producto del inventario','warning');return;}
+    var qty=parseFloat((gel('merma-cantidad')||{}).value)||0;
+    if(!qty||qty<=0){showToast('Ingresa una cantidad válida','warning');return;}
+    var prods=DB.get('productos')||[];
+    var prod=prods.find(function(p){return p.id===prodId;});
+    if(!prod){showToast('Producto no encontrado','error');return;}
+    if(qty>prod.stock){showToast('Cantidad supera el stock ('+prod.stock+' '+prod.unidad+')','warning');return;}
+    valor=(prod.precio||0)*qty;
+    nombreProd=prod.nombre;
+    registro={
+      id:'m'+Date.now()+Math.random().toString(36).slice(2,5),
+      ts:Date.now(),fecha:new Date().toISOString().slice(0,10),
+      productoId:prod.id,productoNombre:prod.nombre,emoji:prod.emoji||'📦',
+      cantidad:qty,unidad:prod.unidad||'',motivo:motivo,notas:notas,
+      valorUnitario:prod.precio||0,valorTotal:valor,tasa:tasa,modo:'inventario'
+    };
+    prod.stock=Math.max(0,prod.stock-qty);
+    DB.set('productos',prods);
+    selProd.value='';
+    var mc=gel('merma-cantidad');if(mc)mc.value='';
+    var mu=gel('merma-unidad-lbl');if(mu)mu.value='';
+
+  } else {
+    // Modo producto libre (no descuenta stock)
+    var nombre=(gel('merma-libre-nombre')||{}).value.trim()||'';
+    if(!nombre){showToast('Ingresa el nombre del producto','warning');return;}
+    var qtyL=parseFloat((gel('merma-libre-cantidad')||{}).value)||0;
+    if(!qtyL||qtyL<=0){showToast('Ingresa una cantidad válida','warning');return;}
+    var precioL=parseFloat((gel('merma-libre-precio')||{}).value)||0;
+    if(precioL<=0){showToast('Ingresa el precio unitario','warning');return;}
+    var unidadL=(gel('merma-libre-unidad')||{}).value.trim()||'und';
+    var emojiL=(gel('merma-libre-emoji')||{}).value.trim()||'📦';
+    valor=precioL*qtyL;
+    nombreProd=nombre;
+    registro={
+      id:'m'+Date.now()+Math.random().toString(36).slice(2,5),
+      ts:Date.now(),fecha:new Date().toISOString().slice(0,10),
+      productoId:null,productoNombre:nombre,emoji:emojiL,
+      cantidad:qtyL,unidad:unidadL,motivo:motivo,notas:notas,
+      valorUnitario:precioL,valorTotal:valor,tasa:tasa,modo:'libre'
+    };
+    var ln=gel('merma-libre-nombre');if(ln)ln.value='';
+    var lc=gel('merma-libre-cantidad');if(lc)lc.value='';
+    var lp=gel('merma-libre-precio');if(lp)lp.value='';
+    var le=gel('merma-libre-emoji');if(le)le.value='';
+  }
+
+  var mermas=DB.get('merma')||[];
   mermas.push(registro);
-  localStorage.setItem('fp_merma',JSON.stringify(mermas));
-  prod.stock=Math.max(0,prod.stock-qty);
-  localStorage.setItem('fp_productos',JSON.stringify(prods));
-  selProd.value='';
-  var mc=gel('merma-cantidad');if(mc)mc.value='';
+  DB.set('merma',mermas);
   var mn=gel('merma-notas');if(mn)mn.value='';
-  var mu=gel('merma-unidad-lbl');if(mu)mu.value='';
   var mv=gel('merma-val-preview');if(mv)mv.textContent='$0.00';
-  showToast('🥀 Merma: '+prod.nombre+' -'+qty+' '+prod.unidad+' ($'+valor.toFixed(2)+')','success');
+  showToast('🥀 Merma registrada: '+nombreProd+' ($'+valor.toFixed(2)+')','success');
   renderMerma();
 }
 function renderMermaKPIs(){
-  var mermas=JSON.parse(localStorage.getItem('fp_merma')||'[]');
+  var mermas=DB.get('merma')||[];
   var hoy=new Date().toISOString().slice(0,10);
   var mes=hoy.slice(0,7);
   var th=mermas.filter(function(m){return m.fecha===hoy;}).reduce(function(s,m){return s+(m.valorTotal||0);},0);
@@ -4418,7 +4514,7 @@ function renderMermaKPIs(){
   var ki=gel('merma-kpi-items');if(ki)ki.textContent=mermas.length;
 }
 function renderMermaTopProds(){
-  var mermas=JSON.parse(localStorage.getItem('fp_merma')||'[]');
+  var mermas=DB.get('merma')||[];
   var byProd={};
   mermas.forEach(function(m){
     if(!byProd[m.productoNombre])byProd[m.productoNombre]={emoji:m.emoji,total:0,qty:0,unidad:m.unidad};
@@ -4436,11 +4532,11 @@ function renderMermaTopProds(){
   }).join('');
 }
 function renderMermaTabla(){
-  var mermas=JSON.parse(localStorage.getItem('fp_merma')||'[]');
+  var mermas=DB.get('merma')||[];
   var desde=(gel('merma-f-desde')||{}).value||'';
   var hasta=(gel('merma-f-hasta')||{}).value||'';
   var fMot=(gel('merma-f-motivo')||{}).value||'';
-  var tasa=parseFloat(localStorage.getItem('fp_tasa')||'40');
+  var tasa=STATE.tasa||40;
   var f=mermas.filter(function(m){
     return(!desde||m.fecha>=desde)&&(!hasta||m.fecha<=hasta)&&(!fMot||m.motivo===fMot);
   }).slice().reverse();
@@ -4464,15 +4560,15 @@ function renderMermaTabla(){
 }
 function eliminarMerma(id){
   if(!confirm('¿Eliminar este registro?\n⚠️ El stock NO se restaurará automáticamente.'))return;
-  var mermas=JSON.parse(localStorage.getItem('fp_merma')||'[]');
+  var mermas=DB.get('merma')||[];
   mermas=mermas.filter(function(m){return m.id!==id;});
-  localStorage.setItem('fp_merma',JSON.stringify(mermas));
+  DB.set('merma',mermas);
   renderMerma();showToast('Registro eliminado','info');
 }
 function exportarMermaCSV(){
-  var mermas=JSON.parse(localStorage.getItem('fp_merma')||'[]');
+  var mermas=DB.get('merma')||[];
   if(!mermas.length){showToast('Sin datos para exportar','warning');return;}
-  var tasa=parseFloat(localStorage.getItem('fp_tasa')||'40');
+  var tasa=STATE.tasa||40;
   var rows=[['Fecha','Producto','Cantidad','Unidad','Motivo','Pérdida $','Pérdida Bs','Notas']];
   mermas.slice().reverse().forEach(function(m){
     rows.push([new Date(m.ts).toLocaleString('es-VE'),m.productoNombre,m.cantidad,m.unidad,
