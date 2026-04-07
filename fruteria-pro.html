@@ -1523,6 +1523,19 @@ function closeModal(id){gel(id).classList.remove('open');}
 // INIT
 // ============================================================
 function init(){
+  // Migración: corregir doble prefijo fp_fp_ → fp_ para clientes, proveedores y pagos
+  (function migrarDoblePrefix(){
+    var keys = ['clientes','proveedores','pagos_proveedores','productos'];
+    keys.forEach(function(k){
+      var oldKey = 'fp_fp_' + k;
+      var newKey = 'fp_' + k;
+      var oldData = localStorage.getItem(oldKey);
+      if(oldData && !localStorage.getItem(newKey)){
+        localStorage.setItem(newKey, oldData);
+        localStorage.removeItem(oldKey);
+      }
+    });
+  })();
   // Load or init products
   if(!DB.get('productos')){DB.set('productos',PRODUCTOS_DEFAULT);}
   // Load config
@@ -3367,7 +3380,7 @@ function confirmarDevolucion() {
 // MÓDULO: CLIENTES / FIADOS
 // ============================================================
 function renderClientes() {
-  var clientes = DB.get('fp_clientes') || [];
+  var clientes = DB.get('clientes') || [];
   var q = (gval('cli-search') || '').toLowerCase();
   var filtro = gval('cli-filter');
 
@@ -3419,7 +3432,7 @@ function abrirNuevoCliente() {
 }
 
 function editarCliente(id) {
-  var c = (DB.get('fp_clientes') || []).find(function(x){ return x.id === id; });
+  var c = (DB.get('clientes') || []).find(function(x){ return x.id === id; });
   if (!c) return;
   stext('modalClienteTitle', '✏️ Editar Cliente');
   sval('cli-id', c.id);
@@ -3434,7 +3447,7 @@ function editarCliente(id) {
 function guardarCliente() {
   var nombre = gval('cli-nombre').trim();
   if (!nombre) { showToast('El nombre es requerido', 'warn'); return; }
-  var clientes = DB.get('fp_clientes') || [];
+  var clientes = DB.get('clientes') || [];
   var idExist = parseInt(gval('cli-id')) || 0;
   var existing = idExist ? clientes.find(function(c){ return c.id === idExist; }) : null;
   var cli = {
@@ -3453,7 +3466,7 @@ function guardarCliente() {
   } else {
     clientes.push(cli);
   }
-  DB.set('fp_clientes', clientes);
+  DB.set('clientes', clientes);
   closeModal('modalCliente');
   renderClientes();
   showToast('✅ Cliente guardado', 'success');
@@ -3461,13 +3474,13 @@ function guardarCliente() {
 
 function eliminarCliente(id) {
   if (!confirm('¿Eliminar este cliente?')) return;
-  DB.set('fp_clientes', (DB.get('fp_clientes') || []).filter(function(c){ return c.id !== id; }));
+  DB.set('clientes', (DB.get('clientes') || []).filter(function(c){ return c.id !== id; }));
   renderClientes();
   showToast('🗑️ Cliente eliminado', 'success');
 }
 
 function verFiado(id) {
-  var c = (DB.get('fp_clientes') || []).find(function(x){ return x.id === id; });
+  var c = (DB.get('clientes') || []).find(function(x){ return x.id === id; });
   if (!c) return;
   var ventas = (DB.get('ventas') || []).filter(function(v){ return v.clienteId === id; });
   var deuda = c.deuda || 0;
@@ -3534,18 +3547,18 @@ function registrarAbono() {
   var id = parseInt(gel('modalFiado').dataset.clienteId);
   var monto = parseFloat(gval('fiado-monto')) || 0;
   if (!monto) { showToast('Ingresa el monto del abono', 'warn'); return; }
-  var clientes = DB.get('fp_clientes') || [];
+  var clientes = DB.get('clientes') || [];
   var c = clientes.find(function(x){ return x.id === id; });
   if (!c) return;
   c.deuda = Math.max(0, (c.deuda || 0) - monto);
-  DB.set('fp_clientes', clientes);
+  DB.set('clientes', clientes);
   closeModal('modalFiado');
   renderClientes();
   showToast('✅ Abono de ' + fmt$(monto) + ' registrado', 'success');
 }
 
 function exportarClientesCSV() {
-  var clientes = DB.get('fp_clientes') || [];
+  var clientes = DB.get('clientes') || [];
   if (!clientes.length) { showToast('No hay clientes para exportar', 'warn'); return; }
   var csv = 'Nombre,Teléfono,Cédula,Deuda ($),Límite ($),Estado\n' +
     clientes.map(function(c){
@@ -3563,8 +3576,8 @@ function exportarClientesCSV() {
 // ============================================================
 // MÓDULO: PROVEEDORES
 // ============================================================
-function fpGetProveedores() { return DB.get('fp_proveedores') || []; }
-function fpSetProveedores(p) { DB.set('fp_proveedores', p); }
+function fpGetProveedores() { return DB.get('proveedores') || []; }
+function fpSetProveedores(p) { DB.set('proveedores', p); }
 
 function renderProveedores() {
   var provs = fpGetProveedores();
@@ -3599,7 +3612,7 @@ function renderProveedores() {
   }
 
   // Historial de pagos
-  var pagos = (DB.get('fp_pagos_proveedores') || []).slice().reverse().slice(0,10);
+  var pagos = (DB.get('pagos_proveedores') || []).slice().reverse().slice(0,10);
   var histEl = gel('prov-historial');
   if (histEl) {
     if (!pagos.length) {
@@ -3662,9 +3675,9 @@ function guardarProveedor() {
   };
   if (deudaIni > 0) {
     newProv.historial.push({ tipo:'deuda', fecha:new Date().toISOString(), monto:deudaIni, factura:facturaIni||'Deuda inicial', nota:'Deuda inicial al registrar proveedor' });
-    var pagos = DB.get('fp_pagos_proveedores') || [];
+    var pagos = DB.get('pagos_proveedores') || [];
     pagos.push({ id:Date.now(), fecha:new Date().toISOString(), proveedorId:newProv.id, proveedor:nombre, monto:deudaIni, metodo:'Deuda inicial', nota:facturaIni||'', tipo:'deuda' });
-    DB.set('fp_pagos_proveedores', pagos);
+    DB.set('pagos_proveedores', pagos);
   }
   provs.push(newProv);
   fpSetProveedores(provs);
@@ -3682,9 +3695,9 @@ function provRegistrarDeuda(id) {
   var nota = prompt('Descripción / Mercancía (opcional):') || 'Mercancía recibida';
   p.deudaPendiente = (p.deudaPendiente || 0) + monto;
   fpSetProveedores(provs);
-  var pagos = DB.get('fp_pagos_proveedores') || [];
+  var pagos = DB.get('pagos_proveedores') || [];
   pagos.push({ id:Date.now(), fecha:new Date().toISOString(), proveedorId:id, proveedor:p.nombre, monto:monto, metodo:'Deuda registrada', nota:nota, tipo:'deuda' });
-  DB.set('fp_pagos_proveedores', pagos);
+  DB.set('pagos_proveedores', pagos);
   showToast('📦 Deuda ' + fmt$(monto) + ' registrada — ' + p.nombre, 'warn');
   renderProveedores();
 }
@@ -3700,9 +3713,9 @@ function provPagar(id) {
   p.deudaPendiente = Math.max(0, (p.deudaPendiente || 0) - monto);
   p.ultimoPago = new Date().toISOString();
   fpSetProveedores(provs);
-  var pagos = DB.get('fp_pagos_proveedores') || [];
+  var pagos = DB.get('pagos_proveedores') || [];
   pagos.push({ id:Date.now(), fecha:new Date().toISOString(), proveedorId:id, proveedor:p.nombre, monto:monto, metodo:'Efectivo', nota:nota, tipo:'pago' });
-  DB.set('fp_pagos_proveedores', pagos);
+  DB.set('pagos_proveedores', pagos);
   showToast('✅ Pago ' + fmt$(monto) + ' registrado — ' + p.nombre, 'success');
   renderProveedores();
 }
@@ -4274,7 +4287,7 @@ function _actualizarDisplayBalanza(kg){
   var sub=gel('scaleSubtotal');
   var prodId=STATE.productoBalanzaActivo;
   if(!prodId||!sub)return;
-  var prods=DB.get('fp_productos')||[];
+  var prods=DB.get('productos')||[];
   var prod=prods.find(function(p){return p.id===prodId;});
   if(!prod)return;
   var subtotal=prod.precio*kg;
@@ -4285,7 +4298,7 @@ function _actualizarDisplayBalanza(kg){
 function agregarCarritoBalanza(prodId){
   var kg=window._balanzaPeso||0;
   if(kg<=0){showToast('Coloca el producto en la balanza primero','warn');return;}
-  var prods=DB.get('fp_productos')||[];
+  var prods=DB.get('productos')||[];
   var prod=prods.find(function(p){return p.id===prodId;});
   if(!prod)return;
   STATE.productoBalanzaActivo=prodId;
