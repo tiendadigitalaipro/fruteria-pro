@@ -1829,18 +1829,32 @@ function filterProducts(){
 
 function renderPOS(){filterProducts();}
 
+const _UNIDADES_PESO=['kg','500g','250g'];
+
+function openPesajeById(id){
+  const prods=DB.get('productos')||[];
+  const prod=prods.find(p=>p.id===id);
+  if(prod)abrirPesaje(prod);
+}
+
 function renderProductGrid(prods){
   const grid=gel('products-grid');
   if(!prods.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3);">No se encontraron productos</div>';return;}
   grid.innerHTML=prods.map(p=>{
     const stockCls=p.stock===0?'zero':p.stock<=p.stockMin?'low':'';
     const oos=p.stock===0;
-    return`<div class="product-card${oos?' out-of-stock':''}" onclick="${oos?'showToast(\'⚠️ Sin stock disponible\')':'addToCart('+p.id+')'}">
+    const esPeso=_UNIDADES_PESO.includes(p.unidad);
+    const clickFn=oos?`showToast('⚠️ Sin stock disponible')`:esPeso?`openPesajeById(${p.id})`:`addToCart(${p.id})`;
+    const pesajeBtn=esPeso&&!oos
+      ?`<button onclick="event.stopPropagation();openPesajeById(${p.id})" style="margin-top:6px;width:100%;padding:4px 0;border:none;border-radius:6px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;cursor:pointer;">⚖️ Pesar</button>`
+      :'';
+    return`<div class="product-card${oos?' out-of-stock':''}" onclick="${clickFn}">
       <span class="p-emoji">${p.emoji}</span>
       <div class="p-name">${p.nombre}</div>
       <div class="p-price">${fmt$(p.precio)}</div>
-      <div class="p-unit">/${p.unidad}</div>
+      <div class="p-unit">$${p.precio.toFixed(2)}/${p.unidad}</div>
       <span class="p-stock-badge ${stockCls}">${p.stock}</span>
+      ${pesajeBtn}
     </div>`;
   }).join('');
 }
