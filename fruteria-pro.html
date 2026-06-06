@@ -1230,7 +1230,57 @@ body.dark-mode .hw-card.connected{background:#0a2a0a;}
       <div class="form-row">
         <div class="form-group" style="grid-column:1/-1;">
           <label class="form-label">Emoji del Producto</label>
-          <input type="text" class="form-input" id="prod-emoji" placeholder="🍌" maxlength="8" style="font-size:22px;text-align:center;">
+          <input type="hidden" id="prod-emoji" value="🍌">
+          <div style="text-align:center;margin-bottom:8px;">
+            <span id="prod-emoji-preview" onclick="toggleProdEmojiGrid()" style="font-size:52px;cursor:pointer;padding:10px 16px;border-radius:14px;background:var(--glass2);border:2px dashed var(--accent);display:inline-block;transition:background .15s;" title="Clic para cambiar emoji">🍌</span>
+            <div style="font-size:11px;color:var(--text2);margin-top:6px;">Toca para elegir emoji</div>
+          </div>
+          <div id="prod-emoji-grid" style="display:none;max-height:160px;overflow-y:auto;background:var(--bg2);border-radius:var(--radius2);padding:10px;border:1px solid var(--border);margin-bottom:4px;">
+            <div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;">
+              <span onclick="selProdEmoji('🍌',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🍌</span>
+              <span onclick="selProdEmoji('🥭',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🥭</span>
+              <span onclick="selProdEmoji('🍍',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🍍</span>
+              <span onclick="selProdEmoji('🥥',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🥥</span>
+              <span onclick="selProdEmoji('🍈',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🍈</span>
+              <span onclick="selProdEmoji('🍉',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🍉</span>
+              <span onclick="selProdEmoji('🍑',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🍑</span>
+              <span onclick="selProdEmoji('🍒',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🍒</span>
+              <span onclick="selProdEmoji('🍊',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🍊</span>
+              <span onclick="selProdEmoji('🍋',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🍋</span>
+              <span onclick="selProdEmoji('🍎',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🍎</span>
+              <span onclick="selProdEmoji('🍏',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🍏</span>
+              <span onclick="selProdEmoji('🍇',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🍇</span>
+              <span onclick="selProdEmoji('🍐',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🍐</span>
+              <span onclick="selProdEmoji('🥝',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🥝</span>
+              <span onclick="selProdEmoji('🍓',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🍓</span>
+              <span onclick="selProdEmoji('🫐',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🫐</span>
+              <span onclick="selProdEmoji('🍅',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🍅</span>
+              <span onclick="selProdEmoji('🥕',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🥕</span>
+              <span onclick="selProdEmoji('🥑',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🥑</span>
+              <span onclick="selProdEmoji('🫑',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🫑</span>
+              <span onclick="selProdEmoji('🥦',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🥦</span>
+              <span onclick="selProdEmoji('🥒',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🥒</span>
+              <span onclick="selProdEmoji('🌽',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🌽</span>
+              <span onclick="selProdEmoji('🧅',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🧅</span>
+              <span onclick="selProdEmoji('🧄',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🧄</span>
+              <span onclick="selProdEmoji('🥬',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🥬</span>
+              <span onclick="selProdEmoji('🥔',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🥔</span>
+              <span onclick="selProdEmoji('🍆',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🍆</span>
+              <span onclick="selProdEmoji('🌶️',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🌶️</span>
+              <span onclick="selProdEmoji('🫒',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🫒</span>
+              <span onclick="selProdEmoji('🥜',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🥜</span>
+              <span onclick="selProdEmoji('🌰',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🌰</span>
+              <span onclick="selProdEmoji('🫘',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🫘</span>
+              <span onclick="selProdEmoji('🍄',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🍄</span>
+              <span onclick="selProdEmoji('🌿',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🌿</span>
+              <span onclick="selProdEmoji('🌱',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🌱</span>
+              <span onclick="selProdEmoji('🫛',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🫛</span>
+              <span onclick="selProdEmoji('🍠',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🍠</span>
+              <span onclick="selProdEmoji('🫙',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🫙</span>
+              <span onclick="selProdEmoji('🧂',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">🧂</span>
+              <span onclick="selProdEmoji('📦',this)" style="font-size:26px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;">📦</span>
+            </div>
+          </div>
         </div>
       </div>
       <div class="form-group"><label class="form-label">Nombre *</label><input type="text" class="form-input" id="prod-nombre" placeholder="Ej: Cambur/Banana"></div>
@@ -2193,10 +2243,27 @@ function renderInventario(){
 }
 
 function resetProdForm(){
-  ['prod-emoji','prod-nombre','prod-precio','prod-costo','prod-stock','prod-stockmin'].forEach(id=>sval(id,''));
+  ['prod-nombre','prod-precio','prod-costo','prod-stock','prod-stockmin'].forEach(id=>sval(id,''));
+  sval('prod-emoji','🍌');
+  var prev=gel('prod-emoji-preview');if(prev)prev.textContent='🍌';
+  var grid=gel('prod-emoji-grid');if(grid)grid.style.display='none';
+  document.querySelectorAll('#prod-emoji-grid span').forEach(function(s){s.style.border='2px solid transparent';s.style.background='';});
   sval('prod-categoria',CATEGORIAS[0]);
   sval('prod-unidad','kg');
   stext('modal-prod-title','➕ Nuevo Producto');
+}
+
+function selProdEmoji(e,el){
+  sval('prod-emoji',e);
+  var prev=gel('prod-emoji-preview');if(prev)prev.textContent=e;
+  document.querySelectorAll('#prod-emoji-grid span').forEach(function(s){s.style.border='2px solid transparent';s.style.background='';});
+  if(el){el.style.border='2px solid var(--accent)';el.style.background='var(--glass2)';}
+  var grid=gel('prod-emoji-grid');if(grid)grid.style.display='none';
+}
+
+function toggleProdEmojiGrid(){
+  var g=gel('prod-emoji-grid');
+  if(g)g.style.display=g.style.display==='none'?'block':'none';
 }
 
 function editarProducto(id){
@@ -2205,7 +2272,9 @@ function editarProducto(id){
   if(!p)return;
   editingProd=id;
   stext('modal-prod-title','✏️ Editar Producto');
-  sval('prod-emoji',p.emoji);
+  sval('prod-emoji',p.emoji||'🍌');
+  var prev=gel('prod-emoji-preview');if(prev)prev.textContent=p.emoji||'🍌';
+  var grid=gel('prod-emoji-grid');if(grid)grid.style.display='none';
   sval('prod-nombre',p.nombre);
   sval('prod-categoria',p.categoria);
   sval('prod-unidad',p.unidad);
@@ -5519,12 +5588,15 @@ function confirmarMovCaja(tipo){
       </div>
       <div style="margin-bottom:16px;">
         <div class="form-label">Peso Rápido</div>
-        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
           <button class="btn btn-outline btn-sm" onclick="setPeso(0.1)">100g</button>
+          <button class="btn btn-outline btn-sm" onclick="setPeso(0.2)">200g</button>
           <button class="btn btn-outline btn-sm" onclick="setPeso(0.25)">250g</button>
           <button class="btn btn-outline btn-sm" onclick="setPeso(0.5)">500g</button>
           <button class="btn btn-outline btn-sm" onclick="setPeso(1)">1kg</button>
           <button class="btn btn-outline btn-sm" onclick="setPeso(2)">2kg</button>
+          <button class="btn btn-outline btn-sm" onclick="setPeso(3)">3kg</button>
+          <button class="btn btn-outline btn-sm" onclick="setPeso(5)">5kg</button>
         </div>
       </div>
       <div class="form-row" style="margin-bottom:16px;">
