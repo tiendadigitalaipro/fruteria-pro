@@ -147,8 +147,8 @@ tbody tr:last-child td{border-bottom:none;}
 .cat-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
 
 /* Product grid */
-.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;overflow-y:auto;flex:1;}
-.product-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:8px 6px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;overflow-y:auto;flex:1;}
+.product-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:8px 6px;text-align:center;cursor:pointer;transition:all .2s;position:relative;min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;}
 .product-card:hover{border-color:var(--accent2);transform:translateY(-2px);box-shadow:0 4px 12px var(--shadow);}
 .product-card.out-of-stock{opacity:.5;cursor:not-allowed;}
 .product-card.out-of-stock:hover{transform:none;}
@@ -235,7 +235,7 @@ tbody tr:last-child td{border-bottom:none;}
   .sidebar .nav-label,.sidebar .brand-text{display:none;}
   .page-body{padding:12px;}
   .stats-grid{grid-template-columns:1fr 1fr;}
-  .products-grid{grid-template-columns:repeat(auto-fill,minmax(90px,1fr));}
+  .products-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));}
   .pos-layout{grid-template-columns:1fr;}
 }
 
@@ -560,6 +560,9 @@ body.dark-mode .hw-card.connected{background:#0a2a0a;}
       <div class="nav-item" onclick="showPage('caja',this)" data-page="caja"><span class="nav-icon">🏧</span><span class="nav-label">Caja</span></div>
       <div class="nav-item" onclick="showPage('empleados',this)" data-page="empleados"><span class="nav-icon">👥</span><span class="nav-label">Empleados</span></div>
       <div class="nav-item" onclick="showPage('avances',this)" data-page="avances"><span class="nav-icon">💰</span><span class="nav-label">Avances</span></div>
+      <div class="nav-item" data-page="avances-efectivo" onclick="showPage('avances-efectivo',this)">
+  <span class="nav-icon">💵</span><span class="nav-label">Avance Efectivo</span>
+</div>
       <div class="nav-item" onclick="showPage('configuracion',this)" data-page="configuracion"><span class="nav-icon">⚙️</span><span class="nav-label">Configuración</span></div>
       <div class="nav-item" onclick="cerrarSesion()" style="color:rgba(255,120,120,0.85);margin-top:8px;" title="Cerrar sesión"><span class="nav-icon">🚪</span><span class="nav-label">Cerrar sesión</span></div>
     </nav>
@@ -1213,6 +1216,53 @@ body.dark-mode .hw-card.connected{background:#0a2a0a;}
         </div>
       </div>
 
+      <!-- ═══ AVANCE DE EFECTIVO ═══ -->
+      <div class="page" id="page-avances-efectivo">
+        <!-- Dashboard stats -->
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <div class="section-title">💵 Avance de Efectivo</div>
+            <div class="section-sub" style="margin-bottom:0">Registro de cambios con comisión</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm" onclick="exportarAvancesEfectivoCSV()">📥 Exportar CSV</button>
+            <button class="btn btn-primary" onclick="abrirNuevoAvanceEfectivo()">➕ Nueva Transacción</button>
+          </div>
+        </div>
+
+        <div class="grid-4 mb-4" id="avancesEfectivoStats"></div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">📋 Historial de Transacciones</span>
+            <div style="display:flex;gap:8px;align-items:center">
+              <select class="form-select" id="filtro-avance-estado" onchange="renderAvancesEfectivo()" style="font-size:12px;padding:5px 8px;width:auto">
+                <option value="">Todos</option>
+                <option value="pendiente">⏳ Pendientes</option>
+                <option value="cobrado">✅ Cobrados</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Cliente</th>
+                  <th>Entregué</th>
+                  <th>Comisión</th>
+                  <th>A cobrar</th>
+                  <th>Método cobro</th>
+                  <th>Estado</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="avancesEfectivoTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /page-body -->
   </div><!-- /main-content -->
 </div><!-- /app -->
@@ -1774,7 +1824,7 @@ function buildCatSelects(){
 // ============================================================
 // NAVIGATION
 // ============================================================
-const PAGE_TITLES={pos:'🛒 Punto de Venta',inventario:'📦 Inventario',historial:'📋 Historial de Ventas',reportes:'📊 Reportes',caja:'🏧 Módulo de Caja',dashboard:'📊 Dashboard',configuracion:'⚙️ Configuración',devoluciones:'↩️ Devoluciones',clientes:'👥 Clientes / Fiados',proveedores:'🚛 Proveedores',merma:'🥀 Registro de Merma',empleados:'👥 Empleados',avances:'💰 Avances de Efectivo'};
+const PAGE_TITLES={pos:'🛒 Punto de Venta',inventario:'📦 Inventario',historial:'📋 Historial de Ventas',reportes:'📊 Reportes',caja:'🏧 Módulo de Caja',dashboard:'📊 Dashboard',configuracion:'⚙️ Configuración',devoluciones:'↩️ Devoluciones',clientes:'👥 Clientes / Fiados',proveedores:'🚛 Proveedores',merma:'🥀 Registro de Merma',empleados:'👥 Empleados',avances:'💰 Avances de Efectivo','avances-efectivo':'💵 Avance de Efectivo'};
 function showPage(page,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -1794,6 +1844,7 @@ function showPage(page,el){
   if(page==='merma'){renderMerma();}
   if(page==='empleados'){renderEmpleados();}
   if(page==='avances'){renderAvances();}
+  if(page==='avances-efectivo'){renderAvancesEfectivo();}
   if(page==='configuracion'){renderConfigMonedas();renderConfigColores();_cargarConfigImpresora();}
   // Mostrar asistente FAB solo en POS
   var fab = document.getElementById('asistente-fab');
@@ -1829,7 +1880,7 @@ function filterProducts(){
 
 function renderPOS(){filterProducts();}
 
-const _UNIDADES_PESO=['kg','500g','250g'];
+const _UNIDADES_PESO=['kg','500g','250g','200g'];
 
 function openPesajeById(id){
   const prods=DB.get('productos')||[];
@@ -5488,6 +5539,180 @@ function confirmarMovCaja(tipo){
   renderCaja();
 }
 
+// ============================================================
+// MÓDULO: AVANCE DE EFECTIVO (con comisión)
+// ============================================================
+
+var _avefEditId = null;
+
+function abrirNuevoAvanceEfectivo() {
+  _avefEditId = null;
+  gel('avef-id').value = '';
+  gel('avef-cliente').value = '';
+  gel('avef-fecha').value = today();
+  gel('avef-monto-usd').value = '';
+  gel('avef-monto-bs').value = '';
+  gel('avef-comision-pct').value = '5';
+  gel('avef-cobro-usd').textContent = '$0.00';
+  gel('avef-cobro-bs').textContent = 'Bs 0.00';
+  gel('avef-ganancia-display').textContent = 'Comisión: $0.00';
+  gel('avef-notas').value = '';
+  gel('avef-metodo-cobro').value = 'pago_movil';
+  gel('avef-estado').value = 'pendiente';
+  // Resaltar preset 5%
+  document.querySelectorAll('.avef-pct-btn').forEach(function(b){
+    b.classList.toggle('btn-primary', b.textContent === '5%');
+    b.classList.toggle('btn-ghost', b.textContent !== '5%');
+  });
+  openModal('modalAvanceEfectivo');
+}
+
+function setAvefPct(pct) {
+  gel('avef-comision-pct').value = pct;
+  document.querySelectorAll('.avef-pct-btn').forEach(function(b) {
+    var isSel = b.textContent === pct + '%';
+    b.classList.toggle('btn-primary', isSel);
+    b.classList.toggle('btn-ghost', !isSel);
+  });
+  calcularAvanceEfectivo();
+}
+
+function calcularAvanceEfectivo() {
+  var monto = parseFloat(gel('avef-monto-usd').value) || 0;
+  var pct = parseFloat(gel('avef-comision-pct').value) || 0;
+  var tasa = STATE.tasa || 40;
+  var cobro = monto * (1 + pct / 100);
+  var comision = cobro - monto;
+  gel('avef-monto-bs').value = 'Bs ' + (monto * tasa).toFixed(2);
+  gel('avef-cobro-usd').textContent = fmt$(cobro);
+  gel('avef-cobro-bs').textContent = 'Bs ' + (cobro * tasa).toFixed(2);
+  gel('avef-ganancia-display').textContent = 'Comisión: ' + fmt$(comision) + ' / Bs ' + (comision * tasa).toFixed(2);
+}
+
+function guardarAvanceEfectivo() {
+  var cliente = (gel('avef-cliente').value || '').trim();
+  var monto = parseFloat(gel('avef-monto-usd').value) || 0;
+  var pct = parseFloat(gel('avef-comision-pct').value) || 0;
+  if (!cliente) { showToast('Ingresa el nombre del cliente', 'error'); return; }
+  if (monto <= 0) { showToast('Ingresa el monto a entregar', 'error'); return; }
+  var tasa = STATE.tasa || 40;
+  var cobro = monto * (1 + pct / 100);
+  var av = {
+    id: _avefEditId || Date.now(),
+    fecha: gel('avef-fecha').value || today(),
+    cliente: cliente,
+    montoUSD: monto,
+    montoBs: monto * tasa,
+    comisionPct: pct,
+    montoCobroUSD: cobro,
+    montoCobroBs: cobro * tasa,
+    metodoCobro: gel('avef-metodo-cobro').value,
+    notas: gel('avef-notas').value,
+    estado: gel('avef-estado').value,
+    tasa: tasa,
+    cobradoEn: gel('avef-estado').value === 'cobrado' ? new Date().toISOString() : null
+  };
+  var lista = JSON.parse(localStorage.getItem('fp_avances_efectivo') || '[]');
+  if (_avefEditId) {
+    lista = lista.map(function(x) { return x.id === _avefEditId ? av : x; });
+  } else {
+    lista.push(av);
+  }
+  localStorage.setItem('fp_avances_efectivo', JSON.stringify(lista));
+  closeModal('modalAvanceEfectivo');
+  renderAvancesEfectivo();
+  showToast('✅ Transacción registrada — Cobrar: ' + fmt$(cobro), 'success');
+}
+
+function marcarAvanceEfectivoCobrado(id) {
+  var lista = JSON.parse(localStorage.getItem('fp_avances_efectivo') || '[]');
+  var av = lista.find(function(x) { return x.id === id; });
+  if (!av) return;
+  av.estado = 'cobrado';
+  av.cobradoEn = new Date().toISOString();
+  localStorage.setItem('fp_avances_efectivo', JSON.stringify(lista));
+  renderAvancesEfectivo();
+  showToast('✅ Marcado como cobrado', 'success');
+}
+
+function eliminarAvanceEfectivo(id) {
+  if (!confirm('¿Eliminar esta transacción?')) return;
+  var lista = JSON.parse(localStorage.getItem('fp_avances_efectivo') || '[]').filter(function(x) { return x.id !== id; });
+  localStorage.setItem('fp_avances_efectivo', JSON.stringify(lista));
+  renderAvancesEfectivo();
+}
+
+var _METODOS_COBRO_LABELS = {
+  pago_movil: '📱 Pago Móvil', zelle: '💙 Zelle', binance: '🟡 Binance',
+  transferencia: '🏦 Transf. Bs', efectivo_bs: '💴 Efectivo Bs',
+  efectivo_usd: '💵 Efectivo $', otras_divisas: '💶 Otras'
+};
+
+function renderAvancesEfectivo() {
+  var lista = JSON.parse(localStorage.getItem('fp_avances_efectivo') || '[]');
+  // filtro
+  var filtro = (gel('filtro-avance-estado') || {}).value || '';
+  var filtrada = filtro ? lista.filter(function(x) { return x.estado === filtro; }) : lista;
+  filtrada = filtrada.slice().sort(function(a,b){ return b.id - a.id; });
+
+  // Stats
+  var pendientes = lista.filter(function(x){ return x.estado === 'pendiente'; });
+  var cobrados = lista.filter(function(x){ return x.estado === 'cobrado'; });
+  var totalEntregado = lista.reduce(function(s,x){ return s+(x.montoUSD||0); }, 0);
+  var totalPorCobrar = pendientes.reduce(function(s,x){ return s+(x.montoCobroUSD||0); }, 0);
+  var totalComisiones = cobrados.reduce(function(s,x){ return s+((x.montoCobroUSD||0)-(x.montoUSD||0)); }, 0);
+  var el = gel('avancesEfectivoStats');
+  if (el) el.innerHTML =
+    '<div class="stat-card" style="--c1:var(--orange)"><div class="stat-icon">💵</div><div class="stat-label">Total Entregado</div><div class="stat-val">'+fmt$(totalEntregado)+'</div></div>'+
+    '<div class="stat-card" style="--c1:var(--warn)"><div class="stat-icon">⏳</div><div class="stat-label">Por Cobrar</div><div class="stat-val" style="color:var(--warn)">'+fmt$(totalPorCobrar)+'</div></div>'+
+    '<div class="stat-card" style="--c1:var(--success)"><div class="stat-icon">💰</div><div class="stat-label">Comisiones Ganadas</div><div class="stat-val" style="color:var(--success)">'+fmt$(totalComisiones)+'</div></div>'+
+    '<div class="stat-card" style="--c1:var(--danger)"><div class="stat-icon">📋</div><div class="stat-label">Pendientes</div><div class="stat-val" style="color:var(--danger)">'+pendientes.length+'</div></div>';
+
+  // Tabla
+  var tbody = gel('avancesEfectivoTable');
+  if (!tbody) return;
+  if (!filtrada.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text3)">Sin transacciones registradas</td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtrada.map(function(av) {
+    var estadoBadge = av.estado === 'cobrado'
+      ? '<span class="badge badge-green">✅ Cobrado</span>'
+      : '<span class="badge badge-orange">⏳ Pendiente</span>';
+    var accion = av.estado === 'pendiente'
+      ? '<button class="btn btn-sm btn-orange" onclick="marcarAvanceEfectivoCobrado('+av.id+')">✅ Cobrar</button>'
+      : '<span style="font-size:11px;color:var(--text3)">'+( av.cobradoEn ? new Date(av.cobradoEn).toLocaleDateString('es-VE') : '')+'</span>';
+    return '<tr>'+
+      '<td><div style="font-size:12px">'+av.fecha+'</div></td>'+
+      '<td><strong>'+av.cliente+'</strong>'+(av.notas?'<div style="font-size:11px;color:var(--text3)">'+av.notas+'</div>':'')+'</td>'+
+      '<td><strong>'+fmt$(av.montoUSD)+'</strong><div style="font-size:10px;color:var(--text3)">Bs '+Number(av.montoBs||0).toFixed(2)+'</div></td>'+
+      '<td><span class="badge badge-blue">'+av.comisionPct+'%</span></td>'+
+      '<td><strong style="color:var(--accent)">'+fmt$(av.montoCobroUSD)+'</strong><div style="font-size:10px;color:var(--text3)">Bs '+Number(av.montoCobroBs||0).toFixed(2)+'</div></td>'+
+      '<td style="font-size:12px">'+(_METODOS_COBRO_LABELS[av.metodoCobro]||av.metodoCobro)+'</td>'+
+      '<td>'+estadoBadge+'</td>'+
+      '<td><div style="display:flex;gap:4px">'+accion+
+        ' <button class="btn btn-sm btn-danger" onclick="eliminarAvanceEfectivo('+av.id+')">🗑️</button>'+
+      '</div></td>'+
+    '</tr>';
+  }).join('');
+}
+
+function exportarAvancesEfectivoCSV() {
+  var lista = JSON.parse(localStorage.getItem('fp_avances_efectivo') || '[]');
+  if (!lista.length) { showToast('No hay datos para exportar', 'warn'); return; }
+  var header = ['Fecha','Cliente','Monto USD','Monto Bs','Comision %','A Cobrar USD','A Cobrar Bs','Metodo Cobro','Estado','Notas','Tasa'];
+  var rows = lista.map(function(av) {
+    return [av.fecha, av.cliente, av.montoUSD, av.montoBs, av.comisionPct, av.montoCobroUSD, av.montoCobroBs, av.metodoCobro, av.estado, av.notas||'', av.tasa].join(',');
+  });
+  var csv = [header.join(',')].concat(rows).join('\n');
+  var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'avances-efectivo-'+today()+'.csv'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ CSV exportado', 'success');
+}
+
 </script>
 
 <!-- ===== MODAL EMPLEADO ===== -->
@@ -5735,6 +5960,98 @@ function confirmarMovCaja(tipo){
   <div id="asi-input-wrap">
     <input id="asi-input" type="text" placeholder="Ej: ¿Cuánto cuesta el mango?" onkeydown="if(event.key==='Enter')enviarAsi()">
     <button id="asi-send" onclick="enviarAsi()">➤</button>
+  </div>
+</div>
+
+<!-- MODAL: NUEVA TRANSACCIÓN AVANCE EFECTIVO -->
+<div class="modal-overlay" id="modalAvanceEfectivo">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <span class="modal-title">💵 Nueva Transacción de Avance</span>
+      <button class="btn-close-modal" onclick="closeModal('modalAvanceEfectivo')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="avef-id">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Cliente / Referencia</label>
+          <input class="form-input" id="avef-cliente" placeholder="Ej: Juan Pérez">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha</label>
+          <input type="date" class="form-input" id="avef-fecha">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">💵 Monto a entregar ($)</label>
+          <input type="number" class="form-input" id="avef-monto-usd" step="0.01" min="0" placeholder="0.00" oninput="calcularAvanceEfectivo()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Equivalente en Bs</label>
+          <input type="text" class="form-input" id="avef-monto-bs" readonly placeholder="automático" style="background:var(--bg2)">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">% Comisión / Ganancia</label>
+        <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+          <button type="button" class="btn btn-ghost btn-sm avef-pct-btn" onclick="setAvefPct(3)">3%</button>
+          <button type="button" class="btn btn-ghost btn-sm avef-pct-btn" onclick="setAvefPct(5)">5%</button>
+          <button type="button" class="btn btn-ghost btn-sm avef-pct-btn" onclick="setAvefPct(8)">8%</button>
+          <button type="button" class="btn btn-ghost btn-sm avef-pct-btn" onclick="setAvefPct(10)">10%</button>
+        </div>
+        <input type="number" class="form-input" id="avef-comision-pct" step="0.1" min="0" max="50" placeholder="Ej: 5" oninput="calcularAvanceEfectivo()">
+      </div>
+
+      <div style="background:var(--glass2);border:2px solid var(--accent);border-radius:var(--radius);padding:14px;margin-bottom:14px">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);margin-bottom:8px;font-weight:700">RESUMEN DE COBRO</div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:11px;color:var(--text3)">A cobrar ($)</div>
+            <div id="avef-cobro-usd" style="font-size:26px;font-weight:900;color:var(--accent)">$0.00</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:11px;color:var(--text3)">A cobrar (Bs)</div>
+            <div id="avef-cobro-bs" style="font-size:18px;font-weight:700;color:var(--text2)">Bs 0.00</div>
+          </div>
+        </div>
+        <div id="avef-ganancia-display" style="margin-top:6px;font-size:12px;color:var(--success)">Comisión: $0.00</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">📱 Método de cobro (retorno)</label>
+          <select class="form-select" id="avef-metodo-cobro">
+            <option value="pago_movil">📱 Pago Móvil</option>
+            <option value="zelle">💙 Zelle</option>
+            <option value="binance">🟡 Binance Pay</option>
+            <option value="transferencia">🏦 Transferencia Bs</option>
+            <option value="efectivo_bs">💴 Efectivo Bs</option>
+            <option value="efectivo_usd">💵 Efectivo USD</option>
+            <option value="otras_divisas">💶 Otras Divisas</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Estado inicial</label>
+          <select class="form-select" id="avef-estado">
+            <option value="pendiente">⏳ Pendiente</option>
+            <option value="cobrado">✅ Cobrado</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Notas (opcional)</label>
+        <textarea class="form-input" id="avef-notas" rows="2" placeholder="Observaciones, referencia de banco..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalAvanceEfectivo')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarAvanceEfectivo()">💾 Registrar Transacción</button>
+    </div>
   </div>
 </div>
 </body>
