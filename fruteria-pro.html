@@ -753,7 +753,7 @@ body.dark-mode .hw-card.connected{background:#0a2a0a;}
           <div class="table-wrap">
             <table>
               <thead>
-                <tr><th>Producto</th><th>Categoría</th><th>Precio $</th><th>Precio Bs</th><th>Stock</th><th>Unidad</th><th>Acciones</th></tr>
+                <tr><th>Producto</th><th>Categoría</th><th>Precio $</th><th>Precio Bs</th><th>Stock</th><th>Margen</th><th>Acciones</th></tr>
               </thead>
               <tbody id="inv-tbody"></tbody>
             </table>
@@ -1339,13 +1339,88 @@ body.dark-mode .hw-card.connected{background:#0a2a0a;}
         <div class="form-group"><label class="form-label">Unidad</label><select class="form-select" id="prod-unidad"><option>kg</option><option>500g</option><option>250g</option><option>Unidad</option><option>Docena</option><option>Racimo</option><option>Bolsa</option><option>Caja</option><option>Litro</option><option>Manojo</option></select></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Precio de Venta ($) *</label><input type="number" class="form-input" id="prod-precio" step="0.01" min="0" placeholder="0.00"></div>
-        <div class="form-group"><label class="form-label">Costo ($)</label><input type="number" class="form-input" id="prod-costo" step="0.01" min="0" placeholder="0.00"></div>
+        <div class="form-group"><label class="form-label">Precio de Venta ($) *</label><input type="number" class="form-input" id="prod-precio" step="0.01" min="0" placeholder="0.00" oninput="actualizarPanelPrecio()"></div>
+        <div class="form-group"><label class="form-label">Costo ($)</label><input type="number" class="form-input" id="prod-costo" step="0.01" min="0" placeholder="0.00" oninput="actualizarPanelPrecio()"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Stock Actual</label><input type="number" class="form-input" id="prod-stock" min="0" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">Stock Actual</label><input type="number" class="form-input" id="prod-stock" min="0" placeholder="0" oninput="actualizarPanelPrecio()"></div>
         <div class="form-group"><label class="form-label">Stock Mínimo</label><input type="number" class="form-input" id="prod-stockmin" min="0" placeholder="5"></div>
       </div>
+
+      <!-- ── PANEL COSTO / UNIDAD EN TIEMPO REAL ── -->
+      <div style="display:flex;gap:8px;margin-top:2px;margin-bottom:2px;">
+        <div style="flex:1;background:var(--glass2);border:1px solid var(--border);border-radius:var(--radius2);padding:8px 12px;font-size:12px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="color:var(--text3);">Costo / unidad</span>
+          <span id="disp-costo-unit" style="color:var(--warn);font-weight:700;">—</span>
+        </div>
+        <div style="flex:1;background:var(--glass2);border:1px solid var(--border);border-radius:var(--radius2);padding:8px 12px;font-size:12px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="color:var(--text3);">Precio / unidad</span>
+          <span id="disp-precio-unit" style="color:var(--accent);font-weight:700;">—</span>
+        </div>
+      </div>
+
+      <!-- ── MARGEN DE GANANCIA ── -->
+      <div class="form-group" style="margin-top:10px;">
+        <label class="form-label">Margen de Ganancia</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select class="form-select" id="prod-margen-select" onchange="onMargenSelectChange()" style="flex:1;">
+            <option value="10">10%</option>
+            <option value="15">15%</option>
+            <option value="20">20%</option>
+            <option value="25">25%</option>
+            <option value="30" selected>30%</option>
+            <option value="35">35%</option>
+            <option value="40">40%</option>
+            <option value="45">45%</option>
+            <option value="50">50%</option>
+            <option value="custom">✏️ Personalizado</option>
+          </select>
+          <input type="number" class="form-input" id="prod-margen-custom" min="1" max="999" step="0.5" placeholder="ej: 22" style="width:110px;display:none;" oninput="actualizarPanelPrecio()">
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:8px 12px;background:var(--glass2);border:1px solid var(--accent);border-radius:var(--radius2);">
+          <span style="font-size:12px;color:var(--text2);">💡 Precio sugerido con este margen:</span>
+          <span style="display:flex;align-items:center;gap:8px;">
+            <strong id="disp-precio-sugerido" style="color:var(--accent);font-size:15px;">—</strong>
+            <button type="button" class="btn btn-outline btn-sm" onclick="usarPrecioSugerido()" style="padding:4px 10px;font-size:11px;">Usar ↑</button>
+          </span>
+        </div>
+      </div>
+
+      <!-- ── ACORDEÓN 50/30/20 ── -->
+      <div style="margin-top:10px;border-radius:var(--radius2);border:1px solid var(--border);overflow:hidden;">
+        <button type="button" onclick="toggleDistribucion()" style="width:100%;background:var(--bg2);border:none;color:var(--text2);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:12px;font-weight:700;text-align:left;">
+          <span>📊 Ver distribución de ganancia (50/30/20)</span>
+          <span id="dist-arrow" style="transition:transform .3s;display:inline-block;">▼</span>
+        </button>
+        <div id="panel-distribucion" style="max-height:0;overflow:hidden;transition:max-height .4s ease;">
+          <div style="padding:12px 12px 0;background:var(--bg3);">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+              <div style="background:rgba(243,156,18,0.12);border:1px solid rgba(243,156,18,0.3);border-radius:var(--radius2);padding:10px;text-align:center;">
+                <div style="font-size:20px;">🔄</div>
+                <div style="font-size:10px;color:var(--text3);margin:4px 0 2px;text-transform:uppercase;letter-spacing:.5px;">Reinversión</div>
+                <div id="disp-reinversion" style="font-size:16px;font-weight:800;color:var(--orange);">$0.00</div>
+                <div style="font-size:10px;color:var(--text3);">50%</div>
+              </div>
+              <div style="background:rgba(241,196,15,0.1);border:1px solid rgba(241,196,15,0.25);border-radius:var(--radius2);padding:10px;text-align:center;">
+                <div style="font-size:20px;">🏢</div>
+                <div style="font-size:10px;color:var(--text3);margin:4px 0 2px;text-transform:uppercase;letter-spacing:.5px;">Gastos Op.</div>
+                <div id="disp-gastos" style="font-size:16px;font-weight:800;color:#f1c40f;">$0.00</div>
+                <div style="font-size:10px;color:var(--text3);">30%</div>
+              </div>
+              <div style="background:rgba(46,204,113,0.1);border:1px solid rgba(46,204,113,0.25);border-radius:var(--radius2);padding:10px;text-align:center;">
+                <div style="font-size:20px;">💰</div>
+                <div style="font-size:10px;color:var(--text3);margin:4px 0 2px;text-transform:uppercase;letter-spacing:.5px;">Tu Sueldo</div>
+                <div id="disp-sueldo" style="font-size:16px;font-weight:800;color:var(--accent);">$0.00</div>
+                <div style="font-size:10px;color:var(--text3);">20%</div>
+              </div>
+            </div>
+            <div style="padding:8px 0 10px;text-align:center;font-size:12px;color:var(--text3);">
+              Ganancia bruta por unidad: <strong id="disp-ganancia-bruta" style="color:var(--text);">$0.00</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modalProducto')">Cancelar</button>
@@ -2273,6 +2348,66 @@ function imprimirTicketPrueba(){
 }
 
 // ============================================================
+// INTELIGENCIA DE PRECIOS — Margen, 50/30/20, Salud
+// ============================================================
+function calcPrecioSugerido(costo,margen){return(costo>0&&margen>0)?costo/(1-margen/100):0;}
+function calcDistribucion5030(ganancia){return{reinversion:ganancia*0.5,gastos:ganancia*0.3,sueldo:ganancia*0.2};}
+function calcSaludMargen(precio,costo){if(!precio||precio<=0)return null;return((precio-(costo||0))/precio)*100;}
+
+function getMargenActivo(){
+  var sel=gval('prod-margen-select');
+  if(sel==='custom'){var v=parseFloat(gval('prod-margen-custom'));return isNaN(v)?0:v;}
+  return parseFloat(sel)||30;
+}
+
+function onMargenSelectChange(){
+  var sel=gval('prod-margen-select');
+  var mc=gel('prod-margen-custom');
+  if(mc)mc.style.display=sel==='custom'?'':'none';
+  actualizarPanelPrecio();
+}
+
+function actualizarPanelPrecio(){
+  var precio=parseFloat(gval('prod-precio'))||0;
+  var costo=parseFloat(gval('prod-costo'))||0;
+  var stock=parseFloat(gval('prod-stock'))||1;
+  var unidad=gval('prod-unidad')||'';
+  var isKg=unidad==='kg'||unidad==='500g'||unidad==='250g';
+  var divisor=isKg&&stock>0?stock:1;
+  var costoUnit=isKg?costo/divisor:costo;
+  var precioUnit=isKg?precio/divisor:precio;
+  var cu=gel('disp-costo-unit'),pu=gel('disp-precio-unit');
+  if(cu)cu.textContent=costo>0?'$'+costoUnit.toFixed(2):'—';
+  if(pu)pu.textContent=precio>0?'$'+precioUnit.toFixed(2):'—';
+  var margen=getMargenActivo();
+  var sugerido=calcPrecioSugerido(costo,margen);
+  var ps=gel('disp-precio-sugerido');
+  if(ps)ps.textContent=sugerido>0?'$'+sugerido.toFixed(2):'—';
+  var ganancia=precio-costo;
+  var dist=calcDistribucion5030(ganancia>0?ganancia:0);
+  var gb=gel('disp-ganancia-bruta'),dr=gel('disp-reinversion'),dg=gel('disp-gastos'),ds=gel('disp-sueldo');
+  if(gb)gb.textContent=ganancia>0?'$'+ganancia.toFixed(2):'$0.00';
+  if(dr)dr.textContent='$'+dist.reinversion.toFixed(2);
+  if(dg)dg.textContent='$'+dist.gastos.toFixed(2);
+  if(ds)ds.textContent='$'+dist.sueldo.toFixed(2);
+}
+
+function usarPrecioSugerido(){
+  var costo=parseFloat(gval('prod-costo'))||0;
+  var margen=getMargenActivo();
+  var sugerido=calcPrecioSugerido(costo,margen);
+  if(sugerido>0){sval('prod-precio',sugerido.toFixed(2));actualizarPanelPrecio();}
+}
+
+function toggleDistribucion(){
+  var panel=gel('panel-distribucion'),arrow=gel('dist-arrow');
+  if(!panel)return;
+  var isOpen=panel.style.maxHeight&&panel.style.maxHeight!=='0px'&&panel.style.maxHeight!=='0';
+  panel.style.maxHeight=isOpen?'0':'300px';
+  if(arrow)arrow.style.transform=isOpen?'':'rotate(180deg)';
+}
+
+// ============================================================
 // INVENTARIO
 // ============================================================
 let editingProd=null;
@@ -2290,13 +2425,16 @@ function renderInventario(){
   if(!tbody)return;
   tbody.innerHTML=prods.map(p=>{
     const stockBadge=p.stock===0?'badge-red':p.stock<=p.stockMin?'badge-yellow':'badge-green';
+    const margenReal=calcSaludMargen(p.precio,p.costo||0);
+    const margenDot=margenReal===null?'🔴':(margenReal>=20?'🟢':margenReal>=10?'🟡':'🔴');
+    const margenTxt=margenReal!==null?margenReal.toFixed(0)+'%':'—';
     return`<tr>
       <td><span style="font-size:20px;">${p.emoji}</span> <strong>${p.nombre}</strong></td>
       <td>${p.categoria}</td>
       <td style="font-weight:700;color:var(--orange);">${fmt$(p.precio)}</td>
       <td>${fmtBs(p.precio)}</td>
       <td><span class="badge ${stockBadge}">${p.stock} ${p.unidad}</span></td>
-      <td>${p.unidad}</td>
+      <td style="font-size:13px;white-space:nowrap;" title="Margen real sobre precio de venta">${margenDot} ${margenTxt}</td>
       <td>
         <button class="btn btn-ghost btn-sm" onclick="editarProducto(${p.id})">✏️</button>
         <button class="btn btn-ghost btn-sm" onclick="abrirAjusteStock(${p.id})">📦</button>
@@ -2316,6 +2454,11 @@ function resetProdForm(){
   sval('prod-categoria',CATEGORIAS[0]);
   sval('prod-unidad','kg');
   stext('modal-prod-title','➕ Nuevo Producto');
+  sval('prod-margen-select','30');
+  var mc=gel('prod-margen-custom');if(mc){mc.value='';mc.style.display='none';}
+  var pd=gel('panel-distribucion');if(pd)pd.style.maxHeight='0';
+  var ar=gel('dist-arrow');if(ar)ar.style.transform='';
+  actualizarPanelPrecio();
 }
 
 function selProdEmoji(e,el){
@@ -2347,6 +2490,13 @@ function editarProducto(id){
   sval('prod-costo',p.costo||'');
   sval('prod-stock',p.stock);
   sval('prod-stockmin',p.stockMin);
+  var mval=p.margen!=null?p.margen:30;
+  var stdOptions=[10,15,20,25,30,35,40,45,50];
+  if(stdOptions.includes(mval)){sval('prod-margen-select',String(mval));var mc=gel('prod-margen-custom');if(mc)mc.style.display='none';}
+  else{sval('prod-margen-select','custom');var mc=gel('prod-margen-custom');if(mc){mc.value=mval;mc.style.display='';}}
+  var pd=gel('panel-distribucion');if(pd)pd.style.maxHeight='0';
+  var ar=gel('dist-arrow');if(ar)ar.style.transform='';
+  setTimeout(actualizarPanelPrecio,50);
   openModal('modalProducto');
 }
 
@@ -2359,12 +2509,12 @@ function guardarProducto(){
   if(editingProd){
     const idx=prods.findIndex(p=>p.id===editingProd);
     if(idx>=0){
-      prods[idx]={...prods[idx],nombre,emoji:gval('prod-emoji')||'🌿',categoria:gval('prod-categoria'),unidad:gval('prod-unidad'),precio,costo:gnum('prod-costo'),stock:gnum('prod-stock'),stockMin:gnum('prod-stockmin')||5};
+      prods[idx]={...prods[idx],nombre,emoji:gval('prod-emoji')||'🌿',categoria:gval('prod-categoria'),unidad:gval('prod-unidad'),precio,costo:gnum('prod-costo'),stock:gnum('prod-stock'),stockMin:gnum('prod-stockmin')||5,margen:getMargenActivo()};
     }
     showToast('✅ Producto actualizado');
   } else {
     const newId=Math.max(0,...prods.map(p=>p.id))+1;
-    prods.push({id:newId,nombre,emoji:gval('prod-emoji')||'🌿',categoria:gval('prod-categoria'),unidad:gval('prod-unidad'),precio,costo:gnum('prod-costo'),stock:gnum('prod-stock'),stockMin:gnum('prod-stockmin')||5});
+    prods.push({id:newId,nombre,emoji:gval('prod-emoji')||'🌿',categoria:gval('prod-categoria'),unidad:gval('prod-unidad'),precio,costo:gnum('prod-costo'),stock:gnum('prod-stock'),stockMin:gnum('prod-stockmin')||5,margen:getMargenActivo()});
     showToast('✅ Producto agregado');
   }
   DB.set('productos',prods);
